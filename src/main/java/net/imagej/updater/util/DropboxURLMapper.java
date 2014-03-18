@@ -147,7 +147,7 @@ public class DropboxURLMapper {
 		map.put(parentURLWithSlash, map.get(parentURL));
 	}
 
-	private StringBuilder read(final URL url) throws IOException {
+	protected StringBuilder read(final URL url) throws IOException {
 		final Reader reader = new InputStreamReader(util.openStream(url));
 		final char[] buffer = new char[65536];
 		final StringBuilder builder = new StringBuilder();
@@ -158,13 +158,5 @@ public class DropboxURLMapper {
 		}
 		reader.close();
 		return builder;
-	}
-
-	public static void main(final String... args) throws Exception {
-		final String baseURL = "https://www.dropbox.com/sh/la8g3k4uzhg53kz/UZUKTY-CX4/";
-		final DropboxURLMapper map = new UpdaterUtil(null).dropboxURLMapper;
-		final URL mapped = map.get(new URL(baseURL + "plugins/Say_Hello.ijm-20130313122802"));
-		System.err.println("mapped: " + mapped);
-		System.err.println("read: " + map.read(mapped));
 	}
 }

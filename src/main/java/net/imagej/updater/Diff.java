@@ -517,22 +517,4 @@ public class Diff {
 			out.flush();
 		out.close();
 	}
-
-	/**
-	 * A main method for testing.
-	 * 
-	 * @param args
-	 *            the command-line arguments
-	 * @throws Exception
-	 */
-	public static void main(String[] args) throws Exception {
-		final PrintStream out = new PrintStream(System.err) {
-			@Override
-			public void println(String s) {
-				super.println(s);
-				flush();
-			}
-		};
-		new Diff(out, null).showDiff(args[0], args[0].startsWith("http") ? new URL(args[0]) : new File(args[0]).toURI().toURL(), new File(args[1]).toURI().toURL(), Mode.JAVAP);
-	}
 }
