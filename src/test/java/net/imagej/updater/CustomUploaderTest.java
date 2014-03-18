@@ -37,7 +37,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -49,8 +48,6 @@ import net.imagej.updater.FilesUploader;
 import net.imagej.updater.calvin.HobbesUploader;
 
 import org.junit.Test;
-import org.scijava.util.CheckSezpoz;
-import org.scijava.util.ClassUtils;
 
 /**
  * Tests the auto-install feature of the updater.
@@ -68,20 +65,8 @@ public class CustomUploaderTest {
 
 	@Test
 	public void testCustomUploader() throws Exception {
-		checkSezpoz();
 		final ClassLoader loader = makeClassLoaderExcluding(getClass().getClassLoader(), HobbesUploader.class);
 		callStaticMethod(loader, getClass(), "realTest", new Class<?>[] { Class.class }, new Object[] { HobbesUploader.class });
-	}
-
-	private void checkSezpoz() throws IOException {
-		final String url = ClassUtils.getLocation(getClass()).toString();
-		if (!url.startsWith("file:") || !url.endsWith("target/test-classes/")) {
-			System.err.println("Unexpected location of " + getClass() + ": " + url);
-			return;
-		}
-		final File classes = new File(url.substring(5));
-		final File sources = new File(classes, "../../src/test/java");
-		CheckSezpoz.fix(classes, sources);
 	}
 
 	private static ClassLoader makeClassLoaderExcluding(final ClassLoader loader, final Class<?>... classes) {
