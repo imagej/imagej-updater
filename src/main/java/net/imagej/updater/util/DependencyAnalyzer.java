@@ -44,6 +44,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 
+import net.imagej.updater.Dependency;
 import net.imagej.updater.FileObject;
 import net.imagej.updater.FileObject.Status;
 import net.imagej.updater.util.ByteCodeAnalyzer.Mode;
@@ -107,8 +108,17 @@ public class DependencyAnalyzer {
 					"Considering name from analyzer: " + name);
 				final List<String> jars = map.get(name);
 				if (jars == null) continue;
+
+				// prepend known dependencies to the list
+				final LinkedHashSet<String> orderedJARs = new LinkedHashSet<String>();
+				for (final Dependency d : fileObject.getDependencies()) {
+					if (new File(imagejRoot, d.filename).exists())
+						orderedJARs.add(d.filename);
+				}
+				orderedJARs.addAll(jars);
+
 				final List<String> dependencies = new ArrayList<String>();
-				for (final String dependency : jars) {
+				for (final String dependency : orderedJARs) {
 					if (!exclude(path, dependency)) {
 						// already accounted for?
 						if (fileObject.hasDependency(dependency))
