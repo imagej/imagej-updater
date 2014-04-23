@@ -91,7 +91,8 @@ import org.scijava.test.TestUtils;
 import org.scijava.util.FileUtils;
 
 /**
- * Tests various classes of the {@link imagej.updater} package and subpackages.
+ * Tests various classes of the {@link net.imagej.updater} package and
+ * subpackages.
  * 
  * @author Johannes Schindelin
  */
