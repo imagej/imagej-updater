@@ -793,8 +793,8 @@ public class UpdaterTest {
 
 	@Test
 	public void testUpdateTheUpdater() throws Exception {
-		final String name1 = "jars/ij-updater-core-1.46n.jar";
-		final String name2 = "jars/ij-updater-core-2.0.0.jar";
+		final String name1 = "jars/imagej-updater-1.46n.jar";
+		final String name2 = "jars/imagej-updater-2.0.0.jar";
 
 		// initialize main update site
 		files = initialize(name1);
