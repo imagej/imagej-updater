@@ -183,7 +183,7 @@ public class DependencyAnalyzer {
 	}
 
 	/**
-	 * Exclude some dependencies Sometimes we just know better. for example,
+	 * Exclude some dependencies. Sometimes we just know better. for example,
 	 * slf4j-api.jar and slf4j-log4j12.jar contain circular references, so we
 	 * force one direction.
 	 * 
