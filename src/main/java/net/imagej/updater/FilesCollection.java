@@ -283,24 +283,31 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	public Set<GroupAction> getValidActions() {
 		final Set<GroupAction> actions = new LinkedHashSet<GroupAction>();
 		actions.add(new KeepAsIs());
-		actions.add(new InstallOrUpdate());
-		final Collection<String> siteNames = getSiteNamesToUpload();
-		final Map<String, UpdateSite> updateSites;
-		if (siteNames.size() == 0) updateSites = this.updateSites;
-		else {
-			updateSites = new LinkedHashMap<String, UpdateSite>();
-			for (final String name : siteNames) {
-				updateSites.put(name, getUpdateSite(name, true));
+		boolean hasChanges = hasChanges(), hasUploadOrRemove = hasUploadOrRemove();
+		if (!hasUploadOrRemove) {
+			actions.add(new InstallOrUpdate());
+		}
+		if (hasUploadOrRemove || !hasChanges) {
+			final Collection<String> siteNames = getSiteNamesToUpload();
+			final Map<String, UpdateSite> updateSites;
+			if (siteNames.size() == 0) updateSites = this.updateSites;
+			else {
+				updateSites = new LinkedHashMap<String, UpdateSite>();
+				for (final String name : siteNames) {
+					updateSites.put(name, getUpdateSite(name, true));
+				}
+			}
+			for (final UpdateSite updateSite : getUpdateSites(false)) {
+				if (updateSite.isUploadable()) {
+					final String name = updateSite.getName();
+					actions.add(new Upload(name));
+					actions.add(new Remove(name));
+				}
 			}
 		}
-		for (final UpdateSite updateSite : getUpdateSites(false)) {
-			if (updateSite.isUploadable()) {
-				final String name = updateSite.getName();
-				actions.add(new Upload(name));
-				actions.add(new Remove(name));
-			}
+		if (!hasUploadOrRemove) {
+			actions.add(new Uninstall());
 		}
-		actions.add(new Uninstall());
 		return actions;
 	}
 
