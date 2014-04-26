@@ -78,6 +78,8 @@ public abstract class UpdaterUserInterface {
 
 	public abstract String getPassword(String title);
 
+	// TODO: Eliminate AWT references from the API.
+
 	public abstract void addWindow(Frame window);
 
 	public abstract void removeWindow(Frame window);
