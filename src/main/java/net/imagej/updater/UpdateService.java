@@ -31,7 +31,7 @@
 
 package net.imagej.updater;
 
-import net.imagej.service.ImageJService;
+import net.imagej.ImageJService;
 
 /**
  * Interface for services that manage ImageJ updates.

@@ -31,7 +31,7 @@
 
 package net.imagej.updater;
 
-import net.imagej.service.ImageJService;
+import net.imagej.ImageJService;
 import net.imagej.updater.util.Progress;
 
 /**

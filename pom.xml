@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>net.imagej</groupId>
 		<artifactId>pom-imagej</artifactId>
-		<version>2.6</version>
+		<version>2.7</version>
 		<relativePath />
 	</parent>
 
@@ -40,17 +40,19 @@
 	</repositories>
 
 	<dependencies>
-		<!-- SciJava dependencies -->
+		<!-- ImageJ dependencies -->
 		<dependency>
 			<groupId>net.imagej</groupId>
 			<artifactId>imagej-common</artifactId>
 		</dependency>
+
+		<!-- SciJava dependencies -->
 		<dependency>
 			<groupId>org.scijava</groupId>
 			<artifactId>scijava-common</artifactId>
 		</dependency>
 
-		<!-- Test dependencies -->
+		<!-- Test scope dependencies -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
