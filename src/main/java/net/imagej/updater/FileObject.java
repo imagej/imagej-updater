@@ -257,6 +257,56 @@ public class FileObject {
 		return !overriddenUpdateSites.isEmpty();
 	}
 
+	public synchronized void removeFromUpdateSite(final String updateSite, final FilesCollection files) {
+		if (!updateSite.equals(this.updateSite)) return;
+		switch (status) {
+		case LOCAL_ONLY:
+			return;
+		case NEW:
+		case NOT_INSTALLED:
+		case OBSOLETE_UNINSTALLED:
+			files.remove(this);
+			break;
+		case MODIFIED:
+		case OBSOLETE:
+		case OBSOLETE_MODIFIED:
+		case UPDATEABLE:
+		case INSTALLED:
+			break;
+		default:
+			throw new RuntimeException("Unhandled status: " + status);
+		}
+		FileObject overridden = null;
+		for (FileObject file : overriddenUpdateSites.values()) {
+			overridden = file;
+		}
+		if (overridden == null) {
+			setStatus(Status.OBSOLETE);
+			setAction(files, Action.UNINSTALL);
+		}
+		else {
+			files.add(overridden);
+			if (getChecksum().equals(overridden.getChecksum()) && filename.equals(overridden.filename)) {
+				overridden.setStatus(Status.INSTALLED);
+				overridden.setAction(files, Action.INSTALLED);
+			}
+			else if (overridden.current != null) {
+				overridden.setStatus(Status.MODIFIED);
+				overridden.setAction(files, Action.UPDATE);
+				if (!filename.equals(overridden.filename)) try {
+					touch(files.prefixUpdate(filename));
+				} catch (IOException e) {
+					files.log.warn("Cannot stage '" + filename + "' for uninstall", e);
+				}
+			}
+			else {
+				overridden.setStatus(Status.OBSOLETE);
+				overridden.setAction(files, Action.UNINSTALL);
+				overridden.filename = filename;
+			}
+		}
+	}
+
 	public boolean isNewerThan(final long timestamp) {
 		if (current != null && current.timestamp <= timestamp) return false;
 		for (final Version version : previous)

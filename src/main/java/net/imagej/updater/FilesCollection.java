@@ -159,22 +159,10 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	}
 
 	public void removeUpdateSite(final String name) {
-		Set<String> toReRead = new HashSet<String>();
 		for (final FileObject file : forUpdateSite(name)) {
-			toReRead.addAll(file.overriddenUpdateSites.keySet());
-			if (file.getStatus() == Status.NOT_INSTALLED) {
-				remove(file);
-			}
-			else {
-				file.setStatus(Status.LOCAL_ONLY);
-				file.updateSite = null;
-			}
+			file.removeFromUpdateSite(name, this);
 		}
 		updateSites.remove(name);
-
-		// re-read the overridden sites
-		// no need to sort, the XMLFileReader will only override data from higher-ranked sites
-		new XMLFileDownloader(this, toReRead).start();
 		setUpdateSitesChanged(true);
 
 		// update rank
