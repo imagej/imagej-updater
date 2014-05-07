@@ -36,7 +36,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -166,7 +165,7 @@ public class FileObject {
 		}
 	}
 
-	protected Map<String, FileObject> overriddenUpdateSites = new HashMap<String, FileObject>();
+	protected Map<String, FileObject> overriddenUpdateSites = new LinkedHashMap<String, FileObject>();
 	private Status status;
 	private Action action;
 	public String updateSite, originalUpdateSite, filename, description;
