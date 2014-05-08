@@ -88,6 +88,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	protected List<Conflict> conflicts = new ArrayList<Conflict>();
 
 	private Map<String, UpdateSite> updateSites;
+	private boolean updateSitesChanged = false;
 
 	private DependencyAnalyzer dependencyAnalyzer;
 	public final UpdaterUtil util;
@@ -127,6 +128,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 
 	public UpdateSite addUpdateSite(UpdateSite site) {
 		addUpdateSite(site.getName(), site);
+		setUpdateSitesChanged(true);
 		return site;
 	}
 
@@ -173,6 +175,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 		// re-read the overridden sites
 		// no need to sort, the XMLFileReader will only override data from higher-ranked sites
 		new XMLFileDownloader(this, toReRead).start();
+		setUpdateSitesChanged(true);
 
 		// update rank
 		int counter = 1;
@@ -241,6 +244,14 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 		for (final UpdateSite site : updateSites.values())
 			if (site.isActive() && site.isUploadable()) return true;
 		return false;
+	}
+
+	public boolean hasUpdateSitesChanges() {
+		return updateSitesChanged;
+	}
+
+	public void setUpdateSitesChanged(boolean updateSitesChanged) {
+		this.updateSitesChanged = updateSitesChanged;
 	}
 
 	public void reReadUpdateSite(final String name, final Progress progress) throws ParserConfigurationException, IOException, SAXException {
@@ -385,6 +396,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 		if (out.exists() && !out.delete())
 			out.renameTo(prefix(UpdaterUtil.XML_COMPRESSED + ".backup"));
 		tmp.renameTo(out);
+		setUpdateSitesChanged(false);
 	}
 
 	public interface Filter {
