@@ -28,7 +28,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package net.imagej.updater.core;
+package net.imagej.updater;
 
 import java.io.File;
 import java.io.PrintStream;
