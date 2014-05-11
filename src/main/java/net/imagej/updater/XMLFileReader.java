@@ -236,7 +236,6 @@ public class XMLFileReader extends DefaultHandler {
 					if (file.updateSite != null) {
 						for (String site : file.overriddenUpdateSites.keySet())
 							current.overriddenUpdateSites.put(site,  file.overriddenUpdateSites.get(site));
-						file.overriddenUpdateSites.clear();
 						current.overriddenUpdateSites.put(file.updateSite, file);
 					}
 					files.add(current);
@@ -250,7 +249,6 @@ public class XMLFileReader extends DefaultHandler {
 					} else {
 						for (String site : file.overriddenUpdateSites.keySet())
 							current.overriddenUpdateSites.put(site, file.overriddenUpdateSites.get(site));
-						file.overriddenUpdateSites.clear();
 						if (file.updateSite != null && !file.updateSite.equals(updateSite)) {
 							current.overriddenUpdateSites.put(file.updateSite, file);
 						}
