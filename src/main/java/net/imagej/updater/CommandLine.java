@@ -57,9 +57,9 @@ import net.imagej.updater.util.Progress;
 import net.imagej.updater.util.StderrProgress;
 import net.imagej.updater.util.UpdaterUserInterface;
 import net.imagej.updater.util.UpdaterUtil;
-import net.imagej.util.AppUtils;
 
 import org.scijava.log.LogService;
+import org.scijava.util.AppUtils;
 import org.scijava.util.FileUtils;
 
 /**
@@ -82,7 +82,7 @@ public class CommandLine {
 
 	@Deprecated
 	public CommandLine() {
-		this(AppUtils.getBaseDirectory(), 80);
+		this(AppUtils.getBaseDirectory("ij.dir", CommandLine.class, "updater"), 80);
 	}
 
 	public CommandLine(final File ijDir, final int columnCount) {
@@ -1003,7 +1003,7 @@ public class CommandLine {
 
 	public static void main(final String... args) {
 		try {
-			main(AppUtils.getBaseDirectory(), 80, null, true, args);
+			main(AppUtils.getBaseDirectory("ij.dir", CommandLine.class, "updater"), 80, null, true, args);
 		} catch (final RuntimeException e) {
 			log.error(e);
 			System.exit(1);

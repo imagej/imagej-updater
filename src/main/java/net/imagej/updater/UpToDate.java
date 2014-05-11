@@ -46,8 +46,8 @@ import java.util.Enumeration;
 import javax.xml.parsers.ParserConfigurationException;
 
 import net.imagej.updater.util.UpdaterUtil;
-import net.imagej.util.AppUtils;
 
+import org.scijava.util.AppUtils;
 import org.scijava.util.Prefs;
 import org.xml.sax.SAXException;
 
@@ -81,7 +81,7 @@ public class UpToDate {
 	public static Result check() throws IOException,
 		ParserConfigurationException, SAXException
 	{
-		return check(AppUtils.getBaseDirectory());
+		return check(AppUtils.getBaseDirectory("ij.dir", UpToDate.class, "updater"));
 	}
 
 	/**
