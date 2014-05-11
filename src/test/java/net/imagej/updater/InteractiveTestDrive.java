@@ -28,16 +28,17 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package imagej.updater.core;
+package net.imagej.updater;
 
-import static imagej.updater.core.UpdaterTestUtils.addUpdateSite;
-import static imagej.updater.core.UpdaterTestUtils.assertStatus;
-import static imagej.updater.core.UpdaterTestUtils.initialize;
-import static imagej.updater.core.UpdaterTestUtils.writeFile;
+import static net.imagej.updater.UpdaterTestUtils.addUpdateSite;
+import static net.imagej.updater.UpdaterTestUtils.assertStatus;
+import static net.imagej.updater.UpdaterTestUtils.initialize;
+import static net.imagej.updater.UpdaterTestUtils.writeFile;
 import static org.junit.Assert.assertTrue;
-import imagej.updater.core.FileObject.Status;
 
 import java.io.File;
+
+import net.imagej.updater.FileObject.Status;
 
 /**
  * A simple starting point for interactive testing of the updater (GUI).
