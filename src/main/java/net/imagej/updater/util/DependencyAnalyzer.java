@@ -42,7 +42,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.regex.Matcher;
 
 import net.imagej.updater.Dependency;
 import net.imagej.updater.FileObject;
@@ -187,9 +186,7 @@ public class DependencyAnalyzer {
 	private static boolean equals(final String unversionedBaseName,
 			final String other) {
 		if (other.equals(unversionedBaseName + ".jar")) return true;
-		final Matcher matcher = FileUtils.matchVersionedFilename(other);
-		return matcher.matches() &&
-			unversionedBaseName.equals(matcher.group(1));
+		return FileUtils.stripFilenameVersion(other).equals(unversionedBaseName + ".jar");
 	}
 
 	/**

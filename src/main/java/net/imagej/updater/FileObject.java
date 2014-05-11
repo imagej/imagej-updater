@@ -44,7 +44,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
-import java.util.regex.Matcher;
 
 import net.imagej.updater.util.UpdaterUtil;
 
@@ -511,12 +510,6 @@ public class FileObject {
 		return filename + " (local: " + localFilename + ")";
 	}
 
-	private static Matcher matchVersion(final String filename) {
-		if (!filename.endsWith(".jar")) return null;
-		final Matcher matcher = FileUtils.matchVersionedFilename(filename);
-		return matcher.matches() ? matcher : null;
-	}
-
 	public String getFilename() {
 		return getFilename(false);
 	}
@@ -526,24 +519,16 @@ public class FileObject {
 	}
 
 	public static String getFilename(final String filename, boolean stripVersion) {
-		final Matcher matcher;
-		if (stripVersion && (matcher = matchVersion(filename)) != null) {
-			return matcher.group(1) + matcher.group(5);
+		if (stripVersion) {
+			return FileUtils.stripFilenameVersion(filename);
 		}
 		return filename;
 	}
 
 	public String getBaseName() {
-		final Matcher matcher = matchVersion(filename);
-		if (matcher != null) return matcher.group(1);
-		final String extension = FileUtils.getExtension(filename);
-		return filename.substring(0, filename.length() - extension.length() - 1);
-	}
-
-	public String getFileVersion() {
-		final Matcher matcher = matchVersion(filename);
-		if (matcher != null) return matcher.group(2);
-		return "";
+		final String unversioned = FileUtils.stripFilenameVersion(filename);
+		return unversioned.endsWith(".jar") ? unversioned.substring(0,
+				unversioned.length() - 4) : unversioned;
 	}
 
 	public String getChecksum() {
