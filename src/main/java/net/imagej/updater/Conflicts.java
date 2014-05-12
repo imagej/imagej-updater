@@ -290,7 +290,7 @@ public class Conflicts {
 
 		// Replace dependencies on to-be-removed files
 		for (final FileObject file : files.managedFiles()) {
-			if (file.getAction() == Action.REMOVE) continue;
+			if (file.getAction() == Action.REMOVE || file.isObsolete()) continue;
 			for (final Dependency dependency : file.getDependencies()) {
 				final FileObject dependencyObject = files.get(dependency.filename);
 				if (dependency.overrides) {
