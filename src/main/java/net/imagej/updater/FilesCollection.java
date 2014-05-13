@@ -554,7 +554,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 		final Status[] oneOf =
 			{ Status.UPDATEABLE, Status.NEW, Status.OBSOLETE,
 				Status.OBSOLETE_MODIFIED };
-		return filter(or(oneOf(oneOf), is(Action.INSTALL)));
+		return filter(or(oneOf(oneOf), oneOf(Action.INSTALL, Action.UPDATE, Action.UNINSTALL)));
 	}
 
 	public Iterable<FileObject> uploadable() {
