@@ -662,7 +662,7 @@ public class UpdaterTestUtils {
 	}
 
 	/**
-	 * Write a string
+	 * Writes a string to a stream.
 	 * 
 	 * @param out where to write to
 	 * @param content what to write
