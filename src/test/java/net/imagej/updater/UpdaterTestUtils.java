@@ -99,16 +99,16 @@ public class UpdaterTestUtils {
 	public static void show(final FilesCollection files) {
 		try {
 			String url = ClassUtils.getLocation(UpdaterTestUtils.class).toString();
-			final String suffix = "/core/updater/target/test-classes/";
+			final String suffix = "/updater/target/test-classes/";
 			assertTrue(url + " ends with " + suffix, url.endsWith(suffix));
 			url =
 				url.substring(0, url.length() - suffix.length()) +
-					"/ui/swing/updater/target/classes/";
+					"/ui/swing/target/classes/";
 			final ClassLoader loader =
 				new java.net.URLClassLoader(
 					new java.net.URL[] { new java.net.URL(url) });
 			final Class<?> clazz =
-				loader.loadClass("imagej.updater.gui.UpdaterFrame");
+				loader.loadClass("net.imagej.ui.swing.updater.UpdaterFrame");
 			final java.lang.reflect.Constructor<?> ctor =
 				clazz.getConstructor(LogService.class, UploaderService.class, FilesCollection.class);
 			final Object updaterFrame = ctor.newInstance(UpdaterUtil.getLogService(), null, files);
