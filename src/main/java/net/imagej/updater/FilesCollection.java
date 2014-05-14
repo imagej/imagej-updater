@@ -242,6 +242,52 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 		this.updateSitesChanged = updateSitesChanged;
 	}
 
+	/**
+	 * Deactivates the given update site.
+	 * 
+	 * @param site the site to deactivate
+	 * @return the number of files marked for update/install/uninstall
+	 */
+	public int deactivateUpdateSite(final UpdateSite site) {
+		if (!site.isActive()) return 0;
+		final List<FileObject> list = new ArrayList<FileObject>();
+		final String updateSite = site.getName();
+		for (final FileObject file : forUpdateSite(updateSite)) {
+			list.add(file);
+		}
+		for (final FileObject file : list) {
+			file.removeFromUpdateSite(updateSite, this);
+		}
+		site.setActive(false);
+		return list.size();
+	}
+
+	/**
+	 * Activate the given update site.
+	 * 
+	 * @param updateSite the update site to activate
+	 * @param progress the object to display the progress
+	 * @throws ParserConfigurationException
+	 * @throws IOException
+	 * @throws SAXException
+	 */
+	public void activateUpdateSite(final UpdateSite updateSite, final Progress progress)
+			throws ParserConfigurationException, IOException, SAXException {
+		if (updateSite.isActive()) return;
+		updateSite.setActive(true);
+		reReadUpdateSite(updateSite.getName(), progress);
+		markForUpdate(updateSite.getName(), false);
+	}
+
+	private void markForUpdate(final String updateSite, final boolean evenForcedUpdates) {
+		for (final FileObject file : forUpdateSite(updateSite)) {
+			if (file.isUpdateable(evenForcedUpdates) && file.isUpdateablePlatform(this)) {
+				file.setFirstValidAction(this, Action.UPDATE,
+					Action.UNINSTALL, Action.INSTALL);
+			}
+		}
+	}
+
 	public void reReadUpdateSite(final String name, final Progress progress) throws ParserConfigurationException, IOException, SAXException {
 		new XMLFileReader(this).read(name);
 		final List<String> filesFromSite = new ArrayList<String>();
