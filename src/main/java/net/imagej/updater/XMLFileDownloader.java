@@ -98,8 +98,10 @@ public class XMLFileDownloader extends AbstractProgressable {
 				if (e instanceof FileNotFoundException) {
 					// it was deleted
 					updateSite.setLastModified(0);
+					files.log.debug(e);
+				} else {
+					files.log.error(e);
 				}
-				files.log.error(e);
 				warnings += "Could not update from site '" + name + "': " + e;
 			}
 			itemDone(title);

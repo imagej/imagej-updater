@@ -372,7 +372,11 @@ public class FilesUploader {
 		catch (final Exception e) {
 			UpdaterUserInterface.get().debug(e.getMessage());
 			if (files.size() == 0) return -1; // assume initial upload
-			files.log.error(e);
+			if (e instanceof FileNotFoundException) {
+				files.log.debug(e);
+			} else {
+				files.log.error(e);
+			}
 			return 0;
 		}
 	}
