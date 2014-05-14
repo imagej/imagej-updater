@@ -77,6 +77,7 @@ public class StderrProgress implements Progress {
 	@Override
 	public void setTitle(final String title) {
 		label = title;
+		skipProgress = redirected && "Checksummer".equals(title);
 	}
 
 	@Override
