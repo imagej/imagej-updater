@@ -281,7 +281,9 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 
 	private void markForUpdate(final String updateSite, final boolean evenForcedUpdates) {
 		for (final FileObject file : forUpdateSite(updateSite)) {
-			if (file.isUpdateable(evenForcedUpdates) && file.isUpdateablePlatform(this)) {
+			if ((file.isUpdateable(evenForcedUpdates) || file.getStatus()
+					.isValid(Action.INSTALL))
+					&& file.isUpdateablePlatform(this)) {
 				file.setFirstValidAction(this, Action.UPDATE,
 					Action.UNINSTALL, Action.INSTALL);
 			}
