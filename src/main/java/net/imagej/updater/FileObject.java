@@ -367,6 +367,7 @@ public class FileObject {
 					|| other.timestamp >= dependency.timestamp)
 				return;
 		}
+		dependency.filename = key; // strip version
 		dependencies.put(key, dependency);
 	}
 
