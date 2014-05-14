@@ -88,6 +88,7 @@ public class StderrProgress implements Progress {
 	@Override
 	public void addItem(final Object item) {
 		this.item = item;
+		if (skipProgress || skipShow()) return;
 		print(label, "(" + item + ") ");
 	}
 
