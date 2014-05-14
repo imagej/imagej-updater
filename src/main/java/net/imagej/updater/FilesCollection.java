@@ -1102,7 +1102,15 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 		try {
 			read();
 		}
-		catch (final FileNotFoundException e) { /* ignore */}
+		catch (final FileNotFoundException e) {
+			if (prefix("plugins/Fiji_Updater.jar").exists()) {
+				// make sure that the Fiji update site is enabled
+				UpdateSite fiji = getUpdateSite("Fiji", true);
+				if (fiji == null) {
+					addUpdateSite("Fiji", "http://fiji.sc/update/", null, null, 0);
+				}
+			}
+		}
 		catch (final IOException e) { /* ignore */ }
 
 		// clear the files

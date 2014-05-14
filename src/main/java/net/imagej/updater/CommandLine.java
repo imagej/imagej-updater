@@ -360,6 +360,14 @@ public class CommandLine {
 	public void update(final List<String> list, final boolean force,
 			final boolean pristine) {
 		ensureChecksummed();
+		if (list.size() > 0) {
+			for (final FileObject file : files) {
+				if (file.getStatus() == Status.NEW
+						&& file.getAction() == Action.INSTALL) {
+					file.setAction(files, Action.NEW);
+				}
+			}
+		}
 		try {
 			for (final FileObject file : files.filter(new FileFilter(list))) {
 				if (file.getStatus() == Status.LOCAL_ONLY) {
@@ -1002,8 +1010,14 @@ public class CommandLine {
 	}
 
 	public static void main(final String... args) {
+		if (System.getProperty("imagej.dir") == null) {
+			System.setProperty("imagej.dir", System.getProperty("ij.dir"));
+			if (System.getProperty("imagej.dir") == null) {
+				System.setProperty("imagej.dir", System.getProperty("fiji.dir"));
+			}
+		}
 		try {
-			main(AppUtils.getBaseDirectory("ij.dir", CommandLine.class, "updater"), 80, null, true, args);
+			main(AppUtils.getBaseDirectory("imagej.dir", CommandLine.class, "updater"), 80, null, true, args);
 		} catch (final RuntimeException e) {
 			log.error(e);
 			System.exit(1);
