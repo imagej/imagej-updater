@@ -41,6 +41,7 @@ import static org.scijava.test.TestUtils.getCallingClass;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -676,6 +677,17 @@ public class UpdaterTestUtils {
 		if (close) {
 			writer.close();
 		}
+	}
+
+	/**
+	 * Reads a file's contents.
+	 * 
+	 * @param file the file
+	 * @return the contents, as a String
+	 * @throws IOException
+	 */
+	protected static String readFile(final File file) throws IOException {
+		return readStream(new FileInputStream(file));
 	}
 
 	/**
