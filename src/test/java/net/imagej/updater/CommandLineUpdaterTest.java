@@ -166,6 +166,17 @@ public class CommandLineUpdaterTest {
 		assertStatus(Status.OBSOLETE_UNINSTALLED, files, linux32);
 	}
 
+	@Test
+	public void testRemoveFile() throws Exception {
+		final String macro = "macros/macro.ijm";
+		files = initialize(macro);
+
+		assertTrue(files.prefix(files.get(macro)).delete());
+		files = main(files, "upload", macro);
+
+		assertStatus(Status.OBSOLETE_UNINSTALLED, files, macro);
+	}
+
 	private void assertPlatforms(final FileObject file, final String... platforms) {
 		final Set<String> filePlatforms = new HashSet<String>();
 		for (final String platform : file.getPlatforms()) filePlatforms.add(platform);
