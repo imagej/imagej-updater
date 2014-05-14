@@ -43,7 +43,8 @@ public class StderrProgress implements Progress {
 	protected String label;
 	protected Object item;
 	protected long lastShown, minShowDelay = 500;
-	protected int lineWidth = -1;
+	protected int lineWidth = -1, dotCounter = 0;
+	private boolean skipProgress;
 
 	public StderrProgress() {}
 
@@ -76,33 +77,42 @@ public class StderrProgress implements Progress {
 	@Override
 	public void setTitle(final String title) {
 		label = title;
+		skipProgress = redirected && "Checksummer".equals(title);
 	}
 
 	@Override
 	public void setCount(final int count, final int total) {
-		if (skipShow()) return;
+		if (skipProgress || skipShow()) return;
 		print(label, "" + count + "/" + total);
 	}
 
 	@Override
 	public void addItem(final Object item) {
 		this.item = item;
+		if (skipProgress || skipShow()) return;
 		print(label, "(" + item + ") ");
 	}
 
 	@Override
 	public void setItemCount(final int count, final int total) {
-		if (redirected || skipShow()) return;
+		if (skipProgress || redirected || skipShow()) return;
 		print(label, "(" + item + ") [" + count + "/" + total + "]");
 	}
 
 	@Override
 	public void itemDone(final Object item) {
-		print(item.toString(), "done");
+		if (skipProgress) {
+			if ((++dotCounter % 80) == 1 && dotCounter > 1) {
+				System.err.print("\n");
+			}
+			System.err.print(".");
+		}
+		else print(item.toString(), "done");
 	}
 
 	@Override
 	public void done() {
+		if (skipProgress) System.err.print("\n");
 		print("Done:", label);
 		System.err.println("");
 	}
