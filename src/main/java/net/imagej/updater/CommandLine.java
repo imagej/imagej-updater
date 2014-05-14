@@ -360,6 +360,14 @@ public class CommandLine {
 	public void update(final List<String> list, final boolean force,
 			final boolean pristine) {
 		ensureChecksummed();
+		if (list.size() > 0) {
+			for (final FileObject file : files) {
+				if (file.getStatus() == Status.NEW
+						&& file.getAction() == Action.INSTALL) {
+					file.setAction(files, Action.NEW);
+				}
+			}
+		}
 		try {
 			for (final FileObject file : files.filter(new FileFilter(list))) {
 				if (file.getStatus() == Status.LOCAL_ONLY) {
