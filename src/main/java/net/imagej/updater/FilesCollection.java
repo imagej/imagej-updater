@@ -1192,6 +1192,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 				checksum = rebuild.toString();
 			}
 			sb.append("  ").append(checksum).append(" ");
+			if (fileObject != null) sb.append("(").append(fileObject.getStatus()).append(") ");
 			sb.append(version.timestamp).append(" ");
 			sb.append(file).append("\n");
 		}
