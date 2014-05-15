@@ -1148,7 +1148,13 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	 * @return the list of files known to the Updater, with versions, as a String
 	 */
 	public static String getInstalledVersions(final File ijDirectory, final Progress progress) {
+		final StringBuilder sb = new StringBuilder();
 		final FilesCollection files = new FilesCollection(ijDirectory);
+		try {
+			files.read();
+		} catch (Exception e) {
+			sb.append("Error while reading db.xml.gz: ").append(e.getMessage()).append("\n\n");
+		}
 		final Checksummer checksummer = new Checksummer(files, progress);
 		try {
 			checksummer.updateFromLocal();
@@ -1158,10 +1164,22 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 
 		final Map<String, FileObject.Version> checksums = checksummer.getCachedChecksums();
 
-		final StringBuilder sb = new StringBuilder();
+		sb.append("Activated update sites:\n");
+		for (final UpdateSite site : files.getUpdateSites(false)) {
+			sb.append(site.getName()).append(": ").append(site.getURL())
+					.append(" (last check:").append(site.getTimestamp())
+					.append(")\n");
+		}
+		boolean notUpToDateShown = false;
 		for (final Map.Entry<String, FileObject.Version> entry : checksums.entrySet()) {
 			String file = entry.getKey();
 			if (file.startsWith(":") && file.length() == 41) continue;
+			final FileObject fileObject = files.get(file);
+			if (fileObject != null && fileObject.getStatus() == Status.INSTALLED) continue;
+			if (!notUpToDateShown) {
+				sb.append("\nFiles not up-to-date:\n");
+				notUpToDateShown = true;
+			}
 			final FileObject.Version version = entry.getValue();
 			String checksum = version.checksum;
 			if (version.checksum != null && version.checksum.length() > 8) {
