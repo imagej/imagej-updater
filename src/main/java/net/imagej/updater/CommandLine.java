@@ -42,8 +42,14 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 import net.imagej.updater.Conflicts.Conflict;
 import net.imagej.updater.Conflicts.Resolution;
@@ -61,6 +67,8 @@ import net.imagej.updater.util.UpdaterUtil;
 import org.scijava.log.LogService;
 import org.scijava.util.AppUtils;
 import org.scijava.util.FileUtils;
+import org.scijava.util.IteratorPlus;
+import org.scijava.util.POM;
 
 /**
  * This is the command-line interface into the ImageJ Updater.
@@ -281,6 +289,74 @@ public class CommandLine {
 			if (builder.length() > 0) {
 				System.out.println("Have '" + file.getFilename(true)
 						+ "' as dependency: " + builder.toString());
+			}
+		}
+
+		final File jarFile = files.prefix(file);
+		if (jarFile.exists()) {
+			final Map<String, String> map = new LinkedHashMap<String, String>();
+			try {
+				final JarFile jar = new JarFile(jarFile);
+				final Manifest manifest = jar.getManifest();
+				final Attributes attrs = manifest == null ? null : manifest
+						.getMainAttributes();
+				final String commit = attrs == null ? null : attrs
+						.getValue("Implementation-Build");
+				if (commit != null)
+					map.put("Commit", commit);
+				JarEntry pomEntry = null;
+				for (final JarEntry entry : new IteratorPlus<JarEntry>(
+						jar.entries())) {
+					if (!entry.getName().endsWith("/pom.xml"))
+						continue;
+					if (pomEntry == null) {
+						pomEntry = entry;
+					} else {
+						System.out.println("Warning: Ignoring extra pom.xml: "
+								+ entry.getName() + " in " + jarFile);
+					}
+				}
+				if (pomEntry != null)
+					try {
+						final POM pom = new POM(jar.getInputStream(pomEntry));
+						final String url = pom.getProjectURL();
+						if (url != null)
+							map.put("Project URL", url);
+						final String scm = pom.cdata("//project/scm/url");
+						if (scm != null) {
+							if (commit != null
+									&& scm.matches("https?://github.com/[^/]*/[^/]*/?")) {
+								map.put("Commit URL", scm + "/commit/" + commit);
+							}
+							map.put("Project SCM URL", scm);
+						}
+						final String issues = pom
+								.cdata("//project/issueManagement/url");
+						if (issues != null)
+							map.put("Project Issue Tracker", issues);
+						final String ci = pom
+								.cdata("//project/ciManagement/url");
+						if (ci != null)
+							map.put("Jenkins Job URL", ci);
+					} catch (Exception e) {
+						log.debug(e);
+						System.out.println("Error parsing POM: "
+								+ e.getMessage());
+					}
+				jar.close();
+			} catch (IOException e) {
+				System.out.println("Could not get manifest: " + e.getMessage());
+			}
+			if (map.isEmpty()) {
+				System.out.println("No manifest/POM information contained in "
+						+ jarFile.getName());
+			} else {
+				System.out.println("Manifest/POM information for "
+						+ file.getBaseName() + ":");
+				for (final Map.Entry<String, String> entry : map.entrySet()) {
+					System.out.println("\t" + entry.getKey() + ": "
+							+ entry.getValue());
+				}
 			}
 		}
 	}
