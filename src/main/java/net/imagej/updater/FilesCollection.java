@@ -1161,7 +1161,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 		final StringBuilder sb = new StringBuilder();
 		for (final Map.Entry<String, FileObject.Version> entry : checksums.entrySet()) {
 			String file = entry.getKey();
-			if (file.startsWith(":") && file.length() > 8) file = file.substring(0, 8);
+			if (file.startsWith(":") && file.length() == 41) continue;
 			final FileObject.Version version = entry.getValue();
 			String checksum = version.checksum;
 			if (version.checksum != null && version.checksum.length() > 8) {
