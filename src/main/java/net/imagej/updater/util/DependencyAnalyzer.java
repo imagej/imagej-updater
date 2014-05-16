@@ -206,6 +206,8 @@ public class DependencyAnalyzer {
 			equals("jars/vecmath", dependency) ||
 			(equals("jars/slf4j-api", jarPath) &&
 			 equals("jars/slf4j-log4j", dependency)) ||
+			(equals("jars/jython", jarPath) &&
+			 equals("jars/jruby-complete", dependency)) ||
 			(equals("jars/jruby-complete", jarPath) &&
 			 equals("jars/jython", dependency)) ||
 			(equals("jars/logkit", jarPath) &&
