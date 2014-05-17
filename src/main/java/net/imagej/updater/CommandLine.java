@@ -112,6 +112,7 @@ public class CommandLine {
 		try {
 			warnings = files.downloadIndexAndChecksum(progress);
 		} catch (final Exception e) {
+			log.debug(e);
 			throw die("Received exception: " + e.getMessage());
 		}
 		if (!warnings.equals("")) {
