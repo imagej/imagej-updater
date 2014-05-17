@@ -181,7 +181,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	public UpdateSite getUpdateSite(final String name, final boolean evenDisabled) {
 		if (name == null) return null;
 		final UpdateSite site = updateSites.get(name);
-		return evenDisabled || site.isActive() ? site : null;
+		return evenDisabled || site == null || site.isActive() ? site : null;
 	}
 
 	/** @deprecated use {@link #getUpdateSiteNames(boolean)} instead */
