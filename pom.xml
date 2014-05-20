@@ -10,7 +10,7 @@
 	</parent>
 
 	<artifactId>imagej-updater</artifactId>
-	<version>0.3.2-SNAPSHOT</version>
+	<version>0.3.2</version>
 
 	<name>ImageJ Updater</name>
 	<description>The ImageJ Updater (TAFKA Fiji Updater).</description>
@@ -18,7 +18,7 @@
 	<scm>
 		<connection>scm:git:git://github.com/imagej/imagej-updater</connection>
 		<developerConnection>scm:git:git@github.com:imagej/imagej-updater</developerConnection>
-		<tag>HEAD</tag>
+		<tag>imagej-updater-0.3.2</tag>
 		<url>https://github.com/imagej/imagej-updater</url>
 	</scm>
 
