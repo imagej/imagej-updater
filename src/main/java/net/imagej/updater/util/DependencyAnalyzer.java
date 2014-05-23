@@ -204,8 +204,7 @@ public class DependencyAnalyzer {
 			equals("jars/j3d-core", dependency) ||
 			equals("jars/j3d-core-utils", dependency) ||
 			equals("jars/vecmath", dependency) ||
-			(equals("jars/slf4j-api", jarPath) &&
-			 equals("jars/slf4j-log4j", dependency)) ||
+			equals("jars/slf4j-api", jarPath) || // SLF4J API has no dependencies!
 			(equals("jars/jython", jarPath) &&
 			 equals("jars/jruby-complete", dependency)) ||
 			(equals("jars/jruby-complete", jarPath) &&
