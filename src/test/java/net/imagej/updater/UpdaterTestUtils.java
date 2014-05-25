@@ -64,14 +64,6 @@ import java.util.zip.GZIPOutputStream;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import net.imagej.updater.Checksummer;
-import net.imagej.updater.FileObject;
-import net.imagej.updater.FilesCollection;
-import net.imagej.updater.FilesUploader;
-import net.imagej.updater.Installer;
-import net.imagej.updater.UpdateSite;
-import net.imagej.updater.UploaderService;
-import net.imagej.updater.XMLFileReader;
 import net.imagej.updater.FileObject.Action;
 import net.imagej.updater.FileObject.Status;
 import net.imagej.updater.util.Progress;
