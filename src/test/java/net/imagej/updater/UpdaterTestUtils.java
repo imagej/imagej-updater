@@ -143,7 +143,7 @@ public class UpdaterTestUtils {
 	}
 
 	protected static File makeIJRoot(final File webRoot) throws IOException {
-		final File ijRoot = createTemporaryDirectory("testUpdaterIJRoot");
+		final File ijRoot = createTemporaryDirectory("ij-root-");
 		initDb(ijRoot, webRoot);
 		return ijRoot;
 	}
@@ -166,8 +166,8 @@ public class UpdaterTestUtils {
 	public static FilesCollection initialize(File ijRoot, File webRoot, final String... fileNames)
 			throws Exception
 		{
-		if (ijRoot == null) ijRoot = createTemporaryDirectory("testUpdaterIJRoot");
-		if (webRoot == null) webRoot = createTemporaryDirectory("testUpdaterWebRoot");
+		if (ijRoot == null) ijRoot = createTemporaryDirectory("ij-root-");
+		if (webRoot == null) webRoot = createTemporaryDirectory("ij-web-");
 
 		final File localDb = new File(ijRoot, "db.xml.gz");
 		final File remoteDb = new File(webRoot, "db.xml.gz");
