@@ -52,6 +52,7 @@ import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -761,5 +762,35 @@ public class UpdaterTestUtils {
 		}
 
 	};
+
+	/**
+	 * Writes a {@code .jar} file containing a single file with a specific timestamp.
+	 * 
+	 * @param files the collection
+	 * @param jarFileName the path of the {@code .jar} file
+	 * @param year the year of the timestamp
+	 * @param month the month of the timestamp
+	 * @param day the day of the month of the timestamp
+	 * @param fileName the name of the file contained in the {@code .jar} file
+	 * @param fileContents the contents of the file contained in the {@code .jar} file
+	 * @return a reference to the written {@code .jar} file
+	 * @throws IOException 
+	 */
+	public static File writeJarWithDatedFile(final FilesCollection files,
+			final String jarFileName, final int year, final int month,
+			final int day, final String fileName,
+			final String fileContents) throws IOException {
+		final File file = files.prefix(jarFileName);
+		final File dir = file.getParentFile();
+		if (dir != null && !dir.isDirectory()) assertTrue(dir.mkdirs());
+		final JarOutputStream out = new JarOutputStream(new FileOutputStream(file));
+		final JarEntry entry = new JarEntry(fileName);
+		entry.setTime(new GregorianCalendar(year, month, day).getTimeInMillis());
+		out.putNextEntry(entry);
+		out.write(fileContents.getBytes());
+		out.closeEntry();
+		out.close();
+		return file;
+	}
 
 }
