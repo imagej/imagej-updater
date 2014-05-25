@@ -12,6 +12,10 @@
 	<artifactId>imagej-updater</artifactId>
 	<version>0.3.3-SNAPSHOT</version>
 
+	<properties>
+		<scijava-common.version>2.20.1-SNAPSHOT</scijava-common.version>
+	</properties>
+
 	<name>ImageJ Updater</name>
 	<description>The ImageJ Updater (TAFKA Fiji Updater).</description>
 
