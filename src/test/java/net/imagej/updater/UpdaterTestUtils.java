@@ -37,7 +37,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.scijava.test.TestUtils.createTemporaryDirectory;
-import static org.scijava.test.TestUtils.getCallingClass;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -131,7 +130,7 @@ public class UpdaterTestUtils {
 	}
 
 	public static File addUpdateSite(final FilesCollection files, final String name) throws Exception {
-		final File directory = createTemporaryDirectory("update-site-" + name, getCallingClass(UpdaterTestUtils.class));
+		final File directory = createTemporaryDirectory("update-site-" + name);
 		final String url = directory.toURI().toURL().toString().replace('\\', '/');
 		final String sshHost = "file:localhost";
 		final String uploadDirectory = directory.getAbsolutePath();
@@ -144,7 +143,7 @@ public class UpdaterTestUtils {
 	}
 
 	protected static File makeIJRoot(final File webRoot) throws IOException {
-		final File ijRoot = createTemporaryDirectory("testUpdaterIJRoot", getCallingClass(UpdaterTestUtils.class));
+		final File ijRoot = createTemporaryDirectory("testUpdaterIJRoot");
 		initDb(ijRoot, webRoot);
 		return ijRoot;
 	}
@@ -167,9 +166,8 @@ public class UpdaterTestUtils {
 	public static FilesCollection initialize(File ijRoot, File webRoot, final String... fileNames)
 			throws Exception
 		{
-		final Class<?> forClass = getCallingClass(UpdaterTestUtils.class);
-		if (ijRoot == null) ijRoot = createTemporaryDirectory("testUpdaterIJRoot", forClass);
-		if (webRoot == null) webRoot = createTemporaryDirectory("testUpdaterWebRoot", forClass);
+		if (ijRoot == null) ijRoot = createTemporaryDirectory("testUpdaterIJRoot");
+		if (webRoot == null) webRoot = createTemporaryDirectory("testUpdaterWebRoot");
 
 		final File localDb = new File(ijRoot, "db.xml.gz");
 		final File remoteDb = new File(webRoot, "db.xml.gz");
