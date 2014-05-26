@@ -10,7 +10,7 @@
 	</parent>
 
 	<artifactId>imagej-updater</artifactId>
-	<version>0.3.3-SNAPSHOT</version>
+	<version>0.3.4-SNAPSHOT</version>
 
 	<name>ImageJ Updater</name>
 	<description>The ImageJ Updater (TAFKA Fiji Updater).</description>
