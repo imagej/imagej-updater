@@ -168,7 +168,7 @@ public class Installer extends Downloader {
 		final Set<FileObject> topLevel = new HashSet<FileObject>();
 		topLevel.add(updater);
 		if (commandService == null) {
-			final String hardcoded = "jars/ij-ui-swing-updater.jar";
+			final String hardcoded = "jars/imagej-ui-swing.jar";
 			final FileObject file = files.get(hardcoded);
 			if (file != null) topLevel.add(file);
 		} else {
@@ -198,13 +198,17 @@ public class Installer extends Downloader {
 
 	/**
 	 * Gets the file object for the .jar file containing the given class.
+	 * <p>
+	 * To deal with version skew properly, we avoid using SciJava common's
+	 * {@link org.scijava.util.FileUtils} here.
+	 * </p>
 	 * 
-	 * Unfortunately, at the time of writing, we could not rely on ij-core being updated properly when ij-updater-core was updated,
-	 * so we had to invent this method which logically belongs into imagej.util.FileUtils.
-	 * 
-	 * @param files the database of available files
-	 * @param className the name of the class we seek the .jar file for
-	 * @return the file object, or null if the class could not be found in any file of the collection
+	 * @param files
+	 *            the database of available files
+	 * @param className
+	 *            the name of the class we seek the .jar file for
+	 * @return the file object, or null if the class could not be found in any
+	 *         file of the collection
 	 */
 	private static FileObject getFileObject(final FilesCollection files, final String className) {
 		try {

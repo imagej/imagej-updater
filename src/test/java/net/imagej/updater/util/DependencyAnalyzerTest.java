@@ -46,7 +46,7 @@ public class DependencyAnalyzerTest {
 	@Test
 	public void testDependencyAnalyzerExclusions() {
 		assertTrue(DependencyAnalyzer.exclude("jars/testng-6.8.jar", "jars/guice-2.0.jar"));
-		assertFalse(DependencyAnalyzer.exclude("jars/ij-legacy-2.0.1.jar", "jars/ij-1.47a.jar"));
+		assertFalse(DependencyAnalyzer.exclude("jars/imagej-legacy-2.0.1.jar", "jars/ij-1.47a.jar"));
 		assertTrue(DependencyAnalyzer.exclude("jars/MMCoreJ.jar", "plugins/MMJ_.jar"));
 		assertTrue(DependencyAnalyzer.exclude("plugins/MMCoreJ.jar", "plugins/MMJ_.jar"));
 	}

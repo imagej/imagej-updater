@@ -54,9 +54,9 @@ import org.junit.Test;
  * <p>
  * When an update site has upload information for a protocol that no local
  * component can handle, we try to install the file
- * <i>jars/ij-updater-&lt;protocol&gt;-&lt;version&gt;.jar</i> (if it is
- * installable). This integration test verifies that that functionality is not
- * broken.
+ * <i>jars/imagej-plugins-uploader-&lt;protocol&gt;-&lt;version&gt;.jar</i> (if
+ * it is installable). This integration test verifies that that functionality is
+ * not broken.
  * </p>
  * 
  * @author Johannes Schindelin
@@ -103,7 +103,7 @@ public class CustomUploaderTest {
 		assertFalse(hasHobbes(files));
 
 		// copy the custom uploader to the working directory
-		final String filename = "ij-updater-hobbes-1.0.0-SNAPSHOT.jar";
+		final String filename = "imagej-plugins-uploader-hobbes-1.0.0-SNAPSHOT.jar";
 		final File target = files.prefix("jars/" + filename);
 		writeJar(target, clazz);
 
