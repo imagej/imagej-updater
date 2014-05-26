@@ -62,10 +62,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.jar.JarEntry;
-import java.util.jar.JarOutputStream;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
@@ -871,13 +868,13 @@ public class UpdaterTest {
 		final String fileName =
 			"META-INF/maven/net.imagej/updater-test/pom.properties";
 		final File oldOldJar =
-			writeJarWithDatedFile("old.jar", 2012, 6, 12, fileName, oldContents);
+			UpdaterTestUtils.writeJarWithDatedFile(files, "old.jar", 2012, 6, 12, fileName, oldContents);
 		final File oldNewJar =
-			writeJarWithDatedFile("new.jar", 2012, 6, 12, fileName, newContents);
+			UpdaterTestUtils.writeJarWithDatedFile(files, "new.jar", 2012, 6, 12, fileName, newContents);
 		final File newOldJar =
-			writeJarWithDatedFile("old2.jar", 2012, 6, 17, fileName, oldContents);
+			UpdaterTestUtils.writeJarWithDatedFile(files, "old2.jar", 2012, 6, 17, fileName, oldContents);
 		final File newNewJar =
-			writeJarWithDatedFile("new2.jar", 2012, 6, 17, fileName, newContents);
+			UpdaterTestUtils.writeJarWithDatedFile(files, "new2.jar", 2012, 6, 17, fileName, newContents);
 
 		// before June 15th, they were considered different
 		assertNotEqual(UpdaterUtil.getJarDigest(oldOldJar, false, false, false), UpdaterUtil.getJarDigest(oldNewJar, false, false, false));
@@ -898,13 +895,13 @@ public class UpdaterTest {
 				+ "Main-Class: Buxtehude\n";
 		final String fileName = "META-INF/MANIFEST.MF";
 		final File oldOldJar =
-			writeJarWithDatedFile("old.jar", 2012, 7, 4, fileName, oldContents);
+			UpdaterTestUtils.writeJarWithDatedFile(files, "old.jar", 2012, 7, 4, fileName, oldContents);
 		final File oldNewJar =
-			writeJarWithDatedFile("new.jar", 2012, 7, 4, fileName, newContents);
+			UpdaterTestUtils.writeJarWithDatedFile(files, "new.jar", 2012, 7, 4, fileName, newContents);
 		final File newOldJar =
-			writeJarWithDatedFile("old2.jar", 2012, 7, 8, fileName, oldContents);
+			UpdaterTestUtils.writeJarWithDatedFile(files, "old2.jar", 2012, 7, 8, fileName, oldContents);
 		final File newNewJar =
-			writeJarWithDatedFile("new2.jar", 2012, 7, 8, fileName, newContents);
+			UpdaterTestUtils.writeJarWithDatedFile(files, "new2.jar", 2012, 7, 8, fileName, newContents);
 
 		// before June 15th, they were considered different
 		assertNotEqual(UpdaterUtil.getJarDigest(oldOldJar, false, false, false), UpdaterUtil.getJarDigest(oldNewJar, false, false, false));
@@ -913,24 +910,6 @@ public class UpdaterTest {
 		// checksums must be different between the old and new way to calculate them
 		assertNotEqual(UpdaterUtil.getJarDigest(oldOldJar, false, false, false), UpdaterUtil.getJarDigest(newOldJar));
 		assertNotEqual(UpdaterUtil.getJarDigest(oldOldJar, false, true, false), UpdaterUtil.getJarDigest(newOldJar, false, true, true));
-	}
-
-	private File writeJarWithDatedFile(final String jarFileName, final int year,
-		final int month, final int day, final String fileName,
-		final String propertiesContents) throws Exception
-	{
-		files = initialize();
-		final File file = files.prefix(jarFileName);
-		final File dir = file.getParentFile();
-		if (dir != null && !dir.isDirectory()) assertTrue(dir.mkdirs());
-		final JarOutputStream out = new JarOutputStream(new FileOutputStream(file));
-		final JarEntry entry = new JarEntry(fileName);
-		entry.setTime(new GregorianCalendar(year, month, day).getTimeInMillis());
-		out.putNextEntry(entry);
-		out.write(propertiesContents.getBytes());
-		out.closeEntry();
-		out.close();
-		return file;
 	}
 
 	@Test
@@ -943,7 +922,7 @@ public class UpdaterTest {
 			"META-INF/maven/net.imagej/updater-test/pom.properties";
 		assertTrue(files.prefix("jars").mkdirs());
 		File jar =
-			writeJarWithDatedFile("jars/new.jar", 2012, 6, 17, fileName, newContents);
+			UpdaterTestUtils.writeJarWithDatedFile(files, "jars/new.jar", 2012, 6, 17, fileName, newContents);
 
 		final String checksumOld = UpdaterUtil.getJarDigest(jar, false, false);
 		final String checksumNew = UpdaterUtil.getJarDigest(jar, true, true);
@@ -1264,7 +1243,7 @@ public class UpdaterTest {
 			"META-INF/maven/net.imagej/new/pom.properties";
 		assertTrue(files.prefix("jars").mkdirs());
 		File jar =
-			writeJarWithDatedFile("jars/new.jar", 2012, 6, 17, fileName, contents);
+			UpdaterTestUtils.writeJarWithDatedFile(files, "jars/new.jar", 2012, 6, 17, fileName, contents);
 
 		final String checksumOld = UpdaterUtil.getJarDigest(jar, false, false);
 		final String checksumNew = UpdaterUtil.getJarDigest(jar, true, true);

@@ -36,8 +36,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.scijava.test.TestUtils.createTemporaryDirectory;
-import static org.scijava.test.TestUtils.getCallingClass;
+
+import org.scijava.test.TestUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -52,6 +52,7 @@ import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,14 +64,6 @@ import java.util.zip.GZIPOutputStream;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import net.imagej.updater.Checksummer;
-import net.imagej.updater.FileObject;
-import net.imagej.updater.FilesCollection;
-import net.imagej.updater.FilesUploader;
-import net.imagej.updater.Installer;
-import net.imagej.updater.UpdateSite;
-import net.imagej.updater.UploaderService;
-import net.imagej.updater.XMLFileReader;
 import net.imagej.updater.FileObject.Action;
 import net.imagej.updater.FileObject.Status;
 import net.imagej.updater.util.Progress;
@@ -138,7 +131,7 @@ public class UpdaterTestUtils {
 	}
 
 	public static File addUpdateSite(final FilesCollection files, final String name) throws Exception {
-		final File directory = createTemporaryDirectory("update-site-" + name, getCallingClass(UpdaterTestUtils.class));
+		final File directory = createTemporaryDirectory("update-site-" + name);
 		final String url = directory.toURI().toURL().toString().replace('\\', '/');
 		final String sshHost = "file:localhost";
 		final String uploadDirectory = directory.getAbsolutePath();
@@ -151,7 +144,7 @@ public class UpdaterTestUtils {
 	}
 
 	protected static File makeIJRoot(final File webRoot) throws IOException {
-		final File ijRoot = createTemporaryDirectory("testUpdaterIJRoot", getCallingClass(UpdaterTestUtils.class));
+		final File ijRoot = createTemporaryDirectory("ij-root-");
 		initDb(ijRoot, webRoot);
 		return ijRoot;
 	}
@@ -174,9 +167,8 @@ public class UpdaterTestUtils {
 	public static FilesCollection initialize(File ijRoot, File webRoot, final String... fileNames)
 			throws Exception
 		{
-		final Class<?> forClass = getCallingClass(UpdaterTestUtils.class);
-		if (ijRoot == null) ijRoot = createTemporaryDirectory("testUpdaterIJRoot", forClass);
-		if (webRoot == null) webRoot = createTemporaryDirectory("testUpdaterWebRoot", forClass);
+		if (ijRoot == null) ijRoot = createTemporaryDirectory("ij-root-");
+		if (webRoot == null) webRoot = createTemporaryDirectory("ij-web-");
 
 		final File localDb = new File(ijRoot, "db.xml.gz");
 		final File remoteDb = new File(webRoot, "db.xml.gz");
@@ -762,4 +754,41 @@ public class UpdaterTestUtils {
 
 	};
 
+	/**
+	 * Writes a {@code .jar} file containing a single file with a specific timestamp.
+	 * 
+	 * @param files the collection
+	 * @param jarFileName the path of the {@code .jar} file
+	 * @param year the year of the timestamp
+	 * @param month the month of the timestamp
+	 * @param day the day of the month of the timestamp
+	 * @param fileName the name of the file contained in the {@code .jar} file
+	 * @param fileContents the contents of the file contained in the {@code .jar} file
+	 * @return a reference to the written {@code .jar} file
+	 * @throws IOException 
+	 */
+	public static File writeJarWithDatedFile(final FilesCollection files,
+			final String jarFileName, final int year, final int month,
+			final int day, final String fileName,
+			final String fileContents) throws IOException {
+		final File file = files.prefix(jarFileName);
+		final File dir = file.getParentFile();
+		if (dir != null && !dir.isDirectory()) assertTrue(dir.mkdirs());
+		final JarOutputStream out = new JarOutputStream(new FileOutputStream(file));
+		final JarEntry entry = new JarEntry(fileName);
+		entry.setTime(new GregorianCalendar(year, month, day).getTimeInMillis());
+		out.putNextEntry(entry);
+		out.write(fileContents.getBytes());
+		out.closeEntry();
+		out.close();
+		return file;
+	}
+
+	// work-around for bug in scijava-common 2.20.0, not needed with versions >= 2.20.1
+	private static File createTemporaryDirectory(final String prefix) throws IOException {
+		final Entry<Class<?>, String> entry = TestUtils
+				.getCallingCodeLocation(UpdaterTestUtils.class);
+		return TestUtils.createTemporaryDirectory(prefix, entry.getKey(),
+				entry.getValue());
+	}
 }
