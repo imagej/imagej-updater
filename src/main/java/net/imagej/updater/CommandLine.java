@@ -807,7 +807,7 @@ public class CommandLine {
 				&& files.util.isLauncher(file.filename)) {
 			file.executable = true;
 			file.addPlatform(UpdaterUtil.platformForLauncher(file.filename));
-			for (final String fileName : new String[] { "jars/ij-launcher.jar" }) {
+			for (final String fileName : new String[] { "jars/imagej-launcher.jar" }) {
 				final FileObject dependency = files.get(fileName);
 				if (dependency != null) {
 					file.addDependency(files, dependency);

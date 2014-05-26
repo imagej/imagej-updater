@@ -577,9 +577,9 @@ public class UpdaterUtil {
 
 	/**
 	 * Get a log service.
-	 *
-	 * This works around an earlier updater bug where it failed to update ij-core
-	 * properly, so the StderrLogService class was not found.
+	 * 
+	 * This works around version skews (where the
+	 * {@link org.scijava.log.StderrLogService} cannot be found).
 	 * 
 	 * @return the log service
 	 */
