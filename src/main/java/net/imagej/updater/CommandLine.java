@@ -977,8 +977,6 @@ public class CommandLine {
 				throw die("Site '" + name + "' was already added!");
 			files.addUpdateSite(name, url, sshHost, uploadDirectory, 0l);
 		} else {
-			if (site == null)
-				throw die("Site '" + name + "' was not yet added!");
 			site.setURL(url);
 			site.setHost(sshHost);
 			site.setUploadDirectory(uploadDirectory);
