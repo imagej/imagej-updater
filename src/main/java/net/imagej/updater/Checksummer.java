@@ -70,7 +70,7 @@ public class Checksummer extends AbstractProgressable {
 	private FilesCollection files;
 	private int counter, total;
 	private Map<String, FileObject.Version> cachedChecksums;
-	private boolean isWindows; // time tax for Redmont
+	private boolean isWindows; // time tax for Redmond
 	private Map<String, List<StringAndFile>> queue;
 
 	public Checksummer(final FilesCollection files, final Progress progress) {
