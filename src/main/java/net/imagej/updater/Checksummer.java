@@ -276,7 +276,22 @@ public class Checksummer extends AbstractProgressable {
 			@Override
 			public void resolve() {
 				for (final File file : toDelete)
-					file.delete();
+					if (!file.delete()) {
+						final String prefix =
+							files.prefix("").getAbsolutePath() + File.separator;
+						final String absolute = file.getAbsolutePath();
+						if (absolute.startsWith(prefix)) try {
+							FileObject.touch(files.prefixUpdate(absolute.substring(prefix
+								.length())));
+						}
+						catch (IOException e) {
+							files.log.error(e);
+							file.deleteOnExit();
+						}
+						else {
+							file.deleteOnExit();
+						}
+					};
 				removeConflict(filename);
 			}
 		};
