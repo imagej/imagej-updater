@@ -158,7 +158,9 @@ public class MultipleSitesTest {
 		assertCount(2, files.updateable(false));
 		assertStatus(Status.LOCAL_ONLY, files.get(localOnly));
 		assertStatus(Status.MODIFIED, files.get(locallyModified));
-		assertEquals("Magic!\n", readFile(new File(ijRoot, locallyModified)));
-		assertEquals("Johnson!\n", readFile(new File(ijRoot, localOnly)));
+		// Thank you, Windows. Thank you so much for all that time with you.
+		final String lf = System.getProperty("line.separator");
+		assertEquals("Magic!" + lf, readFile(new File(ijRoot, locallyModified)));
+		assertEquals("Johnson!" + lf, readFile(new File(ijRoot, localOnly)));
 	}
 }
