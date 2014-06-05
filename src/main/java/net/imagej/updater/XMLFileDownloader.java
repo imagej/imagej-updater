@@ -52,7 +52,7 @@ public class XMLFileDownloader extends AbstractProgressable {
 
 	private FilesCollection files;
 	private Collection<String> updateSites;
-	private String warnings;
+	private StringBuilder warnings;
 
 	public XMLFileDownloader(final FilesCollection files) {
 		this(files, files.getUpdateSiteNames(false));
@@ -75,7 +75,8 @@ public class XMLFileDownloader extends AbstractProgressable {
 		setTitle("Updating the index of available files");
 		final XMLFileReader reader = new XMLFileReader(files);
 		final int current = 0, total = updateSites.size();
-		warnings = "";
+		if (warnings == null) warnings = new StringBuilder();
+		else warnings.setLength(0);
 		for (final String name : updateSites) {
 			final UpdateSite updateSite = files.getUpdateSite(name, true);
 			final String title =
@@ -102,18 +103,18 @@ public class XMLFileDownloader extends AbstractProgressable {
 				} else {
 					files.log.error(e);
 				}
-				warnings += "Could not update from site '" + name + "': " + e;
+				appendWarning("Could not update from site '" + name + "': " + e);
 			}
 			itemDone(title);
 		}
 		if (closeProgressAtEnd) {
 			done();
 		}
-		warnings += reader.getWarnings();
+		appendWarning(reader.getWarnings());
 	}
 
 	public String getWarnings() {
-		return warnings;
+		return warnings.toString();
 	}
 
 	public InputStream getInputStream(final InputStream in, final int fileSize) {
@@ -155,5 +156,9 @@ public class XMLFileDownloader extends AbstractProgressable {
 				in.close();
 			}
 		};
+	}
+
+	private void appendWarning(final String s) {
+		warnings.append(s);
 	}
 }
