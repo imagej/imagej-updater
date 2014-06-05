@@ -159,6 +159,8 @@ public class XMLFileDownloader extends AbstractProgressable {
 	}
 
 	private void appendWarning(final String s) {
+		if (s == null || s.isEmpty()) return;
 		warnings.append(s);
+		warnings.append(System.getProperty("line.separator"));
 	}
 }
