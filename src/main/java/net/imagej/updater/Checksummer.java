@@ -469,6 +469,9 @@ public class Checksummer extends AbstractProgressable {
 	protected void initializeQueue() {
 		queue = new LinkedHashMap<String, List<StringAndFile>>();
 
+		queueIfExists("README.md");
+		queueIfExists("WELCOME.md");
+		queueIfExists("ImageJ.sh");
 		for (final String launcher : files.util.launchers)
 			queueIfExists(launcher);
 
