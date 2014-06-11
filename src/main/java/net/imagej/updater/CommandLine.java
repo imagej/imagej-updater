@@ -220,6 +220,28 @@ public class CommandLine {
 		list(null, files.isUpdateSite(sites.get(0)));
 	}
 
+	public void listShadowed(final List<String> list) {
+		ensureChecksummed();
+		final FileFilter filter = new FileFilter(list);
+		files.sort();
+		final List<String> overridden = new ArrayList<String>();
+		for (final FileObject file : files.filter(filter)) {
+			if (!file.overridesOtherUpdateSite()) continue;
+			for (final Map.Entry<String, FileObject> entry : file.overriddenUpdateSites
+				.entrySet())
+			{
+				final FileObject other = entry.getValue();
+				if (other != null && other.current != null) {
+					overridden.add(entry.getKey());
+				}
+			}
+			if (overridden.isEmpty()) continue;
+			System.out.println(file.filename + "\t(" + file.getStatus() + ")\t" +
+				file.updateSite + " overrides " + overridden);
+			overridden.clear();
+		}
+	}
+
 	public void show(final List<String> list) {
 		for (final String filename : list) {
 			show(filename);
@@ -1072,6 +1094,7 @@ public class CommandLine {
 				+ "\tlist-modified [<files>]\n"
 				+ "\tlist-current [<files>]\n"
 				+ "\tlist-local-only [<files>]\n"
+				+ "\tlist-shadowed [<files>]\n"
 				+ "\tlist-from-site <name>\n"
 				+ "\tshow [<files>]\n"
 				+ "\tupdate [<files>]\n"
@@ -1164,6 +1187,8 @@ public class CommandLine {
 			instance.listLocalOnly(makeList(args, 1));
 		} else if (command.equals("list-from-site")) {
 			instance.listFromSite(makeList(args, 1));
+		} else if (command.equals("list-shadowed")) {
+			instance.listShadowed(makeList(args, 1));
 		} else if (command.equals("show")) {
 			instance.show(makeList(args, 1));
 		} else if (command.equals("update")) {
