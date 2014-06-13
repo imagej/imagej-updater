@@ -31,12 +31,8 @@
 
 package net.imagej.updater;
 
-import java.util.List;
-
-import net.imagej.updater.util.UpdaterUtil;
-
+import org.scijava.app.StatusService;
 import org.scijava.command.Command;
-import org.scijava.command.CommandInfo;
 import org.scijava.command.CommandService;
 import org.scijava.log.LogService;
 import org.scijava.plugin.Parameter;
@@ -47,41 +43,51 @@ import org.scijava.plugin.Plugin;
  * launch the updater if so. It typically runs when ImageJ first starts up.
  * 
  * @author Johannes Schindelin
+ * @author Curtis Rueden
  */
-@Plugin(type = Command.class, label = "There are updates available")
-public class UpdatesAvailable implements Command {
-
-	private final static String YES = "Yes, please", NEVER = "Never",
-			LATER = "Remind me later";
+@Plugin(type = Command.class, label = "Up-to-date check")
+public class CheckForUpdates implements Command {
 
 	@Parameter
 	private CommandService commandService;
 
 	@Parameter
-	private LogService log;
+	private StatusService statusService;
 
-	@Parameter(label = "Do you want to start the Updater now?", choices = { YES,
-		NEVER, LATER })
-	private String updateAction = YES;
+	@Parameter
+	private LogService log;
 
 	@Override
 	public void run() {
-		if (updateAction.equals(YES)) {
-			final List<CommandInfo> updaters =
-				commandService.getCommandsOfType(UpdaterUI.class);
-			if (updaters.size() > 0) {
-				commandService.run(updaters.get(0), true);
-			}
-			else {
-				if (log == null) {
-					log = UpdaterUtil.getLogService();
-				}
-				log.error("No updater plugins found!");
+		try {
+			final UpToDate.Result result = UpToDate.check();
+			switch (result) {
+				case UP_TO_DATE:
+				case OFFLINE:
+				case REMIND_LATER:
+				case CHECK_TURNED_OFF:
+				case UPDATES_MANAGED_DIFFERENTLY:
+				case DEVELOPER:
+					return;
+				case UPDATEABLE:
+					commandService.run(PromptUserToUpdate.class, true);
+					break;
+				case PROXY_NEEDS_AUTHENTICATION:
+					throw new RuntimeException(
+						"TODO: authenticate proxy with the configured user/pass pair");
+				case READ_ONLY:
+					final String message =
+						"Your ImageJ installation cannot be updated because it is read-only";
+					log.warn(message);
+					statusService.showStatus(message);
+					break;
+				default:
+					log.error("Unhandled UpToDate case: " + result);
 			}
 		}
-		else if (updateAction.equals(NEVER)) UpToDate.setLatestNag(Long.MAX_VALUE);
-		else if (updateAction.equals(LATER)) UpToDate.setLatestNag();
-		else throw new RuntimeException("Unknown update action: " + updateAction);
+		catch (final Exception e) {
+			log.error(e);
+		}
 	}
 
 }

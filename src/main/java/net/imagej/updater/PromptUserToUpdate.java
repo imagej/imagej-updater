@@ -31,42 +31,58 @@
 
 package net.imagej.updater;
 
-import org.scijava.app.StatusService;
+import java.util.List;
+
+import net.imagej.updater.util.UpdaterUtil;
+
+import org.scijava.command.Command;
+import org.scijava.command.CommandInfo;
 import org.scijava.command.CommandService;
-import org.scijava.event.EventHandler;
 import org.scijava.log.LogService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
-import org.scijava.service.AbstractService;
-import org.scijava.service.Service;
-import org.scijava.ui.event.UIShownEvent;
 
 /**
- * Default service for managing ImageJ updates.
+ * This plugin prompts the user to launch the updater due to available updates.
+ * It is called by the {@link CheckForUpdates} command when updates are
+ * available.
  * 
- * @author Curtis Rueden
+ * @author Johannes Schindelin
  */
-@Plugin(type = Service.class)
-public class DefaultUpdateService extends AbstractService implements
-	UpdateService
-{
+@Plugin(type = Command.class, label = "There are updates available")
+public class PromptUserToUpdate implements Command {
 
-	@Parameter
-	private LogService log;
-
-	@Parameter
-	private StatusService statusService;
+	private final static String YES = "Yes, please", NEVER = "Never",
+			LATER = "Remind me later";
 
 	@Parameter
 	private CommandService commandService;
 
-	// -- Event handlers --
+	@Parameter
+	private LogService log;
 
-	/** Checks for updates when the ImageJ UI is first shown. */
-	@EventHandler
-	protected void onEvent(@SuppressWarnings("unused") final UIShownEvent evt) {
-		// NB: Check for updates, but on a separate thread (not the EDT!).
-		commandService.run(CheckForUpdates.class, true);
+	@Parameter(label = "Do you want to start the Updater now?", choices = { YES,
+		NEVER, LATER })
+	private String updateAction = YES;
+
+	@Override
+	public void run() {
+		if (updateAction.equals(YES)) {
+			final List<CommandInfo> updaters =
+				commandService.getCommandsOfType(UpdaterUI.class);
+			if (updaters.size() > 0) {
+				commandService.run(updaters.get(0), true);
+			}
+			else {
+				if (log == null) {
+					log = UpdaterUtil.getLogService();
+				}
+				log.error("No updater plugins found!");
+			}
+		}
+		else if (updateAction.equals(NEVER)) UpToDate.setLatestNag(Long.MAX_VALUE);
+		else if (updateAction.equals(LATER)) UpToDate.setLatestNag();
+		else throw new RuntimeException("Unknown update action: " + updateAction);
 	}
 
 }
