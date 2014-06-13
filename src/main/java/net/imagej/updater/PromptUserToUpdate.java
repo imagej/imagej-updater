@@ -43,13 +43,14 @@ import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
 /**
- * This plugin checks whether updates are available, and prompts the user to
- * launch the updater if so. It typically runs when ImageJ first starts up.
+ * This plugin prompts the user to launch the updater due to available updates.
+ * It is called by the {@link CheckForUpdates} command when updates are
+ * available.
  * 
  * @author Johannes Schindelin
  */
 @Plugin(type = Command.class, label = "There are updates available")
-public class UpdatesAvailable implements Command {
+public class PromptUserToUpdate implements Command {
 
 	private final static String YES = "Yes, please", NEVER = "Never",
 			LATER = "Remind me later";

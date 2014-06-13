@@ -70,7 +70,7 @@ public class CheckForUpdates implements Command {
 				case DEVELOPER:
 					return;
 				case UPDATEABLE:
-					commandService.run(UpdatesAvailable.class, true);
+					commandService.run(PromptUserToUpdate.class, true);
 					break;
 				case PROXY_NEEDS_AUTHENTICATION:
 					throw new RuntimeException(
