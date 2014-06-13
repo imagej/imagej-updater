@@ -32,41 +32,62 @@
 package net.imagej.updater;
 
 import org.scijava.app.StatusService;
+import org.scijava.command.Command;
 import org.scijava.command.CommandService;
-import org.scijava.event.EventHandler;
 import org.scijava.log.LogService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
-import org.scijava.service.AbstractService;
-import org.scijava.service.Service;
-import org.scijava.ui.event.UIShownEvent;
 
 /**
- * Default service for managing ImageJ updates.
+ * This plugin checks whether updates are available, and prompts the user to
+ * launch the updater if so. It typically runs when ImageJ first starts up.
  * 
+ * @author Johannes Schindelin
  * @author Curtis Rueden
  */
-@Plugin(type = Service.class)
-public class DefaultUpdateService extends AbstractService implements
-	UpdateService
-{
+@Plugin(type = Command.class, label = "Up-to-date check")
+public class CheckForUpdates implements Command {
 
 	@Parameter
-	private LogService log;
+	private CommandService commandService;
 
 	@Parameter
 	private StatusService statusService;
 
 	@Parameter
-	private CommandService commandService;
+	private LogService log;
 
-	// -- Event handlers --
-
-	/** Checks for updates when the ImageJ UI is first shown. */
-	@EventHandler
-	protected void onEvent(@SuppressWarnings("unused") final UIShownEvent evt) {
-		// NB: Check for updates, but on a separate thread (not the EDT!).
-		commandService.run(CheckForUpdates.class, true);
+	@Override
+	public void run() {
+		try {
+			final UpToDate.Result result = UpToDate.check();
+			switch (result) {
+				case UP_TO_DATE:
+				case OFFLINE:
+				case REMIND_LATER:
+				case CHECK_TURNED_OFF:
+				case UPDATES_MANAGED_DIFFERENTLY:
+				case DEVELOPER:
+					return;
+				case UPDATEABLE:
+					commandService.run(UpdatesAvailable.class, true);
+					break;
+				case PROXY_NEEDS_AUTHENTICATION:
+					throw new RuntimeException(
+						"TODO: authenticate proxy with the configured user/pass pair");
+				case READ_ONLY:
+					final String message =
+						"Your ImageJ installation cannot be updated because it is read-only";
+					log.warn(message);
+					statusService.showStatus(message);
+					break;
+				default:
+					log.error("Unhandled UpToDate case: " + result);
+			}
+		}
+		catch (final Exception e) {
+			log.error(e);
+		}
 	}
 
 }
