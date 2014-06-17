@@ -350,6 +350,7 @@ public class CommandLine {
 							if (commit != null
 									&& scm.matches("https?://github.com/[^/]*/[^/]*/?")) {
 								map.put("Commit URL", scm + "/commit/" + commit);
+								map.put("Compare URL", scm + "/compare/" + commit + "...master");
 							}
 							map.put("Project SCM URL", scm);
 						}
