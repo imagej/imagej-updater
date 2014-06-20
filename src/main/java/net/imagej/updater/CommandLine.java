@@ -315,7 +315,7 @@ public class CommandLine {
 			}
 		}
 
-		final File jarFile = files.prefix(file);
+		final File jarFile = files.prefix(file.localFilename != null ? file.localFilename : file.filename);
 		if (jarFile.exists()) {
 			final Map<String, String> map = new LinkedHashMap<String, String>();
 			try {
