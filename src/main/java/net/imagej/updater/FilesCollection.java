@@ -374,7 +374,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 
 	@Deprecated
 	public Action[] getActions(final FileObject file) {
-		return file.isUploadable(this) ? file.getStatus().getDeveloperActions()
+		return file.isUploadable(this, false) ? file.getStatus().getDeveloperActions()
 			: file.getStatus().getActions();
 	}
 
@@ -558,11 +558,22 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	}
 
 	public Iterable<FileObject> uploadable() {
+		return uploadable(false);
+	}
+
+	/**
+	 * Gets the list of uploadable files.
+	 * 
+	 * @param assumeModified true if we want the potentially uploadable files if
+	 *          they (or their metadata) were to be changed.
+	 * @return the list of uploadable files
+	 */
+	public Iterable<FileObject> uploadable(final boolean assumeModified) {
 		return filter(new Filter() {
 
 			@Override
 			public boolean matches(final FileObject file) {
-				return file.isUploadable(FilesCollection.this);
+				return file.isUploadable(FilesCollection.this, assumeModified);
 			}
 		});
 	}
