@@ -640,14 +640,22 @@ public class FileObject {
 		return status.getNoAction() == Action.MODIFIED;
 	}
 
-	/**
-	 * Tell whether this file can be uploaded to its update site Note: this does
-	 * not check whether the file is locally modified.
-	 */
+	@Deprecated
 	public boolean isUploadable(final FilesCollection files) {
+		return isUploadable(files, false);
+	}
+
+	/**
+	 * Tells whether this file can be uploaded to its update site Note: this does
+	 * not check whether the file is locally modified.
+	 * 
+	 * @param files the {@link FilesCollection} to look up the update site
+	 * @param assumeModified whether to assume that the file is about to be changed
+	 */
+	public boolean isUploadable(final FilesCollection files, final boolean assumeModified) {
 		switch (status) {
 			case INSTALLED:
-				return false;
+				if (!assumeModified) return false;
 			default:
 		}
 		if (updateSite == null) return files.hasUploadableSites();
