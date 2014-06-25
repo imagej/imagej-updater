@@ -583,7 +583,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 
 			@Override
 			public boolean matches(final FileObject file) {
-				return file.getAction() != file.getStatus().getNoAction();
+				return file.metadataChanged || file.getAction() != file.getStatus().getNoAction();
 			}
 		});
 	}
@@ -717,6 +717,16 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 		};
 	}
 
+	public Filter hasMetadataChanges() {
+		return new Filter() {
+
+			@Override
+			public boolean matches(final FileObject file) {
+				return file.metadataChanged;
+			}
+		};
+	}
+
 	public Filter isUpdateSite(final String updateSite) {
 		return new Filter() {
 
@@ -842,11 +852,11 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	}
 
 	public boolean hasChanges() {
-		return has(not(isNoAction()));
+		return changes().iterator().hasNext();
 	}
 
 	public boolean hasUploadOrRemove() {
-		return has(oneOf(Action.UPLOAD, Action.REMOVE));
+		return has(or(hasMetadataChanges(), oneOf(Action.UPLOAD, Action.REMOVE)));
 	}
 
 	public boolean hasForcableUpdates() {
