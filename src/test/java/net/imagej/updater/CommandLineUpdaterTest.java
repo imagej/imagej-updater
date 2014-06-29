@@ -40,6 +40,7 @@ import static net.imagej.updater.UpdaterTestUtils.main;
 import static net.imagej.updater.UpdaterTestUtils.writeFile;
 import static net.imagej.updater.UpdaterTestUtils.writeGZippedFile;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.scijava.util.FileUtils.deleteRecursively;
 
@@ -220,5 +221,30 @@ public class CommandLineUpdaterTest {
 			assertEquals("Circular dependency detected: jars/b.jar -> jars/a.jar -> jars/b.jar\n",
 					e.getMessage());
 		}
+	}
+
+	@Test
+	public void testUploadUnchangedNewVersion() throws Exception {
+		final String path1 = "jars/test-1.0.0.jar";
+		final String path2 = "jars/test-1.0.1.jar";
+		files = initialize(path1);
+
+		files = main(files, "upload", "--update-site", DEFAULT_UPDATE_SITE, path1);
+
+		assertStatus(Status.INSTALLED, files, path1);
+
+		final File file1 = files.prefix(path1);
+		final File file2 = files.prefix(path2);
+		assertTrue(file1.renameTo(file2));
+		files = main(files, "upload", path2);
+
+		assertFalse(file1.exists());
+		assertTrue(file2.delete());
+		files = main(files, "update-force-pristine");
+
+		assertEquals(path2, files.get(path2).filename);
+		assertStatus(Status.INSTALLED, files, path2);
+		assertFalse(file1.exists());
+		assertTrue(file2.exists());
 	}
 }
