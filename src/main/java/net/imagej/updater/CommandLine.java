@@ -565,7 +565,7 @@ public class CommandLine {
 			if (file == null) {
 				throw die("No file '" + name + "' found!");
 			}
-			if (file.getStatus() == Status.INSTALLED) {
+			if (file.getStatus() == Status.INSTALLED && (file.localFilename == null || file.localFilename.equals(file.filename))) {
 				if (forceShadow && !updateSite.equals(file.updateSite)) {
 					// TODO: add overridden update site
 					file.updateSite = updateSite;
@@ -606,6 +606,9 @@ public class CommandLine {
 			} else {
 				if (simulate) {
 					log.info("Would upload '" + name + "'");
+				}
+				if (file.localFilename != null && !file.localFilename.equals(file.filename)) {
+					file.addPreviousVersion(file.current.checksum, file.current.timestamp, file.filename);
 				}
 				file.setAction(files, Action.UPLOAD);
 			}
