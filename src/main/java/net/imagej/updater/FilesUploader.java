@@ -41,6 +41,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.imagej.updater.Conflicts.Conflict;
+import net.imagej.updater.FileObject.Action;
 import net.imagej.updater.util.Progress;
 import net.imagej.updater.util.StderrProgress;
 import net.imagej.updater.util.UpdaterUserInterface;
@@ -213,6 +214,21 @@ public class FilesUploader {
 		uploadables = new ArrayList<Uploadable>();
 		final List<String> locks = new ArrayList<String>();
 		uploadables.add(new DbXmlFile());
+
+		/*
+		 * Stage new versions of otherwise unchanged files for upload (Bio-Formats, I
+		 * am looking at you!).
+		 */
+		for (final FileObject file : files.forUpdateSite(siteName)) {
+			if (file.getAction() == Action.INSTALLED && file.metadataChanged &&
+				file.localFilename != null && !file.localFilename.equals(file.filename))
+			{
+				file.addPreviousVersion(file.current.checksum, file.current.timestamp,
+					file.filename);
+				file.setAction(files, Action.UPLOAD);
+			}
+		}
+
 		for (final FileObject file : files.toUpload(siteName)) {
 			// remove obsolete/invalid dependencies
 			for (Iterator<Dependency> iter = file.getDependencies().iterator(); iter.hasNext(); ) {

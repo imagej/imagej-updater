@@ -322,6 +322,9 @@ public class FileObject {
 
 	public void setLocalVersion(final String filename, final String checksum, final long timestamp) {
 		localFilename = filename;
+		if (!localFilename.equals(this.filename)) {
+			metadataChanged = true;
+		}
 		localChecksum = checksum;
 		localTimestamp = timestamp;
 		if (current != null && checksum.equals(current.checksum)) {
@@ -463,9 +466,12 @@ public class FileObject {
 	}
 
 	public void setAction(final FilesCollection files, final Action action) {
-		if (!status.isValid(action) && !(action.equals(Action.REMOVE) && overridesOtherUpdateSite())) throw new Error(
-			"Invalid action requested for file " + filename + "(" + action + ", " +
-				status + ")");
+		if (!status.isValid(action) &&
+				(!(action.equals(Action.REMOVE) && overridesOtherUpdateSite()) &&
+						(!action.equals(Action.UPLOAD) || localFilename == null || localFilename.equals(filename)))) {
+			throw new Error("Invalid action requested for file " + filename + "(" +
+				action + ", " + status + ")");
+		}
 		if (action == Action.UPLOAD) {
 			if (current == null) {
 				current = new Version(localChecksum, localTimestamp);
@@ -516,8 +522,11 @@ public class FileObject {
 			setVersion(localChecksum, localTimestamp);
 		}
 		else {
-			if (localChecksum == null || localChecksum.equals(current.checksum)) throw new Error(
-				filename + " is already uploaded");
+			if (!metadataChanged &&
+				(localChecksum == null || localChecksum.equals(current.checksum)))
+			{
+				throw new Error(filename + " is already uploaded");
+			}
 			setVersion(localChecksum, localTimestamp);
 		}
 	}
