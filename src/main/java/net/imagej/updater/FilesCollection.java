@@ -856,7 +856,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	}
 
 	public boolean hasUploadOrRemove() {
-		return has(or(hasMetadataChanges(), oneOf(Action.UPLOAD, Action.REMOVE)));
+		return has(oneOf(Action.UPLOAD, Action.REMOVE));
 	}
 
 	public boolean hasForcableUpdates() {
