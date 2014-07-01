@@ -583,7 +583,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 
 			@Override
 			public boolean matches(final FileObject file) {
-				return file.metadataChanged || file.getAction() != file.getStatus().getNoAction();
+				return file.getAction() != file.getStatus().getNoAction();
 			}
 		});
 	}
