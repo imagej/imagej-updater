@@ -214,7 +214,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 
 	public Collection<String> getSiteNamesToUpload() {
 		final Collection<String> set = new HashSet<String>();
-		for (final FileObject file : toUpload(true))
+		for (final FileObject file : toUpload(false))
 			set.add(file.updateSite);
 		for (final FileObject file : toRemove())
 			set.add(file.updateSite);
