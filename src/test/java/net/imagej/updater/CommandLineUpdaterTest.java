@@ -35,6 +35,7 @@ import static net.imagej.updater.FilesCollection.DEFAULT_UPDATE_SITE;
 import static net.imagej.updater.UpdaterTestUtils.addUpdateSite;
 import static net.imagej.updater.UpdaterTestUtils.assertStatus;
 import static net.imagej.updater.UpdaterTestUtils.cleanup;
+import static net.imagej.updater.UpdaterTestUtils.getWebRoot;
 import static net.imagej.updater.UpdaterTestUtils.initialize;
 import static net.imagej.updater.UpdaterTestUtils.main;
 import static net.imagej.updater.UpdaterTestUtils.writeFile;
@@ -45,12 +46,13 @@ import static org.junit.Assert.assertTrue;
 import static org.scijava.util.FileUtils.deleteRecursively;
 
 import java.io.File;
+import java.net.URL;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.imagej.updater.FileObject;
-import net.imagej.updater.FilesCollection;
 import net.imagej.updater.FileObject.Status;
+import net.imagej.updater.action.Upload;
 import net.imagej.updater.util.StderrProgress;
 
 import org.junit.After;
@@ -246,5 +248,49 @@ public class CommandLineUpdaterTest {
 		assertStatus(Status.INSTALLED, files, path2);
 		assertFalse(file1.exists());
 		assertTrue(file2.exists());
+	}
+
+	@Test
+	public void testMark3rdPartyPluginForUpload() throws Exception {
+		final String upstream = "jars/upstream.jar";
+		final String upstream2 = "jars/upstream-1.0.1.jar";
+		final String thirdparty = "jars/thirdparty.jar";
+
+		files = initialize(upstream);
+
+		files =
+			main(files, "upload", "--update-site", DEFAULT_UPDATE_SITE, upstream);
+
+		// rename the file
+		assertTrue(files.prefix(upstream).renameTo(files.prefix(upstream2)));
+
+		// now revoke the upload permission
+		final URL webRoot = getWebRoot(files, DEFAULT_UPDATE_SITE).toURI().toURL();
+		files =
+			main(files, "edit-update-site", DEFAULT_UPDATE_SITE, webRoot.toString());
+
+		// write the file
+		writeFile(files.prefix(thirdparty), "This file wants to be uploaded!");
+		files = main(files, "list");
+		assertFalse("Can upload!", isUploadable(files, thirdparty));
+
+		// add a personal update site
+		addUpdateSite(files, "personal");
+		files = main(files, "list-update-sites");
+		assertTrue("Cannot upload!", isUploadable(files, thirdparty));
+
+		// add the upload permission again, to facilitate cleanup
+		files =
+			main(files, "edit-update-site", DEFAULT_UPDATE_SITE, webRoot.toString(),
+				"file:localhost", webRoot.getPath());
+	}
+
+	private static boolean isUploadable(FilesCollection files, String filename) {
+		Set<GroupAction> valid =
+			files.getValidActions(Collections.singleton(files.get(filename)));
+		for (final GroupAction action : valid) {
+			if (action instanceof Upload) return true;
+		}
+		return false;
 	}
 }
