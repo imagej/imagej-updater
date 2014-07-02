@@ -463,7 +463,8 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 
 			@Override
 			public boolean matches(final FileObject file) {
-				return file.metadataChanged;
+				return file.metadataChanged &&
+					file.isUploadable(FilesCollection.this, false);
 			}
 		}));
 	}
