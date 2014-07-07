@@ -129,6 +129,52 @@ if (!new File(imagejDir, "db.xml.gz").exists()) {
 	files.write();
 }
 
+if (isCommandLine && arguments.length == 1 && "jar-urls".equals(arguments[0])) {
+	IJ.showStatus("Loading the FilesCollection class");
+	clazz = loader.loadClass("net.imagej.updater.FilesCollection");
+	fileClazz = loader.loadClass("java.io.File");
+	files = clazz.getConstructor([fileClazz]).newInstance([imagejDir]);
+
+	IJ.showStatus("Updating from the update site");
+	xmlClazz = loader.loadClass("net.imagej.updater.XMLFileDownloader");
+	xml = xmlClazz.getConstructor([clazz]).newInstance([files]);
+	xml.start(true);
+
+	swingUI = files.get("jars/imagej-ui-swing.jar");
+	cmdLine = files.get("jars/imagej-updater.jar");
+	list = new Array();
+	i = 0;
+	list[i++] = swingUI;
+	list[i++] = files.get("jars/imagej-plugins-uploader-webdav.jar");
+	for (iter = cmdLine.getFileDependencies(files, true).iterator();
+			iter.hasNext(); ) {
+		f = iter.next();
+		if (!f.getFilename(true).matches("jars/" +
+				"(imglib2|scifio|mapdb|udunits).*")) {
+			list[i++] = f;
+		}
+	}
+
+	prefix = null;
+	for (i = 0; i < list.length; i++) {
+		url = files.getURL(list[i]);
+		if (prefix == null) prefix = url;
+		else while (!url.startsWith(prefix)) {
+			prefix = prefix.substring(0, prefix.length() - 1);
+		}
+		list[i] = url;
+	}
+	output = "baseURL = '" + prefix + "';\n";
+	output += "jars = [\n";
+	for (i = 0; i < list.length; i++) {
+		output += "\t'" + list[i].substring(prefix.length()) + "',\n";
+	}
+	output = output.substring(0, output.length - 2);
+	output += "\n];\n";
+	print(output);
+	System.exit(0);
+}
+
 IJ.showStatus("loading remote updater");
 updaterClass = loader.loadClass(updaterClassName);
 IJ.showStatus("running remote updater");
