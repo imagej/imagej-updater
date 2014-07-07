@@ -19,11 +19,11 @@ importClass(Packages.java.net.URLClassLoader);
 
 baseURL = 'http://update.imagej.net/jars/';
 jars = [
-	'imagej-ui-swing-0.4.7.jar-20140620201423',
+	'imagej-ui-swing-0.4.8.jar-20140701184314',
 	'imagej-plugins-uploader-webdav-0.1.1.jar-20140516211031',
-	'imagej-updater-0.3.9.jar-20140620201423',
-	'scijava-common-2.24.0.jar-20140620201423',
-	'imagej-common-0.7.6.jar-20140620201423',
+	'imagej-updater-0.4.3.jar-20140702234308',
+	'scijava-common-2.25.0.jar-20140701184314',
+	'imagej-common-0.8.0.jar-20140701184314',
 	'eventbus-1.4.jar-20120404210913',
 	'gentyref-1.1.0.jar-20140516211031'
 ];
