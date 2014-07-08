@@ -441,7 +441,8 @@ public class Checksummer extends AbstractProgressable {
 		{ "lib" }, { "" },
 		{ "mm" }, { "" },
 		{ "mmautofocus" }, { "" },
-		{ "mmplugins" }, { "" }
+		{ "mmplugins" }, { "" },
+		{ "OlympusIX3Control" }, { ".exe", ".dll", ".config" }
 	};
 
 	protected static final Map<String, Set<String>> extensions;
