@@ -413,6 +413,10 @@ public class Checksummer extends AbstractProgressable {
 				file.filename.substring(4);
 			else if (file.filename.startsWith("mm/")) platform =
 				file.filename.substring(3);
+			else if (file.filename.startsWith("OlympusIX3Control/")) {
+				file.addPlatform("win32");
+				return true;
+			}
 			else return false;
 
 			final int slash = platform.indexOf('/');
@@ -441,7 +445,8 @@ public class Checksummer extends AbstractProgressable {
 		{ "lib" }, { "" },
 		{ "mm" }, { "" },
 		{ "mmautofocus" }, { "" },
-		{ "mmplugins" }, { "" }
+		{ "mmplugins" }, { "" },
+		{ "OlympusIX3Control" }, { ".exe", ".dll", ".config" }
 	};
 
 	protected static final Map<String, Set<String>> extensions;
