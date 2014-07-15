@@ -32,7 +32,11 @@ package net.imagej.updater;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Arrays;
 
 import org.scijava.util.LongArray;
@@ -56,10 +60,10 @@ import org.scijava.util.LongArray;
  */
 public class DllFile {
 
-	public static void main(String... args) {
+	public static void main(String... args) throws MalformedURLException {
 		File a = new File(System.getProperty("user.home") + "/ij2/updater/a1.dll");
 		File b = new File(System.getProperty("user.home") + "/ij2/updater/c2.dll");
-		System.err.println("equal: " + DllFile.equals(a, b));
+		System.err.println("equal: " + DllFile.equals(a, b.toURI().toURL()));
 	}
 
 	/**
@@ -69,17 +73,11 @@ public class DllFile {
 	 * @param b the second {@code .dll} file
 	 * @return true if the two files are functionally identical
 	 */
-	public static boolean equals(final File a, final File b) {
+	public static boolean equals(final File a, final URL b) {
 		try {
 			final DllFile dllA = new DllFile(a);
 			try {
-				final DllFile dllB = new DllFile(b);
-				try {
-					return dllA.equals(dllB);
-				}
-				finally {
-					dllB.close();
-				}
+				return dllA.equals(b.openConnection());
 			}
 			finally {
 				dllA.close();
@@ -133,8 +131,8 @@ public class DllFile {
 	 *         volatile GUIDs
 	 * @throws IOException
 	 */
-	public boolean equals(final DllFile o) throws IOException {
-		if (ra.length() != o.ra.length()) return false;
+	public boolean equals(final URLConnection o) throws IOException {
+		if (ra.length() != o.getContentLength()) return false;
 		initialize();
 		long[] toSkip = this.toSkip.copyArray();
 		Arrays.sort(toSkip);
@@ -150,6 +148,9 @@ public class DllFile {
 					return false;
 				}
 			}
+		}
+		finally {
+			in.close();
 		}
 		return true;
 	}
@@ -282,9 +283,7 @@ public class DllFile {
 		toSkip.add(ra.length());
 	}
 
-	private boolean equals(final DllFile o, long offset, long length) throws IOException {
-		ra.seek(offset);
-		o.ra.seek(offset);
+	private boolean equals(final InputStream in, long length) throws IOException {
 		byte[] buffer = new byte[65536], otherBuffer = new byte[65536];
 		while (length > 0) {
 			int count = buffer.length;
@@ -292,13 +291,19 @@ public class DllFile {
 				count = (int) length;
 			}
 			ra.readFully(buffer, 0, count);
-			o.ra.readFully(otherBuffer, 0, count);
+			int offset = 0;
+			while (offset < count) {
+				int count2 = in.read(otherBuffer, offset, count - offset);
+				if (count2 < 0) {
+					throw new IOException("Short read!");
+				}
+				offset += count2;
+			}
 			for (int i = 0; i < count; i++) {
 				if (buffer[i] != otherBuffer[i]) {
 					return false;
 				}
 			}
-			offset += count;
 			length -= count;
 		}
 		return true;

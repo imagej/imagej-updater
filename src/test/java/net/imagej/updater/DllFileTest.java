@@ -52,10 +52,6 @@ public class DllFileTest {
 		assertTrue(emptyDll.exists());
 
 		final URL recompiledDllURL = getClass().getResource("/recompiled.dll");
-		assertEquals("file", recompiledjustedDllURL.getProtocol());
-		final File recompiledDll = new File(recompiledDllURL.getPath());
-		assertTrue(recompiledDll.exists());
-
-		assertTrue(DllFile.equals(emptyDll, recompiledDll));
+		assertTrue(DllFile.equals(emptyDll, recompiledDllURL));
 	}
 }
