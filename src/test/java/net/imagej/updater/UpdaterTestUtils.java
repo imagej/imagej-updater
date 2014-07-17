@@ -36,8 +36,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-
-import org.scijava.test.TestUtils;
+import static org.scijava.test.TestUtils.createTemporaryDirectory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -782,13 +781,5 @@ public class UpdaterTestUtils {
 		out.closeEntry();
 		out.close();
 		return file;
-	}
-
-	// work-around for bug in scijava-common 2.20.0, not needed with versions >= 2.20.1
-	private static File createTemporaryDirectory(final String prefix) throws IOException {
-		final Entry<Class<?>, String> entry = TestUtils
-				.getCallingCodeLocation(UpdaterTestUtils.class);
-		return TestUtils.createTemporaryDirectory(prefix, entry.getKey(),
-				entry.getValue());
 	}
 }
