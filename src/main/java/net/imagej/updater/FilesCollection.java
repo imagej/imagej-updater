@@ -1028,7 +1028,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 		final StringBuilder result = new StringBuilder();
 		final Set<FileObject> circularChecked = new HashSet<FileObject>();
 		for (final FileObject file : this) {
-			if (uploadSiteName != null && !uploadSiteName.equals(file.updateSite)) {
+			if (uploadSiteName != null && !uploadSiteName.equals(file.updateSite) || file.getAction() == Action.REMOVE) {
 				continue;
 			}
 			result.append(checkForCircularDependency(file, circularChecked, uploadSiteName));

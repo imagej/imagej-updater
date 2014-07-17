@@ -38,11 +38,13 @@ import static net.imagej.updater.UpdaterTestUtils.cleanup;
 import static net.imagej.updater.UpdaterTestUtils.getWebRoot;
 import static net.imagej.updater.UpdaterTestUtils.initialize;
 import static net.imagej.updater.UpdaterTestUtils.main;
+import static net.imagej.updater.UpdaterTestUtils.upload;
 import static net.imagej.updater.UpdaterTestUtils.writeFile;
 import static net.imagej.updater.UpdaterTestUtils.writeGZippedFile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.scijava.test.TestUtils.createTemporaryDirectory;
 import static org.scijava.util.FileUtils.deleteRecursively;
 
 import java.io.File;
@@ -292,5 +294,41 @@ public class CommandLineUpdaterTest {
 			if (action instanceof Upload) return true;
 		}
 		return false;
+	}
+
+	@Test
+	public void testRemoveWithObsoleteDependencies() throws Exception {
+		final String upstream = "jars/upstream.jar";
+		final String downstream = "jars/downstream.jar";
+
+		files = initialize(upstream);
+
+		files =
+			main(files, "upload", "--update-site", DEFAULT_UPDATE_SITE, upstream);
+
+		// make a second ImageJ.app and add a personal update site
+		final File tmp = createTemporaryDirectory("ij-too-");
+		final String webRoot = files.getUpdateSite(DEFAULT_UPDATE_SITE, false).getURL();
+		CommandLine.main(tmp, 80, "edit-update-site", DEFAULT_UPDATE_SITE, webRoot);
+		FilesCollection files2 = new FilesCollection(tmp);
+		files2 = main(files2, "update");
+		addUpdateSite(files2, "personal");
+
+		// upload downstream to the personal update site
+		writeFile(files2.prefix(downstream), "This file wants to be uploaded!");
+		files2 = main(files2, "list");
+		final FileObject down = files2.get(downstream);
+		down.addDependency(files2, files2.get(upstream));
+		down.stageForUpload(files2, "personal");
+		upload(files2, "personal");
+
+		// now mark the old file as obsolete
+		assertTrue(files.prefix(upstream).delete());
+		files = main(files, "upload", upstream);
+
+		// now mark downstream obsolete
+		files2 = main(files2, "update");
+		assertTrue(files2.prefix(downstream).delete());
+		files2 = main(files2, "upload", downstream);
 	}
 }
