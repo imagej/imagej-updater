@@ -325,6 +325,7 @@ public class UpdaterTestUtils {
 
 	public static File getWebRoot(final FilesCollection files, final String updateSite) {
 		final UpdateSite site = files.getUpdateSite(updateSite, false);
+		assertNotNull(site);
 		if (!DEFAULT_UPDATE_SITE.equals(updateSite)
 				&& (site.getHost() == null || site.getHost().startsWith("file:"))) {
 			return null;
