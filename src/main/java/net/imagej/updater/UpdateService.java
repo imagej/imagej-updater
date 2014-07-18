@@ -31,6 +31,8 @@
 
 package net.imagej.updater;
 
+import java.io.File;
+
 import net.imagej.ImageJService;
 
 /**
@@ -39,5 +41,8 @@ import net.imagej.ImageJService;
  * @author Curtis Rueden
  */
 public interface UpdateService extends ImageJService {
-	// NB: Marker interface.
+
+	/** Gets the update site housing the given file. */
+	UpdateSite getUpdateSite(File file);
+
 }
