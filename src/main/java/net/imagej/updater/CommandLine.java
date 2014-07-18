@@ -42,7 +42,9 @@ import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -565,6 +567,107 @@ public class CommandLine {
 					}
 				}
 			}
+			resolveConflicts(false);
+			final Installer installer = new Installer(files, progress);
+			installer.start();
+			installer.moveUpdatedIntoPlace();
+			files.write();
+		} catch (final Exception e) {
+			if (e.getMessage().indexOf("conflicts") >= 0) {
+				log.error("Could not update due to conflicts:");
+				for (final Conflict conflict : new Conflicts(files).getConflicts(false))
+				{
+					log.error(conflict.getFilename() + ": " + conflict.getConflict());
+				}
+			} else {
+				log.error("Error updating", e);
+			}
+		}
+	}
+
+	public void downgrade(final List<String> list) {
+		final Console console = System.console();
+		if (console == null) {
+			throw die("Downgrading is only allowed interactively");
+		}
+
+		final List<String> answers = Arrays.asList("Yours, and yours alone", "Obama's", "San Andreas'");
+		final String correct = answers.get(0);
+		Collections.shuffle(answers);
+		String answer = console.readLine("Downgrading is not accurate, due to lack of accurate metadata\n" +
+				"In particular, when files have been shadowed/unshadowed or marked obsolete,\n" +
+				"the result of a downgrade is guaranteed to be inaccurate.\n\n" +
+				"If you do not want an inaccurate time, now is the time to quit.\n\n" +
+				"Otherwise, please answer the following question accurately:\n" +
+				"Whose fault is it if anything goes wrong with this downgrade?\n\n" +
+				"\t1) %s\n\t2) %s\n\t3) %s\n", answers.toArray()).trim();
+		if (answer.matches("[0-9]+")) try {
+			answer = answers.get(Integer.parseInt(answer) - 1);
+		}
+		catch (final NumberFormatException e) {
+			// ignore
+		}
+		if (!correct.equals(answer)) {
+			throw die("Absolutely not.");
+		}
+
+		if (list.size() < 1) {
+			throw die("What date?");
+		}
+		final String timestampString = list.remove(0);
+		final long timestamp = Long.parseLong(timestampString);
+
+		ensureChecksummed();
+
+		int count = 0;
+		for (final FileObject file : files.filter(new FileFilter(list))) {
+			if (file.getStatus() == Status.LOCAL_ONLY) continue;
+			if (file.current != null && file.current.timestamp <= timestamp) {
+				if (!file.current.checksum.equals(file.localChecksum)) {
+					file.setStatus(Status.UPDATEABLE);
+					file.setFirstValidAction(files, Action.UPDATE, Action.INSTALL);
+					count++;
+				}
+				continue;
+			}
+
+			String result = null;
+			String checksum = null;
+			long matchedTimestamp = 0;
+			for (final Version version : file.previous) {
+				if (timestamp >= version.timestamp && version.timestamp > matchedTimestamp) {
+					result = version.filename;
+					checksum = version.checksum;
+					matchedTimestamp = version.timestamp;
+				}
+			}
+
+			if (checksum == null) {
+				if (file.localChecksum != null) {
+					file.setAction(files, Action.UNINSTALL);
+					count++;
+				}
+			}
+			else if (!result.equals(file.filename) || !checksum.equals(file.localChecksum)) {
+				if (file.current == null) {
+					file.current = new Version(checksum, matchedTimestamp);
+				}
+				else {
+					file.current.checksum = checksum;
+					file.current.timestamp = matchedTimestamp;
+				}
+				file.filename = file.current.filename = result;
+				file.filesize = -1;
+				file.setStatus(Status.UPDATEABLE);
+				file.setFirstValidAction(files, Action.UPDATE, Action.INSTALL);
+				count++;
+			}
+		}
+
+		if (count == 0) {
+			System.err.println("Nothing to do!");
+		}
+		else try {
 			resolveConflicts(false);
 			final Installer installer = new Installer(files, progress);
 			installer.start();
@@ -1272,6 +1375,8 @@ public class CommandLine {
 		// hidden commands, i.e. not for public consumption
 		} else if (command.equals("history")) {
 			instance.history(makeList(args, 1));
+		} else if (command.equals("downgrade")) {
+			instance.downgrade(makeList(args, 1));
 		} else {
 			instance.usage();
 		}
