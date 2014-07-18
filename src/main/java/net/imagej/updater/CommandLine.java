@@ -611,6 +611,12 @@ public class CommandLine {
 			throw die("Absolutely not.");
 		}
 
+		boolean simulate = false;
+		if (list.size() > 0 && "--simulate".equals(list.get(0))) {
+			simulate = true;
+			list.remove(0);
+		}
+
 		if (list.size() < 1) {
 			throw die("What date?");
 		}
@@ -624,8 +630,13 @@ public class CommandLine {
 			if (file.getStatus() == Status.LOCAL_ONLY) continue;
 			if (file.current != null && file.current.timestamp <= timestamp) {
 				if (!file.current.checksum.equals(file.localChecksum)) {
-					file.setStatus(Status.UPDATEABLE);
-					file.setFirstValidAction(files, Action.UPDATE, Action.INSTALL);
+					if (simulate) {
+						System.out.println("Would update/install " + file.current.filename);
+					}
+					else {
+						file.setStatus(Status.UPDATEABLE);
+						file.setFirstValidAction(files, Action.UPDATE, Action.INSTALL);
+					}
 					count++;
 				}
 				continue;
@@ -644,22 +655,32 @@ public class CommandLine {
 
 			if (checksum == null) {
 				if (file.localChecksum != null) {
-					file.setAction(files, Action.UNINSTALL);
+					if (simulate) {
+						System.out.println("Would uninstall " + file.getLocalFilename(false));
+					}
+					else {
+						file.setAction(files, Action.UNINSTALL);
+					}
 					count++;
 				}
 			}
 			else if (!result.equals(file.filename) || !checksum.equals(file.localChecksum)) {
-				if (file.current == null) {
-					file.current = new Version(checksum, matchedTimestamp);
+				if (simulate) {
+					System.out.println("Would update/install " + result);
 				}
 				else {
-					file.current.checksum = checksum;
-					file.current.timestamp = matchedTimestamp;
+					if (file.current == null) {
+						file.current = new Version(checksum, matchedTimestamp);
+					}
+					else {
+						file.current.checksum = checksum;
+						file.current.timestamp = matchedTimestamp;
+					}
+					file.filename = file.current.filename = result;
+					file.filesize = -1;
+					file.setStatus(Status.UPDATEABLE);
+					file.setFirstValidAction(files, Action.UPDATE, Action.INSTALL);
 				}
-				file.filename = file.current.filename = result;
-				file.filesize = -1;
-				file.setStatus(Status.UPDATEABLE);
-				file.setFirstValidAction(files, Action.UPDATE, Action.INSTALL);
 				count++;
 			}
 		}
@@ -667,7 +688,7 @@ public class CommandLine {
 		if (count == 0) {
 			System.err.println("Nothing to do!");
 		}
-		else try {
+		else if (!simulate) try {
 			resolveConflicts(false);
 			final Installer installer = new Installer(files, progress);
 			installer.start();
