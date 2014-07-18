@@ -31,6 +31,8 @@
 
 package net.imagej.updater;
 
+import static net.imagej.updater.util.UpdaterUtil.prettyPrintTimestamp;
+
 import java.awt.Frame;
 import java.io.Console;
 import java.io.File;
@@ -41,11 +43,15 @@ import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -56,6 +62,7 @@ import net.imagej.updater.Conflicts.Resolution;
 import net.imagej.updater.Diff.Mode;
 import net.imagej.updater.FileObject.Action;
 import net.imagej.updater.FileObject.Status;
+import net.imagej.updater.FileObject.Version;
 import net.imagej.updater.FilesCollection.Filter;
 import net.imagej.updater.util.Downloadable;
 import net.imagej.updater.util.Downloader;
@@ -381,6 +388,55 @@ public class CommandLine {
 					System.out.println("\t" + entry.getKey() + ": "
 							+ entry.getValue());
 				}
+			}
+		}
+	}
+
+	public void history(final List<String> list) {
+		ensureChecksummed();
+		class History extends TreeMap<Long, Set<FileObject>> implements
+			Comparator<FileObject>
+		{
+
+			public void add(final FileObject file) {
+				if (file.current != null) {
+					add(file.current.timestamp, file);
+				}
+				for (final Version version : file.previous) {
+					add(version.timestamp, file);
+				}
+			}
+
+			public void add(final long timestamp, final FileObject file) {
+				Set<FileObject> set = get(timestamp);
+				if (set == null) {
+					set = new TreeSet<FileObject>(this);
+					put(timestamp, set);
+				}
+				set.add(file);
+			}
+
+			@Override
+			public int compare(FileObject a, FileObject b) {
+				return a.getFilename(true).compareTo(b.getFilename(true));
+			}
+		}
+
+		final History history = new History();
+		for (final FileObject file : files.filter(new FileFilter(list))) {
+			if (file.getStatus() == Status.LOCAL_ONLY) continue;
+			history.add(file);
+		}
+
+		for (final Entry<Long, Set<FileObject>> entry : history.descendingMap()
+			.entrySet())
+		{
+			final long timestamp = entry.getKey();
+			final Set<FileObject> files = entry.getValue();
+
+			System.out.println("" + prettyPrintTimestamp(timestamp));
+			for (final FileObject file : files) {
+				System.out.println("\t" + file.getFilename(timestamp));
 			}
 		}
 	}
@@ -1213,6 +1269,9 @@ public class CommandLine {
 			instance.addOrEditUploadSite(makeList(args, 1), false);
 		} else if (command.equals("remove-update-site")) {
 			instance.removeUploadSite(makeList(args, 1));
+		// hidden commands, i.e. not for public consumption
+		} else if (command.equals("history")) {
+			instance.history(makeList(args, 1));
 		} else {
 			instance.usage();
 		}
