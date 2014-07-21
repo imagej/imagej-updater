@@ -38,6 +38,7 @@ import static net.imagej.updater.UpdaterTestUtils.cleanup;
 import static net.imagej.updater.UpdaterTestUtils.getWebRoot;
 import static net.imagej.updater.UpdaterTestUtils.initialize;
 import static net.imagej.updater.UpdaterTestUtils.main;
+import static net.imagej.updater.UpdaterTestUtils.readFile;
 import static net.imagej.updater.UpdaterTestUtils.upload;
 import static net.imagej.updater.UpdaterTestUtils.writeFile;
 import static net.imagej.updater.UpdaterTestUtils.writeGZippedFile;
@@ -56,6 +57,7 @@ import java.util.Set;
 import net.imagej.updater.FileObject.Status;
 import net.imagej.updater.action.Upload;
 import net.imagej.updater.util.StderrProgress;
+import net.imagej.updater.util.UpdaterUtil;
 
 import org.junit.After;
 import org.junit.Test;
@@ -330,5 +332,26 @@ public class CommandLineUpdaterTest {
 		files2 = main(files2, "update");
 		assertTrue(files2.prefix(downstream).delete());
 		files2 = main(files2, "upload", downstream);
+	}
+
+	@Test
+	public void testDowngrade() throws Exception {
+		final String macro = "macro/test.ijm";
+		files = initialize(macro);
+		final long timestamp = UpdaterUtil.getTimestamp(files.prefix(macro));
+
+		Thread.sleep(1000);
+		writeFile(files, macro, "new version");
+		files = main(files, "list");
+		files.get(macro).stageForUpload(files, DEFAULT_UPDATE_SITE);
+		upload(files);
+
+		files = main(files, "list");
+		final long newTimestamp = UpdaterUtil.getTimestamp(files.prefix(macro));
+		assertTrue("Equal: " + timestamp + ", " + newTimestamp, timestamp != newTimestamp);
+
+		files = main(files, "downgrade", "" + timestamp);
+		final String contents = readFile(files.prefix(macro));
+		assertEquals(macro, contents.trim());
 	}
 }

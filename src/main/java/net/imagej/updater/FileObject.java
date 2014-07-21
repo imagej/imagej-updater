@@ -584,6 +584,27 @@ public class FileObject {
 		return filename;
 	}
 
+	/**
+	 * Returns the file name for the given date, as per the update site.
+	 * 
+	 * @param timestamp the date
+	 * @return the file name for the date
+	 */
+	public String getFilename(final long timestamp) {
+		if (current != null && timestamp >= current.timestamp) {
+			return filename;
+		}
+		String result = null;
+		long matchedTimestamp = 0;
+		for (final Version version : previous) {
+			if (timestamp >= version.timestamp && version.timestamp > matchedTimestamp) {
+				result = version.filename;
+				matchedTimestamp = version.timestamp;
+			}
+		}
+		return result;
+	}
+
 	public String getBaseName() {
 		final String unversioned = FileUtils.stripFilenameVersion(filename);
 		return unversioned.endsWith(".jar") ? unversioned.substring(0,

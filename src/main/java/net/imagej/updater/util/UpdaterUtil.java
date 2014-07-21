@@ -310,6 +310,16 @@ public class UpdaterUtil {
 		return calendar.getTimeInMillis();
 	}
 
+	private static final String[] months = { "Zero", "Jan", "Feb", "Mar", "Apr",
+		"May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+
+	public static String prettyPrintTimestamp(final long timestamp) {
+		final String t = "" + timestamp + "00000000000000";
+		return t.substring(6, 8) + " " +
+			months[Integer.parseInt(t.substring(4, 6))] + " " + t.substring(0, 4) + " " +
+			t.substring(8, 10) + ":" + t.substring(10, 12) + ":" + t.substring(12,14);
+	}
+
 	public boolean isLauncher(final String filename) {
 		return Arrays.binarySearch(launchers, filename) >= 0;
 	}

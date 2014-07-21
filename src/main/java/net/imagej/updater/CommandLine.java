@@ -31,6 +31,8 @@
 
 package net.imagej.updater;
 
+import static net.imagej.updater.util.UpdaterUtil.prettyPrintTimestamp;
+
 import java.awt.Frame;
 import java.io.Console;
 import java.io.File;
@@ -40,12 +42,18 @@ import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -56,6 +64,7 @@ import net.imagej.updater.Conflicts.Resolution;
 import net.imagej.updater.Diff.Mode;
 import net.imagej.updater.FileObject.Action;
 import net.imagej.updater.FileObject.Status;
+import net.imagej.updater.FileObject.Version;
 import net.imagej.updater.FilesCollection.Filter;
 import net.imagej.updater.util.Downloadable;
 import net.imagej.updater.util.Downloader;
@@ -385,6 +394,55 @@ public class CommandLine {
 		}
 	}
 
+	public void history(final List<String> list) {
+		ensureChecksummed();
+		class History extends TreeMap<Long, Set<FileObject>> implements
+			Comparator<FileObject>
+		{
+
+			public void add(final FileObject file) {
+				if (file.current != null) {
+					add(file.current.timestamp, file);
+				}
+				for (final Version version : file.previous) {
+					add(version.timestamp, file);
+				}
+			}
+
+			public void add(final long timestamp, final FileObject file) {
+				Set<FileObject> set = get(timestamp);
+				if (set == null) {
+					set = new TreeSet<FileObject>(this);
+					put(timestamp, set);
+				}
+				set.add(file);
+			}
+
+			@Override
+			public int compare(FileObject a, FileObject b) {
+				return a.getFilename(true).compareTo(b.getFilename(true));
+			}
+		}
+
+		final History history = new History();
+		for (final FileObject file : files.filter(new FileFilter(list))) {
+			if (file.getStatus() == Status.LOCAL_ONLY) continue;
+			history.add(file);
+		}
+
+		for (final Entry<Long, Set<FileObject>> entry : history.descendingMap()
+			.entrySet())
+		{
+			final long timestamp = entry.getKey();
+			final Set<FileObject> files = entry.getValue();
+
+			System.out.println("" + prettyPrintTimestamp(timestamp));
+			for (final FileObject file : files) {
+				System.out.println("\t" + file.getFilename(timestamp));
+			}
+		}
+	}
+
 	private FilesCollection getDependencees(final FileObject file) {
 		if (dependencyMap == null)
 			dependencyMap = files.getDependencies(files, false);
@@ -509,6 +567,197 @@ public class CommandLine {
 					}
 				}
 			}
+			resolveConflicts(false);
+			final Installer installer = new Installer(files, progress);
+			installer.start();
+			installer.moveUpdatedIntoPlace();
+			files.write();
+		} catch (final Exception e) {
+			if (e.getMessage().indexOf("conflicts") >= 0) {
+				log.error("Could not update due to conflicts:");
+				for (final Conflict conflict : new Conflicts(files).getConflicts(false))
+				{
+					log.error(conflict.getFilename() + ": " + conflict.getConflict());
+				}
+			} else {
+				log.error("Error updating", e);
+			}
+		}
+	}
+
+	public void revertUnrealChanges(final List<String> list) {
+		ensureChecksummed();
+		boolean simulate = false;
+		if (list != null && list.size() > 0 && "--simulate".equals(list.get(0))) {
+			simulate = true;
+			list.remove(0);
+		}
+		int count = 0;
+		for (final FileObject file : files.filter(new FileFilter(list))) {
+			switch (file.getStatus()) {
+				case MODIFIED:
+				case UPDATEABLE:
+					break;
+				case INSTALLED:
+				case LOCAL_ONLY:
+				case NEW:
+				case NOT_INSTALLED:
+				case OBSOLETE:
+				case OBSOLETE_MODIFIED:
+				case OBSOLETE_UNINSTALLED:
+					// do nothing
+					continue;
+			}
+
+			if (file.filename.endsWith(".dll")) {
+				try {
+					final DllFile dll = new DllFile(files.prefix(file));
+					try {
+						final URL url = new URL(files.getURL(file));
+						if (!dll.equals(url.openConnection())) continue;
+					}
+					finally {
+						dll.close();
+					}
+				}
+				catch (Throwable t) {
+					// print exception, but ignore otherwise
+					log.warn(t);
+					continue;
+				}
+				if (simulate) {
+					System.out.println("Would overwrite " + file.filename);
+				}
+				else {
+					file.setAction(files, Action.UPDATE);
+				}
+				count++;
+			}
+		}
+
+		if (count == 0) {
+			System.err.println("Nothing to do!");
+		}
+		else if (simulate) {
+			System.out.println("Would overwrite " + count + " file(s)");
+		}
+		else try {
+			final Installer installer = new Installer(files, progress);
+			installer.start();
+			installer.moveUpdatedIntoPlace();
+			files.write();
+		}
+		catch (Throwable t) {
+			log.error(t);
+		}
+	}
+
+	public void downgrade(final List<String> list) {
+		if (standalone) {
+			final Console console = System.console();
+			if (console == null) {
+				throw die("Downgrading is only allowed interactively");
+			}
+
+			final List<String> answers = Arrays.asList("Yours, and yours alone", "Obama's", "San Andreas'");
+			final String correct = answers.get(0);
+			Collections.shuffle(answers);
+			String answer = console.readLine("Downgrading is not accurate, due to lack of accurate metadata\n" +
+					"In particular, when files have been shadowed/unshadowed or marked obsolete,\n" +
+					"the result of a downgrade is guaranteed to be inaccurate.\n\n" +
+					"If you do not want an inaccurate time, now is the time to quit.\n\n" +
+					"Otherwise, please answer the following question accurately:\n" +
+					"Whose fault is it if anything goes wrong with this downgrade?\n\n" +
+					"\t1) %s\n\t2) %s\n\t3) %s\n", answers.toArray()).trim();
+			if (answer.matches("[0-9]+")) try {
+				answer = answers.get(Integer.parseInt(answer) - 1);
+			}
+			catch (final NumberFormatException e) {
+				// ignore
+			}
+			if (!correct.equals(answer)) {
+				throw die("Absolutely not.");
+			}
+		}
+
+		boolean simulate = false;
+		if (list.size() > 0 && "--simulate".equals(list.get(0))) {
+			simulate = true;
+			list.remove(0);
+		}
+
+		if (list.size() < 1) {
+			throw die("What date?");
+		}
+		final String timestampString = list.remove(0);
+		final long timestamp = Long.parseLong(timestampString);
+
+		ensureChecksummed();
+
+		int count = 0;
+		for (final FileObject file : files.filter(new FileFilter(list))) {
+			if (file.getStatus() == Status.LOCAL_ONLY) continue;
+			if (file.current != null && file.current.timestamp <= timestamp) {
+				if (!file.current.checksum.equals(file.localChecksum)) {
+					if (simulate) {
+						System.out.println("Would update/install " + file.current.filename);
+					}
+					else {
+						file.setStatus(Status.UPDATEABLE);
+						file.setFirstValidAction(files, Action.UPDATE, Action.INSTALL);
+					}
+					count++;
+				}
+				continue;
+			}
+
+			String result = null;
+			String checksum = null;
+			long matchedTimestamp = 0;
+			for (final Version version : file.previous) {
+				if (timestamp >= version.timestamp && version.timestamp > matchedTimestamp) {
+					result = version.filename;
+					checksum = version.checksum;
+					matchedTimestamp = version.timestamp;
+				}
+			}
+
+			if (checksum == null) {
+				if (file.localChecksum != null) {
+					if (simulate) {
+						System.out.println("Would uninstall " + file.getLocalFilename(false));
+					}
+					else {
+						file.setAction(files, Action.UNINSTALL);
+					}
+					count++;
+				}
+			}
+			else if (!result.equals(file.filename) || !checksum.equals(file.localChecksum)) {
+				if (simulate) {
+					System.out.println("Would update/install " + result);
+				}
+				else {
+					if (file.current == null) {
+						file.current = new Version(checksum, matchedTimestamp);
+					}
+					else {
+						file.current.checksum = checksum;
+						file.current.timestamp = matchedTimestamp;
+					}
+					file.filename = file.current.filename = result;
+					file.filesize = -1;
+					file.setStatus(Status.UPDATEABLE);
+					file.setFirstValidAction(files, Action.UPDATE, Action.INSTALL);
+				}
+				count++;
+			}
+		}
+
+		if (count == 0) {
+			System.err.println("Nothing to do!");
+		}
+		else if (!simulate) try {
 			resolveConflicts(false);
 			final Installer installer = new Installer(files, progress);
 			installer.start();
@@ -1104,6 +1353,7 @@ public class CommandLine {
 				+ "\tupdate [<files>]\n"
 				+ "\tupdate-force [<files>]\n"
 				+ "\tupdate-force-pristine [<files>]\n"
+				+ "\trevert-unreal-changes [<files>]\n"
 				+ "\tupload [--simulate] [--[update-]site <name>] [--force-shadow] [--forget-missing-dependencies] [<files>]\n"
 				+ "\tupload-complete-site [--simulate] [--force] [--force-shadow] [--platforms <platform>[,<platform>...]] <name>\n"
 				+ "\tlist-update-sites [<nick>...]\n"
@@ -1119,7 +1369,7 @@ public class CommandLine {
 			}
 		}
 		try {
-			main(AppUtils.getBaseDirectory("imagej.dir", CommandLine.class, "updater"), 80, null, true, args);
+			main(AppUtils.getBaseDirectory("imagej.dir", CommandLine.class, "updater"), 79, null, true, args);
 		} catch (final RuntimeException e) {
 			log.error(e);
 			System.exit(1);
@@ -1201,6 +1451,8 @@ public class CommandLine {
 			instance.update(makeList(args, 1), true);
 		} else if (command.equals("update-force-pristine")) {
 			instance.update(makeList(args, 1), true, true);
+		} else if (command.equals("revert-unreal-changes")) {
+			instance.revertUnrealChanges(makeList(args, 1));
 		} else if (command.equals("upload")) {
 			instance.upload(makeList(args, 1));
 		} else if (command.equals("upload-complete-site")) {
@@ -1213,6 +1465,11 @@ public class CommandLine {
 			instance.addOrEditUploadSite(makeList(args, 1), false);
 		} else if (command.equals("remove-update-site")) {
 			instance.removeUploadSite(makeList(args, 1));
+		// hidden commands, i.e. not for public consumption
+		} else if (command.equals("history")) {
+			instance.history(makeList(args, 1));
+		} else if (command.equals("downgrade")) {
+			instance.downgrade(makeList(args, 1));
 		} else {
 			instance.usage();
 		}
