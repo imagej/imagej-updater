@@ -20,10 +20,10 @@ importClass(Packages.java.util.regex.Pattern);
 
 baseURL = 'http://update.imagej.net/jars/';
 jars = [
-	'imagej-ui-swing-0.4.9.jar-20140709131620',
+	'imagej-ui-swing-0.5.0.jar-20140711220647',
 	'imagej-plugins-uploader-webdav-0.1.1.jar-20140516211031',
-	'imagej-updater-0.4.3.jar-20140702234308',
-	'scijava-common-2.25.0.jar-20140701184314',
+	'imagej-updater-0.5.0.jar-20140721212623',
+	'scijava-common-2.27.0.jar-20140711220647',
 	'imagej-common-0.8.0.jar-20140701184314',
 	'eventbus-1.4.jar-20120404210913',
 	'gentyref-1.1.0.jar-20140516211031'
