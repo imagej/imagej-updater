@@ -527,6 +527,73 @@ public class CommandLine {
 		}
 	}
 
+	public void revertUnrealChanges(final List<String> list) {
+		ensureChecksummed();
+		boolean simulate = false;
+		if (list != null && list.size() > 0 && "--simulate".equals(list.get(0))) {
+			simulate = true;
+			list.remove(0);
+		}
+		int count = 0;
+		for (final FileObject file : files.filter(new FileFilter(list))) {
+			switch (file.getStatus()) {
+				case MODIFIED:
+				case UPDATEABLE:
+					break;
+				case INSTALLED:
+				case LOCAL_ONLY:
+				case NEW:
+				case NOT_INSTALLED:
+				case OBSOLETE:
+				case OBSOLETE_MODIFIED:
+				case OBSOLETE_UNINSTALLED:
+					// do nothing
+					continue;
+			}
+
+			if (file.filename.endsWith(".dll")) {
+				try {
+					final DllFile dll = new DllFile(files.prefix(file));
+					try {
+						final URL url = new URL(files.getURL(file));
+						if (!dll.equals(url.openConnection())) continue;
+					}
+					finally {
+						dll.close();
+					}
+				}
+				catch (Throwable t) {
+					// print exception, but ignore otherwise
+					log.warn(t);
+					continue;
+				}
+				if (simulate) {
+					System.out.println("Would overwrite " + file.filename);
+				}
+				else {
+					file.setAction(files, Action.UPDATE);
+				}
+				count++;
+			}
+		}
+
+		if (count == 0) {
+			System.err.println("Nothing to do!");
+		}
+		else if (simulate) {
+			System.out.println("Would overwrite " + count + " file(s)");
+		}
+		else try {
+			final Installer installer = new Installer(files, progress);
+			installer.start();
+			installer.moveUpdatedIntoPlace();
+			files.write();
+		}
+		catch (Throwable t) {
+			log.error(t);
+		}
+	}
+
 	public void upload(final List<String> list) {
 		if (list == null) {
 			throw die("Which files do you mean to upload?");
@@ -1104,6 +1171,7 @@ public class CommandLine {
 				+ "\tupdate [<files>]\n"
 				+ "\tupdate-force [<files>]\n"
 				+ "\tupdate-force-pristine [<files>]\n"
+				+ "\trevert-unreal-changes [<files>]\n"
 				+ "\tupload [--simulate] [--[update-]site <name>] [--force-shadow] [--forget-missing-dependencies] [<files>]\n"
 				+ "\tupload-complete-site [--simulate] [--force] [--force-shadow] [--platforms <platform>[,<platform>...]] <name>\n"
 				+ "\tlist-update-sites [<nick>...]\n"
@@ -1201,6 +1269,8 @@ public class CommandLine {
 			instance.update(makeList(args, 1), true);
 		} else if (command.equals("update-force-pristine")) {
 			instance.update(makeList(args, 1), true, true);
+		} else if (command.equals("revert-unreal-changes")) {
+			instance.revertUnrealChanges(makeList(args, 1));
 		} else if (command.equals("upload")) {
 			instance.upload(makeList(args, 1));
 		} else if (command.equals("upload-complete-site")) {
