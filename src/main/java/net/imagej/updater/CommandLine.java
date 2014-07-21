@@ -1187,7 +1187,7 @@ public class CommandLine {
 			}
 		}
 		try {
-			main(AppUtils.getBaseDirectory("imagej.dir", CommandLine.class, "updater"), 80, null, true, args);
+			main(AppUtils.getBaseDirectory("imagej.dir", CommandLine.class, "updater"), 79, null, true, args);
 		} catch (final RuntimeException e) {
 			log.error(e);
 			System.exit(1);
