@@ -379,7 +379,8 @@ public class Installer extends Downloader {
 	protected static boolean moveOutOfTheWay(final File file) {
 		if (!file.exists()) return true;
 		String prefix = file.getName(), suffix = "";
-		if (prefix.endsWith(".exe") || prefix.endsWith(".EXE")) {
+		if (prefix.endsWith(".exe") || prefix.endsWith(".EXE") ||
+				prefix.endsWith(".dll") || prefix.endsWith(".DLL")) {
 			suffix = prefix.substring(prefix.length() - 4);
 			prefix = prefix.substring(0, prefix.length() - 4);
 		}
