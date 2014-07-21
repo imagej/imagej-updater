@@ -290,7 +290,7 @@ public class Installer extends Downloader {
 		final File destination = download.getDestination();
 		final long size = download.getFilesize();
 		final long actualSize = destination.length();
-		if (size != actualSize) throw new RuntimeException(
+		if (size >= 0 && size != actualSize) throw new RuntimeException(
 			"Incorrect file size for " + destination + ": " + actualSize +
 				" (expected " + size + ")");
 
