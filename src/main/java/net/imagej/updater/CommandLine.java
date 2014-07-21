@@ -586,29 +586,31 @@ public class CommandLine {
 	}
 
 	public void downgrade(final List<String> list) {
-		final Console console = System.console();
-		if (console == null) {
-			throw die("Downgrading is only allowed interactively");
-		}
+		if (standalone) {
+			final Console console = System.console();
+			if (console == null) {
+				throw die("Downgrading is only allowed interactively");
+			}
 
-		final List<String> answers = Arrays.asList("Yours, and yours alone", "Obama's", "San Andreas'");
-		final String correct = answers.get(0);
-		Collections.shuffle(answers);
-		String answer = console.readLine("Downgrading is not accurate, due to lack of accurate metadata\n" +
-				"In particular, when files have been shadowed/unshadowed or marked obsolete,\n" +
-				"the result of a downgrade is guaranteed to be inaccurate.\n\n" +
-				"If you do not want an inaccurate time, now is the time to quit.\n\n" +
-				"Otherwise, please answer the following question accurately:\n" +
-				"Whose fault is it if anything goes wrong with this downgrade?\n\n" +
-				"\t1) %s\n\t2) %s\n\t3) %s\n", answers.toArray()).trim();
-		if (answer.matches("[0-9]+")) try {
-			answer = answers.get(Integer.parseInt(answer) - 1);
-		}
-		catch (final NumberFormatException e) {
-			// ignore
-		}
-		if (!correct.equals(answer)) {
-			throw die("Absolutely not.");
+			final List<String> answers = Arrays.asList("Yours, and yours alone", "Obama's", "San Andreas'");
+			final String correct = answers.get(0);
+			Collections.shuffle(answers);
+			String answer = console.readLine("Downgrading is not accurate, due to lack of accurate metadata\n" +
+					"In particular, when files have been shadowed/unshadowed or marked obsolete,\n" +
+					"the result of a downgrade is guaranteed to be inaccurate.\n\n" +
+					"If you do not want an inaccurate time, now is the time to quit.\n\n" +
+					"Otherwise, please answer the following question accurately:\n" +
+					"Whose fault is it if anything goes wrong with this downgrade?\n\n" +
+					"\t1) %s\n\t2) %s\n\t3) %s\n", answers.toArray()).trim();
+			if (answer.matches("[0-9]+")) try {
+				answer = answers.get(Integer.parseInt(answer) - 1);
+			}
+			catch (final NumberFormatException e) {
+				// ignore
+			}
+			if (!correct.equals(answer)) {
+				throw die("Absolutely not.");
+			}
 		}
 
 		boolean simulate = false;
