@@ -54,9 +54,13 @@ public class DefaultUpdateService extends AbstractService implements
 
 	// -- Event handlers --
 
-	/** Checks for updates when the ImageJ UI is first shown. */
+	/**
+	 * Checks for updates when the ImageJ UI is first shown.
+	 * 
+	 * @param evt The event indicating the UI was shown.
+	 */
 	@EventHandler
-	protected void onEvent(@SuppressWarnings("unused") final UIShownEvent evt) {
+	protected void onEvent(final UIShownEvent evt) {
 		// NB: Check for updates, but on a separate thread (not the EDT!).
 		commandService.run(CheckForUpdates.class, true);
 	}
