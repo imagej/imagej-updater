@@ -31,10 +31,8 @@
 
 package net.imagej.updater;
 
-import org.scijava.app.StatusService;
 import org.scijava.command.CommandService;
 import org.scijava.event.EventHandler;
-import org.scijava.log.LogService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 import org.scijava.service.AbstractService;
@@ -50,12 +48,6 @@ import org.scijava.ui.event.UIShownEvent;
 public class DefaultUpdateService extends AbstractService implements
 	UpdateService
 {
-
-	@Parameter
-	private LogService log;
-
-	@Parameter
-	private StatusService statusService;
 
 	@Parameter
 	private CommandService commandService;
