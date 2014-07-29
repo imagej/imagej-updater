@@ -94,6 +94,7 @@ public final class AvailableSites {
 				final UpdateSite info = new UpdateSite(stripWikiMarkup(columns, nameColumn), stripWikiMarkup(columns, urlColumn),
 						null, null,
 						stripWikiMarkup(columns, descriptionColumn), stripWikiMarkup(columns, maintainerColumn), 0l);
+				info.setOfficial(true);
 				result.put(info.getURL(), info);
 			}
 		}
@@ -128,6 +129,7 @@ public final class AvailableSites {
 
 		// make sure that the main update site is the first one.
 		final UpdateSite mainSite = new UpdateSite(FilesCollection.DEFAULT_UPDATE_SITE, UpdaterUtil.MAIN_URL, "", "", null, null, 0l);
+		mainSite.setOfficial(true);
 		sites.add(mainSite);
 		url2index.put(mainSite.getURL(), 0);
 
