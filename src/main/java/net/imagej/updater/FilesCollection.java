@@ -114,7 +114,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 		util = new UpdaterUtil(imagejRoot);
 		updateSites = new LinkedHashMap<String, UpdateSite>();
 		addUpdateSite(DEFAULT_UPDATE_SITE, UpdaterUtil.MAIN_URL, null, null,
-			imagejRoot == null ? 0 : UpdaterUtil.getTimestamp(prefix(UpdaterUtil.XML_COMPRESSED)));
+			timestamp());
 	}
 
 	public UpdateSite addUpdateSite(final String name, final String url,
@@ -1234,4 +1234,12 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 		}
 		return protocols;
 	}
+
+	// -- Helper methods --
+
+	private long timestamp() {
+		if (imagejRoot == null) return 0;
+		return UpdaterUtil.getTimestamp(prefix(UpdaterUtil.XML_COMPRESSED));
+	}
+
 }
