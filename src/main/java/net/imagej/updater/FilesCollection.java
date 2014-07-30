@@ -113,8 +113,10 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 		this.imagejRoot = imagejRoot;
 		util = new UpdaterUtil(imagejRoot);
 		updateSites = new LinkedHashMap<String, UpdateSite>();
-		addUpdateSite(DEFAULT_UPDATE_SITE, UpdaterUtil.MAIN_URL, null, null,
-			imagejRoot == null ? 0 : UpdaterUtil.getTimestamp(prefix(UpdaterUtil.XML_COMPRESSED)));
+		final UpdateSite updateSite =
+			addUpdateSite(DEFAULT_UPDATE_SITE, UpdaterUtil.MAIN_URL, null, null,
+				timestamp());
+		updateSite.setOfficial(true);
 	}
 
 	public UpdateSite addUpdateSite(final String name, final String url,
@@ -135,6 +137,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	protected void addUpdateSite(final String name, final UpdateSite updateSite) {
 		UpdateSite already = updateSites.get(name);
 		updateSite.rank = already != null ? already.rank : updateSites.size();
+		if (already != null) updateSite.setOfficial(already.isOfficial());
 		updateSites.put(name,  updateSite);
 	}
 
@@ -1234,4 +1237,12 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 		}
 		return protocols;
 	}
+
+	// -- Helper methods --
+
+	private long timestamp() {
+		if (imagejRoot == null) return 0;
+		return UpdaterUtil.getTimestamp(prefix(UpdaterUtil.XML_COMPRESSED));
+	}
+
 }

@@ -47,6 +47,7 @@ import net.imagej.updater.util.UpdaterUtil;
 public class UpdateSite implements Cloneable, Comparable<UpdateSite> {
 
 	boolean active;
+	private boolean official;
 	private String name;
 	private String url;
 	private String host;
@@ -74,6 +75,24 @@ public class UpdateSite implements Cloneable, Comparable<UpdateSite> {
 
 	public void setActive(final boolean active) {
 		this.active = active;
+	}
+
+	/**
+	 * Gets whether the site is one of those listed on the <a
+	 * href="http://imagej.net/List_of_update_sites">canonical list of update
+	 * sites</a>.
+	 */
+	public boolean isOfficial() {
+		return official;
+	}
+
+	/**
+	 * Sets the flag indicating whether the site is listed on the <a
+	 * href="http://imagej.net/List_of_update_sites">canonical list of update
+	 * sites</a>.
+	 */
+	public void setOfficial(final boolean official) {
+		this.official = official;
 	}
 
 	public String getName() {
@@ -142,6 +161,7 @@ public class UpdateSite implements Cloneable, Comparable<UpdateSite> {
 	public Object clone() {
 		final UpdateSite clone = new UpdateSite(name, url, host, uploadDirectory, description, maintainer, timestamp);
 		clone.setActive(isActive());
+		clone.setOfficial(isOfficial());
 		return clone;
 	}
 

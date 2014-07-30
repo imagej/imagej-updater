@@ -31,7 +31,14 @@
 
 package net.imagej.updater;
 
-import org.scijava.app.StatusService;
+import java.io.File;
+import java.io.IOException;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import net.imagej.updater.util.AvailableSites;
+
+import org.scijava.app.AppService;
 import org.scijava.command.CommandService;
 import org.scijava.event.EventHandler;
 import org.scijava.log.LogService;
@@ -40,6 +47,7 @@ import org.scijava.plugin.Plugin;
 import org.scijava.service.AbstractService;
 import org.scijava.service.Service;
 import org.scijava.ui.event.UIShownEvent;
+import org.xml.sax.SAXException;
 
 /**
  * Default service for managing ImageJ updates.
@@ -52,21 +60,78 @@ public class DefaultUpdateService extends AbstractService implements
 {
 
 	@Parameter
+	private CommandService commandService;
+
+	@Parameter
+	private AppService appService;
+
+	@Parameter(required = false)
 	private LogService log;
 
-	@Parameter
-	private StatusService statusService;
+	private FilesCollection filesCollection;
 
-	@Parameter
-	private CommandService commandService;
+	// -- UpdateService methods --
+
+	@Override
+	public UpdateSite getUpdateSite(final File file) {
+		// TODO: Create FileUtils.isSubPath and/or FileUtils.getRelativePath
+		// utility methods, to do this comparison 100% correctly, even on
+		// Windows with mixed path separators, etc.
+		final String path = file.getAbsolutePath();
+		final String root = rootDir().getAbsolutePath() + File.separator;
+		if (!path.startsWith(root)) return null;
+		final String shortPath = path.substring(root.length());
+
+		final FilesCollection fc = filesCollection();
+		final FileObject fileObject = fc.get(shortPath);
+		return fc.getUpdateSite(fileObject.updateSite, true);
+	}
 
 	// -- Event handlers --
 
-	/** Checks for updates when the ImageJ UI is first shown. */
+	/**
+	 * Checks for updates when the ImageJ UI is first shown.
+	 * 
+	 * @param evt The event indicating the UI was shown.
+	 */
 	@EventHandler
-	protected void onEvent(@SuppressWarnings("unused") final UIShownEvent evt) {
+	protected void onEvent(final UIShownEvent evt) {
 		// NB: Check for updates, but on a separate thread (not the EDT!).
 		commandService.run(CheckForUpdates.class, true);
 	}
 
+	// -- Helper methods --
+
+	private File rootDir() {
+		return appService.getApp().getBaseDirectory();
+	}
+
+	private FilesCollection filesCollection() {
+		if (filesCollection == null) initFilesCollection();
+		return filesCollection;
+	}
+
+	private synchronized void initFilesCollection() {
+		if (filesCollection != null) return;
+		final FilesCollection fc = new FilesCollection(rootDir());
+
+		// parse the official list of update sites
+		AvailableSites.initializeAndAddSites(fc);
+
+		// parse the user's update site database (db.xml.gz)
+		try {
+			fc.read();
+		}
+		catch (final IOException exc) {
+			if (log != null) log.error("Error parsing update sites", exc);
+		}
+		catch (final ParserConfigurationException exc) {
+			if (log != null) log.error("Error parsing update sites", exc);
+		}
+		catch (final SAXException exc) {
+			if (log != null) log.error("Error parsing update sites", exc);
+		}
+
+		filesCollection = fc;
+	}
 }

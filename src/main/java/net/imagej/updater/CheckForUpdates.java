@@ -51,10 +51,10 @@ public class CheckForUpdates implements Command {
 	@Parameter
 	private CommandService commandService;
 
-	@Parameter
+	@Parameter(required = false)
 	private StatusService statusService;
 
-	@Parameter
+	@Parameter(required = false)
 	private LogService log;
 
 	@Override
@@ -78,15 +78,15 @@ public class CheckForUpdates implements Command {
 				case READ_ONLY:
 					final String message =
 						"Your ImageJ installation cannot be updated because it is read-only";
-					log.warn(message);
-					statusService.showStatus(message);
+					if (log != null) log.warn(message);
+					if (statusService != null) statusService.showStatus(message);
 					break;
 				default:
-					log.error("Unhandled UpToDate case: " + result);
+					if (log != null) log.error("Unhandled UpToDate case: " + result);
 			}
 		}
 		catch (final Exception e) {
-			log.error(e);
+			if (log != null) log.error(e);
 		}
 	}
 
