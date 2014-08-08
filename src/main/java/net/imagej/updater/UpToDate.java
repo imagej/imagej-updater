@@ -154,10 +154,11 @@ public class UpToDate {
 	}
 
 	/**
-	 * @return whether we started in a developer setting (classes are not in .jar files)
+	 * @return whether we started in a developer setting (i.e., not using the
+	 *         Launcher, which sets the imagej.dir property)
 	 */
 	public static boolean isDeveloper() {
-		return UpToDate.class.getResource("UpToDate.class").toString().startsWith("file:");
+		return System.getProperty("imagej.dir") == null;
 	}
 
 	/**
