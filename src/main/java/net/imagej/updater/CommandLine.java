@@ -1136,7 +1136,7 @@ public class CommandLine {
 				for (final Conflict conflict : list) {
 					final String filename = conflict.getFilename();
 					builder.append((filename != null ? filename + ": " : "")
-							+ conflict.getConflict());
+							+ conflict.getConflict() + "\n");
 				}
 				throw die("There are conflicts:\n" + builder);
 			}
