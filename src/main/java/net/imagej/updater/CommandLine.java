@@ -1247,7 +1247,7 @@ public class CommandLine {
 			final boolean add) {
 		ensureChecksummed();
 		final UpdateSite site = files.getUpdateSite(name, true);
-		if (add) {
+		if (site == null || add) {
 			if (site != null)
 				throw die("Site '" + name + "' was already added!");
 			files.addUpdateSite(name, url, sshHost, uploadDirectory, 0l);
