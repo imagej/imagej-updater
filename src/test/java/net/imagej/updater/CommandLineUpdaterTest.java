@@ -44,6 +44,8 @@ import static net.imagej.updater.UpdaterTestUtils.writeFile;
 import static net.imagej.updater.UpdaterTestUtils.writeGZippedFile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.scijava.test.TestUtils.createTemporaryDirectory;
 import static org.scijava.util.FileUtils.deleteRecursively;
@@ -353,5 +355,17 @@ public class CommandLineUpdaterTest {
 		files = main(files, "downgrade", "" + timestamp);
 		final String contents = readFile(files.prefix(macro));
 		assertEquals(macro, contents.trim());
+	}
+
+	@Test
+	public void testEditUpdateSite() throws Exception {
+		files = initialize();
+		final File tmp = createTemporaryDirectory("auto-add-");
+		writeGZippedFile(tmp, "db.xml.gz", "<pluginRecords />");
+		final String siteName = "must-be-auto-added";
+		files = main(files, "edit-update-site", siteName, tmp.toURI().toString());
+		assertNotNull(files.getUpdateSite(siteName, false));
+		files = main(files, "remove-update-site", siteName);
+		assertNull(files.getUpdateSite(siteName, false));
 	}
 }
