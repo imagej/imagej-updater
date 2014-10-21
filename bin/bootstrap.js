@@ -85,7 +85,53 @@ if (isCommandLine) {
 
 	if (typeof IJ == 'undefined') {
 		importClass(Packages.java.lang.Thread);
-		var IJ = Thread.currentThread().getContextClassLoader().loadClass('ij.IJ').newInstance();
+		var loader2 = Thread.currentThread().getContextClassLoader();
+		try {
+			var IJ = loader2.loadClass('ij.IJ').newInstance();
+		} catch (e) {
+			importClass(Packages.java.awt.BorderLayout);
+			importClass(Packages.java.io.ByteArrayOutputStream);
+			importClass(Packages.java.io.PrintStream);
+			importClass(Packages.java.lang.System);
+			importClass(Packages.javax.swing.JFrame);
+			importClass(Packages.javax.swing.JTextArea);
+
+			var frame = new JFrame("Remote ImageJ updater");
+			var text = new JTextArea(20, 40);
+			text.setEditable(false);
+			text.setLineWrap(true);
+			frame.getContentPane().add(text, BorderLayout.NORTH);
+			frame.pack();
+			frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+			print = function(message) {
+				frame.setVisible(true);
+				text.append(message + "\n");
+			};
+
+			var IJ = {
+				debugMode: "true".equalsIgnoreCase(System.getProperty("scijava.log.level")),
+
+				getDirectory: function(label) {
+					// default to current directory
+					return new File("").getAbsolutePath();
+				},
+
+				showStatus: function(message) {
+					print(message);
+				},
+
+				error: function(message) {
+					print(message);
+				},
+
+				handleException: function(exception) {
+					var buffer = new ByteArrayOutputStream();
+					new Throwable().printStackTrace(new PrintStream(buffer));
+					print(buffer.toString("UTF-8"));
+				}
+			}
+		}
 	}
 
 	var updaterClassName = "net.imagej.ui.swing.updater.ImageJUpdater";
