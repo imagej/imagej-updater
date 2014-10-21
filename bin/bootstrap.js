@@ -102,12 +102,14 @@ if (isCommandLine) {
 			text.setLineWrap(true);
 			frame.getContentPane().add(text, BorderLayout.NORTH);
 			frame.pack();
-			frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 			print = function(message) {
 				frame.setVisible(true);
 				text.append(message + "\n");
 			};
+
+			var disposeTrigger = Pattern.compile("running .* updater");
 
 			var IJ = {
 				debugMode: "true".equalsIgnoreCase(System.getProperty("scijava.log.level")),
@@ -119,6 +121,10 @@ if (isCommandLine) {
 
 				showStatus: function(message) {
 					print(message);
+					if (disposeTrigger.matcher(message).matches()) {
+						frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+						frame.dispose();
+					}
 				},
 
 				error: function(message) {
