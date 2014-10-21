@@ -194,7 +194,9 @@ if (!new File(imagejDir, "db.xml.gz").exists()) {
 	files.write();
 }
 
-if (isCommandLine && arguments.length == 1 && "jar-urls".equals(arguments[0])) {
+if (isCommandLine && arguments.length == 1 &&
+		("jar-urls".equals(arguments[0]) ||
+		 "update-jar-urls".equals(arguments[0]))) {
 	IJ.showStatus("Loading the FilesCollection class");
 	clazz = loader.loadClass("net.imagej.updater.FilesCollection");
 	fileClazz = loader.loadClass("java.io.File");
@@ -236,7 +238,48 @@ if (isCommandLine && arguments.length == 1 && "jar-urls".equals(arguments[0])) {
 	}
 	output = output.substring(0, output.length - 2);
 	output += "\n];\n";
-	print(output);
+
+	if (!"update-jar-urls".equals(arguments[0])) {
+		print(output);
+	} else {
+		var readFile = function(file) {
+			importClass(Packages.java.io.BufferedReader);
+			importClass(Packages.java.io.FileReader);
+			var result = "";
+			var reader = new BufferedReader(new FileReader(file));
+			for (;;) {
+				var line = reader.readLine();
+				if (line == null) break;
+				result += line + "\n";
+			}
+			reader.close();
+			return result;
+		}
+
+		var writeFile = function(file, contents) {
+			importClass(Packages.java.io.BufferedWriter);
+			importClass(Packages.java.io.FileWriter);
+			var writer = new BufferedWriter(new FileWriter(file));
+			writer.write(contents);
+			writer.close();
+		}
+
+
+		var file = new File(this["javax.script.filename"]);
+		var contents = readFile(file);
+		var begin = contents.indexOf("baseURL = ");
+		var end = contents.indexOf("];", begin);
+		if (begin < 0 || end < 0) {
+			print("Could not find section to replace:\n\n"
+				+ contents);
+			System.exit(1);
+		}
+		contents = contents.substring(0, begin)
+			+ output
+			+ contents.substring(end);
+		writeFile(file, contents);
+		print("Please run `git diff` now and commit if groovy");
+	}
 	System.exit(0);
 }
 
