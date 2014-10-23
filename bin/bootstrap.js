@@ -85,9 +85,13 @@ if (isCommandLine) {
 	}
 
 	if (typeof IJ == 'undefined') try {
+		importClass(Packages.java.awt.GraphicsEnvironment);
 		importClass(Packages.java.lang.Thread);
 		var loader2 = Thread.currentThread().getContextClassLoader();
 		var IJ = loader2.loadClass('ij.IJ').newInstance();
+		if (IJ.getInstance() == null && !GraphicsEnvironment.isHeadless()) {
+			IJ = null;
+		}
 	} catch (e) {
 		// ignore
 	}
