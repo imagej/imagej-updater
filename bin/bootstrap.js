@@ -84,61 +84,63 @@ if (isCommandLine) {
 		// ignore; this is a funny PluginClassLoader problem
 	}
 
-	if (typeof IJ == 'undefined') {
+	if (typeof IJ == 'undefined') try {
 		importClass(Packages.java.lang.Thread);
 		var loader2 = Thread.currentThread().getContextClassLoader();
-		try {
-			var IJ = loader2.loadClass('ij.IJ').newInstance();
-		} catch (e) {
-			importClass(Packages.java.awt.BorderLayout);
-			importClass(Packages.java.io.ByteArrayOutputStream);
-			importClass(Packages.java.io.PrintStream);
-			importClass(Packages.java.lang.System);
-			importClass(Packages.javax.swing.JFrame);
-			importClass(Packages.javax.swing.JScrollPane);
-			importClass(Packages.javax.swing.JTextArea);
+		var IJ = loader2.loadClass('ij.IJ').newInstance();
+	} catch (e) {
+		// ignore
+	}
 
-			var frame = new JFrame("Remote ImageJ updater");
-			var text = new JTextArea(20, 50);
-			text.setEditable(false);
-			text.setLineWrap(true);
-			frame.getContentPane().add(new JScrollPane(text), BorderLayout.NORTH);
-			frame.pack();
-			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	if (typeof IJ == 'undefined' || IJ == null) {
+		importClass(Packages.java.awt.BorderLayout);
+		importClass(Packages.java.io.ByteArrayOutputStream);
+		importClass(Packages.java.io.PrintStream);
+		importClass(Packages.java.lang.System);
+		importClass(Packages.javax.swing.JFrame);
+		importClass(Packages.javax.swing.JScrollPane);
+		importClass(Packages.javax.swing.JTextArea);
 
-			print = function(message) {
-				frame.setVisible(true);
-				text.append(message + "\n");
-			};
+		var frame = new JFrame("Remote ImageJ updater");
+		var text = new JTextArea(20, 50);
+		text.setEditable(false);
+		text.setLineWrap(true);
+		frame.getContentPane().add(new JScrollPane(text), BorderLayout.NORTH);
+		frame.pack();
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-			var disposeTrigger = Pattern.compile("running .* updater");
+		print = function(message) {
+			frame.setVisible(true);
+			text.append(message + "\n");
+		};
 
-			var IJ = {
-				debugMode: "true".equalsIgnoreCase(System.getProperty("scijava.log.level")),
+		var disposeTrigger = Pattern.compile("running .* updater");
 
-				getDirectory: function(label) {
-					// default to current directory
-					return new File("").getAbsolutePath();
-				},
+		var IJ = {
+			debugMode: "true".equalsIgnoreCase(System.getProperty("scijava.log.level")),
 
-				showStatus: function(message) {
-					print(message);
-					if (disposeTrigger.matcher(message).matches()) {
-						frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-						frame.dispose();
-					}
-				},
+			getDirectory: function(label) {
+				// default to current directory
+				return new File("").getAbsolutePath();
+			},
 
-				error: function(message) {
-					print(message);
-				},
-
-				handleException: function(exception) {
-					disposeTrigger = Pattern.compile("\n");
-					var buffer = new ByteArrayOutputStream();
-					new Throwable().printStackTrace(new PrintStream(buffer));
-					print(buffer.toString("UTF-8"));
+			showStatus: function(message) {
+				print(message);
+				if (disposeTrigger.matcher(message).matches()) {
+					frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+					frame.dispose();
 				}
+			},
+
+			error: function(message) {
+				print(message);
+			},
+
+			handleException: function(exception) {
+				disposeTrigger = Pattern.compile("\n");
+				var buffer = new ByteArrayOutputStream();
+				new Throwable().printStackTrace(new PrintStream(buffer));
+				print(buffer.toString("UTF-8"));
 			}
 		}
 	}
