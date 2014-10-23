@@ -14,6 +14,7 @@
 
 importClass(Packages.java.io.File);
 importClass(Packages.java.lang.System);
+importClass(Packages.java.lang.Throwable);
 importClass(Packages.java.net.URL);
 importClass(Packages.java.net.URLClassLoader);
 importClass(Packages.java.util.regex.Pattern);
@@ -94,13 +95,14 @@ if (isCommandLine) {
 			importClass(Packages.java.io.PrintStream);
 			importClass(Packages.java.lang.System);
 			importClass(Packages.javax.swing.JFrame);
+			importClass(Packages.javax.swing.JScrollPane);
 			importClass(Packages.javax.swing.JTextArea);
 
 			var frame = new JFrame("Remote ImageJ updater");
-			var text = new JTextArea(20, 40);
+			var text = new JTextArea(20, 50);
 			text.setEditable(false);
 			text.setLineWrap(true);
-			frame.getContentPane().add(text, BorderLayout.NORTH);
+			frame.getContentPane().add(new JScrollPane(text), BorderLayout.NORTH);
 			frame.pack();
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -143,6 +145,10 @@ if (isCommandLine) {
 	var updaterClassName = "net.imagej.ui.swing.updater.ImageJUpdater";
 }
 
+if (typeof cause != 'undefined' && cause instanceof Throwable) {
+	IJ.showStatus("Falling back to remote updater because an exception occurred");
+	IJ.handleException(cause);
+}
 
 // make sure that the system property 'imagej.dir' is set correctly
 if (System.getProperty("imagej.dir") == null) {
