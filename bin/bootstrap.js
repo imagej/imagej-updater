@@ -146,7 +146,8 @@ if (isCommandLine) {
 }
 
 if (typeof cause != 'undefined' && cause instanceof Throwable) {
-	IJ.showStatus("Falling back to remote updater because an exception occurred");
+	IJ.showStatus("This ImageJ installation is currently broken.\n" +
+		"The ImageJ Updater will be launched so that it can be repaired!");
 	IJ.handleException(cause);
 }
 
