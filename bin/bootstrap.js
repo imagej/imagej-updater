@@ -134,6 +134,7 @@ if (isCommandLine) {
 				},
 
 				handleException: function(exception) {
+					disposeTrigger = Pattern.compile("\n");
 					var buffer = new ByteArrayOutputStream();
 					new Throwable().printStackTrace(new PrintStream(buffer));
 					print(buffer.toString("UTF-8"));
