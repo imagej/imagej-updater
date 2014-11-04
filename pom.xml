@@ -30,6 +30,10 @@
 		<url>http://jenkins.imagej.net/job/ImageJ-updater/</url>
 	</ciManagement>
 
+	<properties>
+		<main-class>net.imagej.updater.CommandLine</main-class>
+	</properties>
+
 	<repositories>
 		<repository>
 			<id>imagej.public</id>
@@ -71,24 +75,10 @@
 				<configuration>
 					<archive>
 						<manifest>
+							<mainClass>${main-class}</mainClass>
 							<packageName>net.imagej.updater</packageName>
-							<mainClass>net.imagej.updater.CommandLine</mainClass>
 						</manifest>
 					</archive>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>java</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<mainClass>net.imagej.updater.CommandLine</mainClass>
 				</configuration>
 			</plugin>
 		</plugins>
