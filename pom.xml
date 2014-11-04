@@ -21,12 +21,10 @@
 		<tag>HEAD</tag>
 		<url>https://github.com/imagej/imagej-updater</url>
 	</scm>
-
 	<issueManagement>
 		<system>GitHub Issues</system>
 		<url>https://github.com/imagej/imagej-updater/issues</url>
 	</issueManagement>
-
 	<ciManagement>
 		<system>Jenkins</system>
 		<url>http://jenkins.imagej.net/job/ImageJ-updater/</url>
