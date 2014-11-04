@@ -1363,9 +1363,11 @@ public class CommandLine {
 
 	public static void main(final String... args) {
 		if (System.getProperty("imagej.dir") == null) {
-			System.setProperty("imagej.dir", System.getProperty("ij.dir"));
-			if (System.getProperty("imagej.dir") == null) {
-				System.setProperty("imagej.dir", System.getProperty("fiji.dir"));
+			final String ijDir = System.getProperty("ij.dir");
+			if (ijDir != null) System.setProperty("imagej.dir", ijDir);
+			else {
+				final String fijiDir = System.getProperty("fiji.dir");
+				if (fijiDir != null) System.setProperty("imagej.dir", fijiDir);
 			}
 		}
 		try {
