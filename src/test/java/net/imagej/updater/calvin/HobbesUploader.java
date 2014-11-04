@@ -47,7 +47,7 @@ import org.scijava.plugin.Plugin;
  *
  * @author Johannes Schindelin
  */
-@Plugin(type = Uploader.class)
+@Plugin(type = Uploader.class, name = "Hobbes")
 public class HobbesUploader extends AbstractUploader {
 	@Override
 	public String getProtocol() {
