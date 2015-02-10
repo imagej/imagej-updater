@@ -67,6 +67,10 @@ public class PromptUserToUpdate implements Command {
 
 	@Override
 	public void run() {
+		if (Boolean.getBoolean("java.awt.headless")) {
+			// do not display the Updater UI in headless mode
+			return;
+		}
 		if (updateAction.equals(YES)) {
 			final List<CommandInfo> updaters =
 				commandService.getCommandsOfType(UpdaterUI.class);
