@@ -168,7 +168,7 @@ public class DefaultUploaderService extends AbstractService implements
 			for (final Uploader uploader : uploaders) {
 				uploaderMap.put(uploader.getProtocol(), uploader);
 			}
-			log.info("Found " + uploaderMap.size() + " upload mechanisms.");
+			log.debug("Found " + uploaderMap.size() + " upload mechanisms.");
 		}
 		return uploaderMap;
 	}
