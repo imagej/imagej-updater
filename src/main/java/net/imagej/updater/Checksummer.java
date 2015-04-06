@@ -275,7 +275,7 @@ public class Checksummer extends AbstractProgressable {
 		Resolution delete = new Resolution("Delete!") {
 			@Override
 			public void resolve() {
-				for (final File file : toDelete)
+				for (final File file : toDelete) {
 					if (!file.delete()) {
 						final String prefix =
 							files.prefix("").getAbsolutePath() + File.separator;
@@ -291,12 +291,13 @@ public class Checksummer extends AbstractProgressable {
 						else {
 							file.deleteOnExit();
 						}
-					};
+					}
+				}
 				removeConflict(filename);
 			}
 		};
-		files.conflicts.add(new Conflict(isCritical ? Severity.CRITICAL_ERROR : Severity.ERROR,
-				filename, conflictMessage, ignore, delete));
+		files.conflicts.add(new Conflict(isCritical ? Severity.CRITICAL_ERROR
+			: Severity.ERROR, filename, conflictMessage, ignore, delete));
 	}
 
 	protected void removeConflict(final String filename) {
@@ -409,10 +410,12 @@ public class Checksummer extends AbstractProgressable {
 			if (platform == null) return false;
 		}
 		else {
-			if (file.filename.startsWith("lib/")) platform =
-				file.filename.substring(4);
-			else if (file.filename.startsWith("mm/")) platform =
-				file.filename.substring(3);
+			if (file.filename.startsWith("lib/")) {
+				platform = file.filename.substring(4);
+			}
+			else if (file.filename.startsWith("mm/")) {
+				platform = file.filename.substring(3);
+			}
 			else return false;
 
 			final int slash = platform.indexOf('/');
