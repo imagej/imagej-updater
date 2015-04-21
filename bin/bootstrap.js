@@ -12,6 +12,13 @@
  * button.
  */
 
+var isNashorn = true;
+try {
+	load("nashorn:mozilla_compat.js");
+} catch (e) {
+	isNashorn = false;
+}
+
 importClass(Packages.java.io.File);
 importClass(Packages.java.lang.System);
 importClass(Packages.java.lang.Throwable);
@@ -21,11 +28,11 @@ importClass(Packages.java.util.regex.Pattern);
 
 baseURL = 'http://update.imagej.net/jars/';
 jars = [
-	'imagej-ui-swing-0.5.0.jar-20140711220647',
-	'imagej-plugins-uploader-webdav-0.1.1.jar-20140516211031',
-	'imagej-updater-0.5.0.jar-20140721212623',
-	'scijava-common-2.27.0.jar-20140711220647',
-	'imagej-common-0.8.0.jar-20140701184314',
+	'imagej-ui-swing-0.11.1.jar-20150415222444',
+	'imagej-plugins-uploader-webdav-0.2.0.jar-20141219193933',
+	'imagej-updater-0.7.3.jar-20150415222444',
+	'scijava-common-2.40.0.jar-20150326210450',
+	'imagej-common-0.14.0.jar-20150415222444',
 	'eventbus-1.4.jar-20120404210913',
 	'gentyref-1.1.0.jar-20140516211031'
 ];
@@ -231,7 +238,7 @@ if (isCommandLine && arguments.length == 1 &&
 			iter.hasNext(); ) {
 		f = iter.next();
 		if (!f.getFilename(true).matches("jars/" +
-				"(imglib2|scifio|mapdb|udunits).*")) {
+				"(imglib2|scifio|mapdb|udunits|imagej-ops|javassist|jama|trove|scijava-expression-parser|tools).*")) {
 			list[i++] = f;
 		}
 	}
@@ -282,7 +289,7 @@ if (isCommandLine && arguments.length == 1 &&
 		var file = new File(this["javax.script.filename"]);
 		var contents = readFile(file);
 		var begin = contents.indexOf("baseURL = ");
-		var end = contents.indexOf("];", begin);
+		var end = contents.indexOf("\n];\n", begin);
 		if (begin < 0 || end < 0) {
 			print("Could not find section to replace:\n\n"
 				+ contents);
@@ -290,7 +297,7 @@ if (isCommandLine && arguments.length == 1 &&
 		}
 		contents = contents.substring(0, begin)
 			+ output
-			+ contents.substring(end);
+			+ contents.substring(end + 4);
 		writeFile(file, contents);
 		print("Please run `git diff` now and commit if groovy");
 	}
@@ -307,13 +314,24 @@ IJ.showStatus("loading " + suffix);
 updaterClass = loader.loadClass(updaterClassName);
 IJ.showStatus("running " + suffix);
 try {
-	i = updaterClass.newInstance();
+	var i = updaterClass.newInstance();
 	if (isCommandLine) {
-		i.main(arguments);
+		if (!isNashorn) {
+			i.main(arguments);
+		} else {
+			var methods = updaterClass.getMethods();
+			var main;
+			for (var i = 0; i < methods.length; i++) {
+				if (methods[i].toString().endsWith(".main(java.lang.String[])")) {
+					main = methods[i];
+				}
+			}
+			main.invoke(null, [arguments]);
+		}
 	} else {
 		Thread.currentThread().setName("Updating the Updater itself!");
 		i.run();
 	}
 } catch (e) {
-	IJ.handleException(e.javaException);
+	IJ.handleException(e.javaException || e);
 }
