@@ -28,11 +28,11 @@ importClass(Packages.java.util.regex.Pattern);
 
 baseURL = 'http://update.imagej.net/jars/';
 jars = [
-	'imagej-ui-swing-0.5.0.jar-20140711220647',
-	'imagej-plugins-uploader-webdav-0.1.1.jar-20140516211031',
-	'imagej-updater-0.5.0.jar-20140721212623',
-	'scijava-common-2.27.0.jar-20140711220647',
-	'imagej-common-0.8.0.jar-20140701184314',
+	'imagej-ui-swing-0.11.1.jar-20150415222444',
+	'imagej-plugins-uploader-webdav-0.2.0.jar-20141219193933',
+	'imagej-updater-0.7.3.jar-20150415222444',
+	'scijava-common-2.40.0.jar-20150326210450',
+	'imagej-common-0.14.0.jar-20150415222444',
 	'eventbus-1.4.jar-20120404210913',
 	'gentyref-1.1.0.jar-20140516211031'
 ];
