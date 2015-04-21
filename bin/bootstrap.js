@@ -289,7 +289,7 @@ if (isCommandLine && arguments.length == 1 &&
 		var file = new File(this["javax.script.filename"]);
 		var contents = readFile(file);
 		var begin = contents.indexOf("baseURL = ");
-		var end = contents.indexOf("];", begin);
+		var end = contents.indexOf("\n];\n", begin);
 		if (begin < 0 || end < 0) {
 			print("Could not find section to replace:\n\n"
 				+ contents);
@@ -297,7 +297,7 @@ if (isCommandLine && arguments.length == 1 &&
 		}
 		contents = contents.substring(0, begin)
 			+ output
-			+ contents.substring(end);
+			+ contents.substring(end + 4);
 		writeFile(file, contents);
 		print("Please run `git diff` now and commit if groovy");
 	}
