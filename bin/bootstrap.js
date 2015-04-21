@@ -238,7 +238,7 @@ if (isCommandLine && arguments.length == 1 &&
 			iter.hasNext(); ) {
 		f = iter.next();
 		if (!f.getFilename(true).matches("jars/" +
-				"(imglib2|scifio|mapdb|udunits).*")) {
+				"(imglib2|scifio|mapdb|udunits|imagej-ops|javassist|jama|trove|scijava-expression-parser|tools).*")) {
 			list[i++] = f;
 		}
 	}
