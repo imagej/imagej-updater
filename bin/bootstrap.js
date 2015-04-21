@@ -12,6 +12,13 @@
  * button.
  */
 
+var isNashorn = true;
+try {
+	load("nashorn:mozilla_compat.js");
+} catch (e) {
+	isNashorn = false;
+}
+
 importClass(Packages.java.io.File);
 importClass(Packages.java.lang.System);
 importClass(Packages.java.lang.Throwable);
@@ -307,13 +314,24 @@ IJ.showStatus("loading " + suffix);
 updaterClass = loader.loadClass(updaterClassName);
 IJ.showStatus("running " + suffix);
 try {
-	i = updaterClass.newInstance();
+	var i = updaterClass.newInstance();
 	if (isCommandLine) {
-		i.main(arguments);
+		if (!isNashorn) {
+			i.main(arguments);
+		} else {
+			var methods = updaterClass.getMethods();
+			var main;
+			for (var i = 0; i < methods.length; i++) {
+				if (methods[i].toString().endsWith(".main(java.lang.String[])")) {
+					main = methods[i];
+				}
+			}
+			main.invoke(null, [arguments]);
+		}
 	} else {
 		Thread.currentThread().setName("Updating the Updater itself!");
 		i.run();
 	}
 } catch (e) {
-	IJ.handleException(e.javaException);
+	IJ.handleException(e.javaException || e);
 }
