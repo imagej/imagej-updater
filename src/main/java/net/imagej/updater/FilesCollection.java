@@ -162,7 +162,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	}
 
 	public void removeUpdateSite(final String name) {
-		for (final FileObject file : forUpdateSite(name)) {
+		for (final FileObject file : clone(forUpdateSite(name))) {
 			file.removeFromUpdateSite(name, this);
 		}
 		updateSites.remove(name);
