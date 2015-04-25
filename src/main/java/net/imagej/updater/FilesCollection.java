@@ -130,7 +130,6 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 
 	public UpdateSite addUpdateSite(UpdateSite site) {
 		addUpdateSite(site.getName(), site);
-		setUpdateSitesChanged(true);
 		return site;
 	}
 
@@ -139,6 +138,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 		updateSite.rank = already != null ? already.rank : updateSites.size();
 		if (already != null) updateSite.setOfficial(already.isOfficial());
 		updateSites.put(name,  updateSite);
+		if (updateSite != already) setUpdateSitesChanged(true);
 	}
 
 	public void renameUpdateSite(final String oldName, final String newName) {
@@ -162,7 +162,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	}
 
 	public void removeUpdateSite(final String name) {
-		for (final FileObject file : forUpdateSite(name)) {
+		for (final FileObject file : clone(forUpdateSite(name))) {
 			file.removeFromUpdateSite(name, this);
 		}
 		updateSites.remove(name);
