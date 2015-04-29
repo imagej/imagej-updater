@@ -1,3 +1,5 @@
+![](http://jenkins.imagej.net/job/ImageJ-updater/lastBuild/badge/icon)
+
 ImageJ Updater
 --------------
 
