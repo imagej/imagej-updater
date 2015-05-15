@@ -1414,7 +1414,7 @@ public class CommandLine {
 		} else {
 			UpdaterUtil.useSystemProxies();
 		}
-		Authenticator.setDefault(new ProxyAuthenticator());
+		Authenticator.setDefault(new ConsoleAuthenticator());
 		setUserInterface();
 
 		final CommandLine instance = new CommandLine(ijDir, columnCount,
@@ -1478,7 +1478,7 @@ public class CommandLine {
 		}
 	}
 
-	protected static class ProxyAuthenticator extends Authenticator {
+	protected static class ConsoleAuthenticator extends Authenticator {
 
 		protected Console console = System.console();
 
@@ -1489,8 +1489,8 @@ public class CommandLine {
 						"Need a console for user interaction!");
 			}
 			final String user = console
-					.readLine("                                  \rProxy User: ");
-			final char[] password = console.readPassword("Proxy Password: ");
+					.readLine("                                  \r" + getRequestingPrompt() + "\nUser: ");
+			final char[] password = console.readPassword("Password: ");
 			return new PasswordAuthentication(user, password);
 		}
 	}
