@@ -1006,6 +1006,7 @@ public class CommandLine {
 						&& file.getFilename(true).equals("jars/tools.jar")) {
 					break;
 				}
+				if (!file.isUpdateablePlatform(files)) break;
 				file.setAction(files, Action.REMOVE);
 				if (simulate) {
 					log.info("Would mark " + file.filename + " obsolete");

@@ -34,6 +34,7 @@ package net.imagej.updater;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -288,9 +289,12 @@ public class Conflicts {
 			conflicts.add(needUpload(file, needsUpload.get(file)));
 		}
 
+		final Set<String> sites = new HashSet<String>(files.getSiteNamesToUpload());
+
 		// Replace dependencies on to-be-removed files
 		for (final FileObject file : files.managedFiles()) {
 			if (file.getAction() == Action.REMOVE || file.isObsolete()) continue;
+			if (sites.size() > 0 && !sites.contains(file.updateSite)) continue;
 			for (final Dependency dependency : file.getDependencies()) {
 				final FileObject dependencyObject = files.get(dependency.filename);
 				if (dependency.overrides) {
