@@ -435,8 +435,8 @@ public class Checksummer extends AbstractProgressable {
 
 	public static final String[][] directories = {
 		{ "jars", "retro", "misc" }, { ".jar", ".class" },
-		{ "plugins" }, { ".jar", ".class", ".txt", ".ijm", ".py", ".rb", ".clj", ".js", ".bsh" },
-		{ "scripts" }, { ".py", ".rb", ".clj", ".js", ".bsh", ".m" },
+		{ "plugins" }, { ".jar", ".class", ".txt", ".ijm", ".py", ".rb", ".clj", ".js", ".bsh", ".groovy", ".gvy" },
+		{ "scripts" }, { ".py", ".rb", ".clj", ".js", ".bsh", ".m", ".groovy", ".gvy" },
 		{ "macros" }, { ".txt", ".ijm" },
 		{ "luts" }, { ".lut" },
 		{ "images" }, { ".png", ".tif", ".txt" },
