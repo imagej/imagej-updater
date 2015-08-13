@@ -1132,7 +1132,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 				// make sure that the Fiji update site is enabled
 				UpdateSite fiji = getUpdateSite("Fiji", true);
 				if (fiji == null) {
-					addUpdateSite("Fiji", "http://fiji.sc/update/", null, null, 0);
+					addUpdateSite("Fiji", "http://update.fiji.sc/", null, null, 0);
 				}
 			}
 		}

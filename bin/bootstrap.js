@@ -210,7 +210,7 @@ if (!new File(imagejDir, "db.xml.gz").exists()) {
 	files.getUpdateSite("ImageJ").timestamp = -1;
 	if (!"true".equalsIgnoreCase(System.getProperty("skip.fiji"))) {
 		IJ.showStatus("adding the Fiji update site");
-		files.addUpdateSite("Fiji", "http://fiji.sc/update/", null, null, -1);
+		files.addUpdateSite("Fiji", "http://update.fiji.sc/", null, null, -1);
 	}
 	files.write();
 }
