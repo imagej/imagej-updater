@@ -108,7 +108,7 @@ public final class AvailableSites {
 		}
 		if (!iter.hasNext()) throw new IOException("Invalid page: " + SITE_LIST_PAGE_TITLE);
 		site = iter.next();
-		if (!site.getName().equals("Fiji") || !site.getURL().equals("http://fiji.sc/update/")) {
+		if (!site.getName().equals("Fiji") || !site.getURL().equals("http://update.fiji.sc/")) {
 			throw new IOException("Invalid page: " + SITE_LIST_PAGE_TITLE);
 		}
 
