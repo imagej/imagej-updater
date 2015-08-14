@@ -110,6 +110,7 @@ public class UpdateSite implements Cloneable, Comparable<UpdateSite> {
 	public void setURL(final String url) {
 		if (url == null || url.equals("") || url.endsWith("/")) this.url = url;
 		else this.url = url + "/";
+		rewriteOldURLs();
 	}
 
 	public String getHost() {
@@ -209,4 +210,16 @@ public class UpdateSite implements Cloneable, Comparable<UpdateSite> {
 		if (colon > 0 && (at < 0 || colon < at)) return host.substring(0, colon);
 		return "ssh";
 	}
+
+	// -- Helper methods --
+
+	/** Rewrites known-obsolete URLs to the current ones. */
+	private void rewriteOldURLs() {
+		if ("http://pacific.mpi-cbg.de/update/".equals(url) ||
+			"http://fiji.sc/update/".equals(url))
+		{
+			url = "http://update.fiji.sc/";
+		}
+	}
+
 }
