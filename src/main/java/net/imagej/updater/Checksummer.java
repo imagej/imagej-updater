@@ -410,7 +410,10 @@ public class Checksummer extends AbstractProgressable {
 			if (platform == null) return false;
 		}
 		else {
-			if (file.filename.startsWith("lib/")) {
+			if (file.filename.startsWith("jars/")) {
+				platform = file.filename.substring(5);
+			}
+			else if (file.filename.startsWith("lib/")) {
 				platform = file.filename.substring(4);
 			}
 			else if (file.filename.startsWith("mm/")) {
