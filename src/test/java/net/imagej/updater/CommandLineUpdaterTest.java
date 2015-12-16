@@ -156,23 +156,31 @@ public class CommandLineUpdaterTest {
 	public void testUploadCompleteSiteWithPlatforms() throws Exception {
 		final String macro = "macros/macro.ijm";
 		final String linux32 = "lib/linux32/libtest.so";
-		files = initialize(macro, linux32);
+		final String linux32_jar = "jars/linux32/test.jar";
+		files = initialize(macro, linux32, linux32_jar);
 
 		assertPlatforms(files.get(linux32), "linux32");
+		assertPlatforms(files.get(linux32_jar), "linux32");
 
 		File ijRoot = files.prefix("");
 		final String win64 = "lib/win64/test.dll";
+		final String win64_jar = "jars/win64/test.jar";
 		assertTrue(new File(ijRoot, linux32).delete());
+		assertTrue(new File(ijRoot, linux32_jar).delete());
 		writeFile(new File(ijRoot, win64), "Dummy");
+		writeFile(new File(ijRoot, win64_jar), "Dummy jar");
 		writeFile(new File(ijRoot, macro), "New version");
 		files = main(files, "upload-complete-site", "--platforms", "win64", FilesCollection.DEFAULT_UPDATE_SITE);
 
 		assertStatus(Status.NOT_INSTALLED, files, linux32);
+		assertStatus(Status.NOT_INSTALLED, files, linux32_jar);
 		assertStatus(Status.INSTALLED, files, win64);
+		assertStatus(Status.INSTALLED, files, win64_jar);
 		assertStatus(Status.INSTALLED, files, macro);
 
 		files = main(files, "upload-complete-site", "--platforms", "all", FilesCollection.DEFAULT_UPDATE_SITE);
 		assertStatus(Status.OBSOLETE_UNINSTALLED, files, linux32);
+		assertStatus(Status.OBSOLETE_UNINSTALLED, files, linux32_jar);
 	}
 
 	@Test
