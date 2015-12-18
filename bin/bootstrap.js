@@ -34,7 +34,9 @@ jars = [
 	'scijava-common-2.44.2.jar-20150720161756',
 	'imagej-common-0.14.0.jar-20150415222444',
 	'eventbus-1.4.jar-20120404210913',
-	'gentyref-1.1.0.jar-20140516211031'
+	'gentyref-1.1.0.jar-20140516211031',
+	'scijava-ui-swing-0.7.1.jar-20151122015629',
+	'imglib2-2.4.1.jar-20151122015629'
 ];
 
 isCommandLine = typeof arguments != 'undefined';
