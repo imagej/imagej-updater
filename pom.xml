@@ -13,7 +13,7 @@
 	<version>0.7.9-SNAPSHOT</version>
 
 	<name>ImageJ Updater</name>
-	<description>The ImageJ Updater (TAFKA Fiji Updater).</description>
+	<description>Keeps components of ImageJ up-to-date.</description>
 
 	<scm>
 		<connection>scm:git:git://github.com/imagej/imagej-updater</connection>
