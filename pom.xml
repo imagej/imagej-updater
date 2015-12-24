@@ -15,6 +15,68 @@
 	<name>ImageJ Updater</name>
 	<description>Keeps components of ImageJ up-to-date.</description>
 
+	<developers>
+		<developer>
+			<id>ctrueden</id>
+			<name>Curtis Rueden</name>
+			<email>ctrueden@wisc.edu</email>
+			<url>http://loci.wisc.edu/people/curtis-rueden</url>
+			<organization>UW-Madison LOCI</organization>
+			<organizationUrl>http://loci.wisc.edu/</organizationUrl>
+			<roles>
+				<role>lead</role>
+				<role>developer</role>
+				<role>debugger</role>
+				<role>reviewer</role>
+				<role>support</role>
+				<role>maintainer</role>
+			</roles>
+			<timezone>-6</timezone>
+		</developer>
+		<developer>
+			<id>hinerm</id>
+			<name>Mark Hiner</name>
+			<email>hiner@wisc.edu</email>
+			<url>http://loci.wisc.edu/people/mark-hiner</url>
+			<organization>UW-Madison LOCI</organization>
+			<organizationUrl>http://loci.wisc.edu/</organizationUrl>
+			<roles>
+				<role>lead</role>
+				<role>developer</role>
+				<role>debugger</role>
+				<role>reviewer</role>
+				<role>support</role>
+				<role>maintainer</role>
+			</roles>
+			<timezone>-6</timezone>
+		</developer>
+	</developers>
+	<contributors>
+		<contributor>
+			<name>Johannes Schindelin</name>
+			<url>http://imagej.net/User:Schindelin</url>
+			<roles><role>founder</role></roles>
+			<properties><id>dscho</id></properties>
+		</contributor>
+		<contributor>
+			<name>Yap Chin Kiet (Google Summer of Code 2009)</name>
+		</contributor>
+		<contributor>
+			<name>Albert Cardona</name>
+			<url>http://imagej.net/User:Albertcardona</url>
+			<properties><id>acardona</id></properties>
+		</contributor>
+		<contributor>
+			<name>Mark Longair</name>
+			<url>http://imagej.net/User:Mark</url>
+			<properties><id>mhl</id></properties>
+		</contributor>
+		<contributor>
+			<name>Jarek Sacha</name>
+			<url>http://imagej.net/User:Jpsacha</url>
+		</contributor>
+	</contributors>
+
 	<scm>
 		<connection>scm:git:git://github.com/imagej/imagej-updater</connection>
 		<developerConnection>scm:git:git@github.com:imagej/imagej-updater</developerConnection>
