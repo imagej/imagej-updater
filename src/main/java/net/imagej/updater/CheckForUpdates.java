@@ -75,6 +75,14 @@ public class CheckForUpdates implements Command {
 				case PROXY_NEEDS_AUTHENTICATION:
 					throw new RuntimeException(
 						"TODO: authenticate proxy with the configured user/pass pair");
+				case PROTECTED_LOCATION:
+					final String protectedMessage =
+						"Your ImageJ installation cannot be updated because it is in " +
+							"a protected location (e.g., \"C:\\Program Files\").\nPlease " +
+							"move your installation to a directory with write permission";
+					if (log != null) log.warn(protectedMessage);
+					if (statusService != null) statusService.showStatus(protectedMessage);
+					break;
 				case READ_ONLY:
 					final String message =
 						"Your ImageJ installation cannot be updated because it is read-only";
