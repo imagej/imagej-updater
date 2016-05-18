@@ -45,6 +45,8 @@ import net.imagej.updater.FilesCollection;
 import net.imagej.updater.UpdateSite;
 import net.imagej.util.MediaWikiClient;
 
+import org.scijava.log.LogService;
+
 /**
  * Utility class for parsing the list of available update sites.
  * 
@@ -124,6 +126,14 @@ public final class AvailableSites {
 	 * </p>
 	 */
 	public static List<UpdateSite> initializeSites(final FilesCollection files) {
+		return initializeSites(files, null);
+	}
+
+	/**
+	 * As {@link #initializeSites(FilesCollection)} with an optional
+	 * {@link LogService} for reporting errors.
+	 */
+	public static List<UpdateSite> initializeSites(final FilesCollection files, final LogService log) {
 		final List<UpdateSite> sites = new ArrayList<UpdateSite>();
 		final Map<String, Integer> url2index = new HashMap<String, Integer>();
 
@@ -145,7 +155,8 @@ public final class AvailableSites {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			if (log != null) log.error("Error processing available update sites from ImageJ wiki", e);
+			else e.printStackTrace();
 		}
 
 		// add active / upload information
@@ -184,7 +195,15 @@ public final class AvailableSites {
 	 * <em>and<em> adds them to the given {@link FilesCollection}.
 	 */
 	public static void initializeAndAddSites(final FilesCollection files) {
-		for (final UpdateSite site : initializeSites(files)) {
+		initializeAndAddSites(files, null);
+	}
+
+	/**
+	 * As {@link #initializeAndAddSites(FilesCollection)} with an optional
+	 * {@link LogService} for reporting errors.
+	 */
+	public static void initializeAndAddSites(final FilesCollection files, final LogService log) {
+		for (final UpdateSite site : initializeSites(files, log)) {
 			files.addUpdateSite(site);
 		}
 
