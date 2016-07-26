@@ -61,7 +61,7 @@ public class FilterManifest extends ByteArrayInputStream {
 		CREATED_BY,
 		IMPLEMENTATION_BUILD
 	}
-	protected static Set<String> skip = new HashSet<String>();
+	protected static Set<String> skip = new HashSet<>();
 	static {
 		for (Skip s : Skip.values())
 			skip.add(s.toString().toUpperCase().replace('_', '-'));

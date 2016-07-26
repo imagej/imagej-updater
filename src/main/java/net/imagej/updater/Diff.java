@@ -292,8 +292,8 @@ public class Diff {
 	 * @return the sorted list
 	 */
 	protected static List<JarEntry> getSortedEntries(JarFile jar) {
-		List<JarEntry> result = new ArrayList<JarEntry>();
-		for (final JarEntry entry : new IteratorPlus<JarEntry>(jar.entries())) {
+		List<JarEntry> result = new ArrayList<>();
+		for (final JarEntry entry : new IteratorPlus<>(jar.entries())) {
 			result.add(entry);
 		}
 		Collections.sort(result, new Comparator<JarEntry>() {

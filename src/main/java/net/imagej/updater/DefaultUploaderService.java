@@ -108,7 +108,7 @@ public class DefaultUploaderService extends AbstractService implements
 					+ " could not be instantiated; the status of "
 					+ uploader + " is " + uploader.getStatus());
 		}
-		final Set<URL> urls = new LinkedHashSet<URL>();
+		final Set<URL> urls = new LinkedHashSet<>();
 		final FilesCollection toInstall = files.clone(uploader.getFileDependencies(files, true));
 		for (final FileObject file : toInstall) {
 			switch (file.getStatus()) {
@@ -162,7 +162,7 @@ public class DefaultUploaderService extends AbstractService implements
 	private HashMap<String, Uploader> uploaderMap() {
 		if (uploaderMap == null) {
 			// ask the plugin service for the list of available upload mechanisms
-			uploaderMap = new HashMap<String, Uploader>();
+			uploaderMap = new HashMap<>();
 			final List<? extends Uploader> uploaders =
 				pluginService.createInstancesOfType(Uploader.class);
 			for (final Uploader uploader : uploaders) {

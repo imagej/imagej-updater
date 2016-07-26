@@ -73,7 +73,7 @@ public final class AvailableSites {
 		}
 		final String[] table = text.substring(start + 1, end).split("\n\\|-");
 
-		final Map<String, UpdateSite> result = new LinkedHashMap<String, UpdateSite>();
+		final Map<String, UpdateSite> result = new LinkedHashMap<>();
 		int nameColumn = -1;
 		int urlColumn = -1;
 		int descriptionColumn = -1;
@@ -134,8 +134,8 @@ public final class AvailableSites {
 	 * {@link LogService} for reporting errors.
 	 */
 	public static List<UpdateSite> initializeSites(final FilesCollection files, final LogService log) {
-		final List<UpdateSite> sites = new ArrayList<UpdateSite>();
-		final Map<String, Integer> url2index = new HashMap<String, Integer>();
+		final List<UpdateSite> sites = new ArrayList<>();
+		final Map<String, Integer> url2index = new HashMap<>();
 
 		// make sure that the main update site is the first one.
 		final UpdateSite mainSite = new UpdateSite(FilesCollection.DEFAULT_UPDATE_SITE, UpdaterUtil.MAIN_URL, "", "", null, null, 0l);
@@ -160,7 +160,7 @@ public final class AvailableSites {
 		}
 
 		// add active / upload information
-		final Set<String> names = new HashSet<String>();
+		final Set<String> names = new HashSet<>();
 		for (final String name : files.getUpdateSiteNames(true)) {
 			final UpdateSite site = files.getUpdateSite(name, true);
 			Integer index = url2index.get(site.getURL());

@@ -86,8 +86,8 @@ public class DependencyAnalyzer {
 		final File file = new File(imagejRoot, path);
 		if (!file.exists()) return null;
 
-		final Set<String> result = new LinkedHashSet<String>();
-		final Set<String> handled = new HashSet<String>();
+		final Set<String> result = new LinkedHashSet<>();
+		final Set<String> handled = new HashSet<>();
 
 		final JarFile jar = new JarFile(file);
 		for (final JarEntry entry : Collections.list(jar.entries())) {
@@ -97,7 +97,7 @@ public class DependencyAnalyzer {
 			final byte[] code = UpdaterUtil.readStreamAsBytes(input);
 			final ByteCodeAnalyzer analyzer = new ByteCodeAnalyzer(code, Mode.INTERFACES);
 
-			final Set<String> allClassNames = new HashSet<String>();
+			final Set<String> allClassNames = new HashSet<>();
 			for (final String name : analyzer)
 				addClassAndInterfaces(allClassNames, handled, name);
 
@@ -109,14 +109,14 @@ public class DependencyAnalyzer {
 				if (jars == null) continue;
 
 				// prepend known dependencies to the list
-				final LinkedHashSet<String> orderedJARs = new LinkedHashSet<String>();
+				final LinkedHashSet<String> orderedJARs = new LinkedHashSet<>();
 				for (final Dependency d : fileObject.getDependencies()) {
 					if (new File(imagejRoot, d.filename).exists())
 						orderedJARs.add(d.filename);
 				}
 				orderedJARs.addAll(jars);
 
-				final List<String> dependencies = new ArrayList<String>();
+				final List<String> dependencies = new ArrayList<>();
 				for (final String dependency : orderedJARs) {
 					if (!exclude(path, dependency)) {
 						// already accounted for?

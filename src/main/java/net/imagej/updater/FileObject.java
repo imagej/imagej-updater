@@ -165,7 +165,7 @@ public class FileObject {
 		}
 	}
 
-	protected Map<String, FileObject> overriddenUpdateSites = new LinkedHashMap<String, FileObject>();
+	protected Map<String, FileObject> overriddenUpdateSites = new LinkedHashMap<>();
 	private Status status;
 	private Action action;
 	public String updateSite, originalUpdateSite, filename, description;
@@ -193,13 +193,13 @@ public class FileObject {
 		this.updateSite = updateSite;
 		this.filename = filename;
 		if (checksum != null) current = new Version(checksum, timestamp);
-		previous = new LinkedHashSet<Version>();
+		previous = new LinkedHashSet<>();
 		this.status = status;
-		dependencies = new LinkedHashMap<String, Dependency>();
-		authors = new LinkedHashSet<String>();
-		platforms = new LinkedHashSet<String>();
-		categories = new LinkedHashSet<String>();
-		links = new LinkedHashSet<String>();
+		dependencies = new LinkedHashMap<>();
+		authors = new LinkedHashSet<>();
+		platforms = new LinkedHashSet<>();
+		categories = new LinkedHashSet<>();
+		links = new LinkedHashSet<>();
 		this.filesize = filesize;
 		setNoAction();
 	}
@@ -628,9 +628,9 @@ public class FileObject {
 
 	public Iterable<FileObject> getFileDependencies(
 			final FilesCollection files, final boolean recursive) {
-		final Set<FileObject> result = new LinkedHashSet<FileObject>();
+		final Set<FileObject> result = new LinkedHashSet<>();
 		if (recursive) result.add(this);
-		final Stack<FileObject> stack = new Stack<FileObject>();
+		final Stack<FileObject> stack = new Stack<>();
 		stack.push(this);
 		while (!stack.empty()) {
 			final FileObject file = stack.pop();
@@ -826,7 +826,7 @@ public class FileObject {
 
 		String baseName = getBaseName();
 		String withoutVersion = getFilename(true);
-		List<Dependency> fixup = new ArrayList<Dependency>();
+		List<Dependency> fixup = new ArrayList<>();
 		for (final FileObject file : files.forUpdateSite(updateSite)) {
 			if (file.isObsolete()) continue;
 			fixup.clear();

@@ -195,7 +195,7 @@ public class CommandLineUpdaterTest {
 	}
 
 	private void assertPlatforms(final FileObject file, final String... platforms) {
-		final Set<String> filePlatforms = new HashSet<String>();
+		final Set<String> filePlatforms = new HashSet<>();
 		for (final String platform : file.getPlatforms()) filePlatforms.add(platform);
 		assertEquals(platforms.length, filePlatforms.size());
 		for (final String platform : platforms) {

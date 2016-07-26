@@ -136,7 +136,7 @@ public class CommandLine {
 
 		public FileFilter(final List<String> files) {
 			if (files != null && files.size() > 0) {
-				fileNames = new HashSet<String>();
+				fileNames = new HashSet<>();
 				for (final String file : files)
 					fileNames.add(FileObject.getFilename(file, true));
 			}
@@ -233,7 +233,7 @@ public class CommandLine {
 		ensureChecksummed();
 		final FileFilter filter = new FileFilter(list);
 		files.sort();
-		final List<String> overridden = new ArrayList<String>();
+		final List<String> overridden = new ArrayList<>();
 		for (final FileObject file : files.filter(filter)) {
 			if (!file.overridesOtherUpdateSite()) continue;
 			for (final Map.Entry<String, FileObject> entry : file.overriddenUpdateSites
@@ -326,7 +326,7 @@ public class CommandLine {
 
 		final File jarFile = files.prefix(file.localFilename != null ? file.localFilename : file.filename);
 		if (jarFile.exists()) {
-			final Map<String, String> map = new LinkedHashMap<String, String>();
+			final Map<String, String> map = new LinkedHashMap<>();
 			try {
 				final JarFile jar = new JarFile(jarFile);
 				final Manifest manifest = jar.getManifest();
@@ -337,7 +337,7 @@ public class CommandLine {
 				if (commit != null)
 					map.put("Commit", commit);
 				JarEntry pomEntry = null;
-				for (final JarEntry entry : new IteratorPlus<JarEntry>(
+				for (final JarEntry entry : new IteratorPlus<>(
 						jar.entries())) {
 					if (!entry.getName().endsWith("/pom.xml"))
 						continue;
@@ -412,7 +412,7 @@ public class CommandLine {
 			public void add(final long timestamp, final FileObject file) {
 				Set<FileObject> set = get(timestamp);
 				if (set == null) {
-					set = new TreeSet<FileObject>(this);
+					set = new TreeSet<>(this);
 					put(timestamp, set);
 				}
 				set.add(file);
@@ -1033,7 +1033,7 @@ public class CommandLine {
 				}
 			}
 			if (ignoreWarnings) {
-				final List<String> obsoleteDependencies = new ArrayList<String>();
+				final List<String> obsoleteDependencies = new ArrayList<>();
 				for (final Dependency dependency : file.getDependencies()) {
 					final FileObject dep = files.get(dependency.filename);
 					if (dep != null && dep.isObsolete()) {
@@ -1179,8 +1179,8 @@ public class CommandLine {
 	}
 
 	public String chooseUploadSite(final String file) {
-		final List<String> names = new ArrayList<String>();
-		final List<String> options = new ArrayList<String>();
+		final List<String> names = new ArrayList<>();
+		final List<String> options = new ArrayList<>();
 		for (final String name : files.getUpdateSiteNames(false)) {
 			final UpdateSite updateSite = files.getUpdateSite(name, true);
 			if (updateSite.getUploadDirectory() == null
@@ -1298,7 +1298,7 @@ public class CommandLine {
 	}
 
 	private static List<String> makeList(final String[] list, int start) {
-		final List<String> result = new ArrayList<String>();
+		final List<String> result = new ArrayList<>();
 		while (start < list.length)
 			result.add(list[start++]);
 		return result;

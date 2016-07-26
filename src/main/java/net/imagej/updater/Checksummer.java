@@ -114,7 +114,7 @@ public class Checksummer extends AbstractProgressable {
 	}
 
 	public void queueDir(final String[] dirs, final String[] extensions) {
-		final Set<String> set = new HashSet<String>();
+		final Set<String> set = new HashSet<>();
 		for (final String extension : extensions)
 			set.add(extension);
 		for (final String dir : dirs)
@@ -198,16 +198,16 @@ public class Checksummer extends AbstractProgressable {
 				if (pair == null || (p.file.lastModified() > pair.file.lastModified()
 						&& pair.path.equals(FileObject.getFilename(pair.path, true))))
 					pair = p;
-			final List<File> obsoletes = new ArrayList<File>();
+			final List<File> obsoletes = new ArrayList<>();
 			for (StringAndFile p : pairs)
 				if (p != pair)
 					obsoletes.add(p.file);
 			if (pair != null) addConflict(pair.path, "", false, obsoletes);
 		} else {
 			// let's find out whether there are obsoletes or locally-modified versions
-			final List<StringAndFile> upToDates = new ArrayList<StringAndFile>();
-			final List<StringAndFile> obsoletes = new ArrayList<StringAndFile>();
-			final List<StringAndFile> locallyModifieds = new ArrayList<StringAndFile>();
+			final List<StringAndFile> upToDates = new ArrayList<>();
+			final List<StringAndFile> obsoletes = new ArrayList<>();
+			final List<StringAndFile> locallyModifieds = new ArrayList<>();
 			for (final StringAndFile p : pairs) {
 				if (object.current.checksum.equals(p.checksum))
 					upToDates.add(p);
@@ -256,7 +256,7 @@ public class Checksummer extends AbstractProgressable {
 	}
 
 	protected static List<File> convert(final List<StringAndFile> pairs) {
-		final List<File> result = new ArrayList<File>();
+		final List<File> result = new ArrayList<>();
 		for (final StringAndFile pair : pairs)
 			result.add(pair.file);
 		return result;
@@ -396,7 +396,7 @@ public class Checksummer extends AbstractProgressable {
 	}
 
 	public void updateFromLocal(final List<String> files) {
-		queue = new LinkedHashMap<String, List<StringAndFile>>();
+		queue = new LinkedHashMap<>();
 		for (final String file : files)
 			queue(file);
 		handleQueue();
@@ -453,9 +453,9 @@ public class Checksummer extends AbstractProgressable {
 	protected static final Map<String, Set<String>> extensions;
 
 	static {
-		extensions = new HashMap<String, Set<String>>();
+		extensions = new HashMap<>();
 		for (int i = 0; i < directories.length; i += 2) {
-			final Set<String> set = new HashSet<String>();
+			final Set<String> set = new HashSet<>();
 			for (final String extension : directories[i + 1])
 				set.add(extension);
 			for (final String dir : directories[i + 1])
@@ -473,7 +473,7 @@ public class Checksummer extends AbstractProgressable {
 	}
 
 	protected void initializeQueue() {
-		queue = new LinkedHashMap<String, List<StringAndFile>>();
+		queue = new LinkedHashMap<>();
 
 		queueIfExists("README.md");
 		queueIfExists("WELCOME.md");
@@ -495,7 +495,7 @@ public class Checksummer extends AbstractProgressable {
 	}
 
 	protected void readCachedChecksums() {
-		cachedChecksums = new TreeMap<String, FileObject.Version>();
+		cachedChecksums = new TreeMap<>();
 		final File file = files.prefix(".checksums");
 		if (!file.exists()) return;
 		try {

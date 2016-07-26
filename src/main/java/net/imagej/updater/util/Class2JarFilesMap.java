@@ -120,7 +120,7 @@ public class Class2JarFilesMap extends HashMap<String, ArrayList<String>> {
 		else {
 			// Make the ArrayList initially of capacity 1, since it's
 			// rare to have a class in multiple jar files.
-			final ArrayList<String> jarList = new ArrayList<String>(1);
+			final ArrayList<String> jarList = new ArrayList<>(1);
 			jarList.add(jar);
 			put(className, jarList);
 		}

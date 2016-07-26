@@ -73,7 +73,7 @@ public class CustomUploaderTest {
 		assumeTrue(loader instanceof URLClassLoader);
 		final URL[] urls = ((URLClassLoader)loader).getURLs();
 
-		final Set<String> excluding  = new HashSet<String>();
+		final Set<String> excluding  = new HashSet<>();
 		for (final Class<?> clazz : classes) {
 			excluding.add(clazz.getName());
 		}

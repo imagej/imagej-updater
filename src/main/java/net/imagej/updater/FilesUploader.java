@@ -211,8 +211,8 @@ public class FilesUploader {
 		uploader.addProgress(progress);
 		uploader.addProgress(new VerifyTimestamp());
 
-		uploadables = new ArrayList<Uploadable>();
-		final List<String> locks = new ArrayList<String>();
+		uploadables = new ArrayList<>();
+		final List<String> locks = new ArrayList<>();
 		uploadables.add(new DbXmlFile());
 
 		/*

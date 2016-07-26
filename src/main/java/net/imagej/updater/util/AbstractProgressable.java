@@ -44,7 +44,7 @@ public abstract class AbstractProgressable implements Progressable {
 	protected List<Progress> progress;
 
 	public AbstractProgressable() {
-		progress = new ArrayList<Progress>();
+		progress = new ArrayList<>();
 	}
 
 	@Override

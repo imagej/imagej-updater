@@ -70,7 +70,7 @@ public class XMLFileReader extends DefaultHandler {
 	// this is the name of the update site (null means we read the local
 	// db.xml.gz)
 	private String updateSite;
-	private Set<FileObject> filesFromThisSite = new HashSet<FileObject>();
+	private Set<FileObject> filesFromThisSite = new HashSet<>();
 
 	// every file newer than this was not seen by the user yet
 	private long newTimestamp;
@@ -286,7 +286,7 @@ public class XMLFileReader extends DefaultHandler {
 	 * @param file the component
 	 */
 	private static void fillPreviousFilenames(final FileObject file) {
-		List<FileObject.Version> versions = new ArrayList<FileObject.Version>();
+		List<FileObject.Version> versions = new ArrayList<>();
 		if (file.current != null)
 			versions.add(file.current);
 		for (final FileObject.Version version : file.previous)

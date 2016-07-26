@@ -185,7 +185,7 @@ public class Conflicts {
 	}
 
 	public Iterable<Conflict> getConflicts(final boolean forUpload) {
-		conflicts = new ArrayList<Conflict>();
+		conflicts = new ArrayList<>();
 		if (!forUpload) listUpdateIssues();
 		else listUploadIssues();
 		return conflicts;
@@ -194,7 +194,7 @@ public class Conflicts {
 	protected void listUpdateIssues() {
 		final DependencyMap toInstall = files.getDependencies(false);
 		final DependencyMap obsoleted = files.getDependencies(true);
-		final Set<FileObject> automatic = new LinkedHashSet<FileObject>();
+		final Set<FileObject> automatic = new LinkedHashSet<>();
 
 		for (final FileObject file : toInstall.keySet())
 			if (obsoleted.get(file) != null) conflicts.add(bothInstallAndUninstall(
@@ -289,7 +289,7 @@ public class Conflicts {
 			conflicts.add(needUpload(file, needsUpload.get(file)));
 		}
 
-		final Set<String> sites = new HashSet<String>(files.getSiteNamesToUpload());
+		final Set<String> sites = new HashSet<>(files.getSiteNamesToUpload());
 
 		// Replace dependencies on to-be-removed files
 		for (final FileObject file : files.managedFiles()) {
@@ -339,7 +339,7 @@ public class Conflicts {
 		final boolean localOnly = file.isLocalOnly();
 		final boolean notInstalled = file.isInstallable();
 		final boolean obsolete = file.isObsolete();
-		final List<Resolution> resolutions = new ArrayList<Resolution>();
+		final List<Resolution> resolutions = new ArrayList<>();
 		if (!localOnly && !obsolete) {
 			resolutions.add(ignoreResolution("Do not upload " + file, file));
 		}
@@ -366,7 +366,7 @@ public class Conflicts {
 	private Conflict dependencyObsoleted(final FileObject obsoleting,
 		final FileObject obsoleted)
 	{
-		final List<Resolution> resolutions = new ArrayList<Resolution>();
+		final List<Resolution> resolutions = new ArrayList<>();
 		resolutions
 			.add(new Resolution("Do not obsolete " + obsoleted.getFilename()) {
 
@@ -404,7 +404,7 @@ public class Conflicts {
 	protected Conflict dependencyRemoved(final FileObject file,
 		final String dependency)
 	{
-		final List<Resolution> resolutions = new ArrayList<Resolution>();
+		final List<Resolution> resolutions = new ArrayList<>();
 		resolutions.add(dependencyResolution("Break the dependency", file,
 			dependency, null));
 		for (final FileObject toUpload : files.toUpload()) {
@@ -496,13 +496,13 @@ public class Conflicts {
 	}
 
 	public boolean hasDownloadConflicts() {
-		conflicts = new ArrayList<Conflict>();
+		conflicts = new ArrayList<>();
 		listUpdateIssues();
 		return conflicts.size() > 0;
 	}
 
 	public boolean hasUploadConflicts() {
-		conflicts = new ArrayList<Conflict>();
+		conflicts = new ArrayList<>();
 		listUploadIssues();
 		return conflicts.size() > 0;
 	}

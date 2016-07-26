@@ -84,8 +84,8 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	public final static String DEFAULT_UPDATE_SITE = "ImageJ";
 	private File imagejRoot;
 	public final LogService log;
-	protected Set<FileObject> ignoredConflicts = new HashSet<FileObject>();
-	protected List<Conflict> conflicts = new ArrayList<Conflict>();
+	protected Set<FileObject> ignoredConflicts = new HashSet<>();
+	protected List<Conflict> conflicts = new ArrayList<>();
 
 	private Map<String, UpdateSite> updateSites;
 	private boolean updateSitesChanged = false;
@@ -112,7 +112,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 		this.log = log;
 		this.imagejRoot = imagejRoot;
 		util = new UpdaterUtil(imagejRoot);
-		updateSites = new LinkedHashMap<String, UpdateSite>();
+		updateSites = new LinkedHashMap<>();
 		final UpdateSite updateSite =
 			addUpdateSite(DEFAULT_UPDATE_SITE, UpdaterUtil.MAIN_URL, null, null,
 				timestamp());
@@ -153,7 +153,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 
 		// preserve order
 		final Map<String, UpdateSite> oldMap = updateSites;
-		updateSites = new LinkedHashMap<String, UpdateSite>();
+		updateSites = new LinkedHashMap<>();
 		for (final String name : oldMap.keySet()) {
 			final UpdateSite site = oldMap.get(name);
 			if (name.equals(oldName)) site.setName(newName);
@@ -196,7 +196,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	/** Gets the names of known update sites. */
 	public Collection<String> getUpdateSiteNames(final boolean evenDisabled) {
 		if (evenDisabled) return updateSites.keySet();
-		final List<String> result = new ArrayList<String>();
+		final List<String> result = new ArrayList<>();
 		final Iterator<java.util.Map.Entry<String, UpdateSite>> it = updateSites.entrySet().iterator();
 		while (it.hasNext()) {
 			java.util.Map.Entry<String, UpdateSite> entry = it.next();
@@ -208,7 +208,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	/** Gets the list of known update sites. */
 	public Collection<UpdateSite> getUpdateSites(final boolean evenDisabled) {
 		if (evenDisabled) return updateSites.values();
-		final List<UpdateSite> result = new ArrayList<UpdateSite>();
+		final List<UpdateSite> result = new ArrayList<>();
 		for (final UpdateSite site : updateSites.values()) {
 			if (site.isActive()) result.add(site);
 		}
@@ -216,13 +216,13 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	}
 
 	public Collection<String> getSiteNamesToUpload() {
-		final Collection<String> set = new HashSet<String>();
+		final Collection<String> set = new HashSet<>();
 		for (final FileObject file : toUpload(false))
 			set.add(file.updateSite);
 		for (final FileObject file : toRemove())
 			set.add(file.updateSite);
 		// keep the update sites' order
-		final List<String> result = new ArrayList<String>();
+		final List<String> result = new ArrayList<>();
 		for (final String name : getUpdateSiteNames(false))
 			if (set.contains(name)) result.add(name);
 		if (result.size() != set.size()) throw new RuntimeException(
@@ -253,7 +253,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	 */
 	public int deactivateUpdateSite(final UpdateSite site) {
 		if (!site.isActive()) return 0;
-		final List<FileObject> list = new ArrayList<FileObject>();
+		final List<FileObject> list = new ArrayList<>();
 		final String updateSite = site.getName();
 		for (final FileObject file : forUpdateSite(updateSite)) {
 			list.add(file);
@@ -295,7 +295,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 
 	public void reReadUpdateSite(final String name, final Progress progress) throws ParserConfigurationException, IOException, SAXException {
 		new XMLFileReader(this).read(name);
-		final List<String> filesFromSite = new ArrayList<String>();
+		final List<String> filesFromSite = new ArrayList<>();
 		for (final FileObject file : forUpdateSite(name))
 			filesFromSite.add(file.localFilename != null ? file.localFilename : file.filename);
 		final Checksummer checksummer =
@@ -304,7 +304,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	}
 
 	public String protocolsMissingUploaders(final UploaderService uploaderService, final Progress progress) {
-		final Map<String, Set<String>> map = new LinkedHashMap<String, Set<String>>();
+		final Map<String, Set<String>> map = new LinkedHashMap<>();
 		for (final Map.Entry<String, UpdateSite> entry : updateSites.entrySet()) {
 			final UpdateSite site = entry.getValue();
 			if (!site.isUploadable()) continue;
@@ -314,7 +314,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 			} catch (IllegalArgumentException e) {
 				Set<String> set = map.get(protocol);
 				if (set == null) {
-					set = new LinkedHashSet<String>();
+					set = new LinkedHashSet<>();
 					map.put(protocol, set);
 				}
 				set.add(entry.getKey());
@@ -331,7 +331,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	}
 
 	public Set<GroupAction> getValidActions() {
-		final Set<GroupAction> actions = new LinkedHashSet<GroupAction>();
+		final Set<GroupAction> actions = new LinkedHashSet<>();
 		actions.add(new KeepAsIs());
 		boolean hasChanges = hasChanges(), hasUploadOrRemove = hasUploadOrRemove();
 		if (!hasUploadOrRemove) {
@@ -342,7 +342,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 			final Map<String, UpdateSite> updateSites;
 			if (siteNames.size() == 0) updateSites = this.updateSites;
 			else {
-				updateSites = new LinkedHashMap<String, UpdateSite>();
+				updateSites = new LinkedHashMap<>();
 				for (final String name : siteNames) {
 					updateSites.put(name, getUpdateSite(name, true));
 				}
@@ -387,12 +387,12 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 		for (final FileObject file : files) {
 			final Action[] actions = getActions(file);
 			if (result == null) {
-				result = new ArrayList<Action>();
+				result = new ArrayList<>();
 				for (final Action action : actions)
 					result.add(action);
 			}
 			else {
-				final Set<Action> set = new TreeSet<Action>();
+				final Set<Action> set = new TreeSet<>();
 				for (final Action action : actions)
 					set.add(action);
 				final Iterator<Action> iter = result.iterator();
@@ -529,7 +529,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 			return filter(filter);
 		}
 		// make sure that overridden records are kept
-		List<FileObject> result = new ArrayList<FileObject>();
+		List<FileObject> result = new ArrayList<>();
 		for (FileObject file : this) {
 			if (filter.matches(file))
 				result.add(file);
@@ -699,7 +699,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	}
 
 	public Filter oneOf(final Action... actions) {
-		final Set<Action> oneOf = new HashSet<Action>();
+		final Set<Action> oneOf = new HashSet<>();
 		for (final Action action : actions)
 			oneOf.add(action);
 		return new Filter() {
@@ -743,7 +743,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	}
 
 	public Filter oneOf(final Status... states) {
-		final Set<Status> oneOf = new HashSet<Status>();
+		final Set<Status> oneOf = new HashSet<>();
 		for (final Status status : states)
 			oneOf.add(status);
 		return new Filter() {
@@ -967,7 +967,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	public void sort() {
 		// first letters in this order: 'C', 'I', 'f', 'p', 'j', 's', 'i', 'm', 'l,
 		// 'r'
-		final ArrayList<FileObject> files = new ArrayList<FileObject>();
+		final ArrayList<FileObject> files = new ArrayList<>();
 		for (final FileObject file : this) {
 			files.add(file);
 		}
@@ -1029,7 +1029,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 		final String uploadSiteName = uploadSiteNames.isEmpty() ? null :
 			uploadSiteNames.iterator().next();
 		final StringBuilder result = new StringBuilder();
-		final Set<FileObject> circularChecked = new HashSet<FileObject>();
+		final Set<FileObject> circularChecked = new HashSet<>();
 		for (final FileObject file : this) {
 			if (uploadSiteName != null && !uploadSiteName.equals(file.updateSite) || file.getAction() == Action.REMOVE) {
 				continue;
@@ -1225,7 +1225,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	}
 
 	public Collection<String> getProtocols(Iterable<FileObject> selected) {
-		final Set<String> protocols = new LinkedHashSet<String>();
+		final Set<String> protocols = new LinkedHashSet<>();
 		for (final FileObject file : selected) {
 			final UpdateSite site = getUpdateSite(file.updateSite, false);
 			if (site != null) {

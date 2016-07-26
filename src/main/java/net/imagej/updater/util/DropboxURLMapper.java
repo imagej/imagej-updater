@@ -64,7 +64,7 @@ public class DropboxURLMapper {
 	 * with a trailing slash. Therefore, missing URLs can be detected by the
 	 * containing directory being mapped but not the file.
 	 */
-	private Map<URL, URL> map = new HashMap<URL, URL>();
+	private Map<URL, URL> map = new HashMap<>();
 
 	protected final UpdaterUtil util;
 

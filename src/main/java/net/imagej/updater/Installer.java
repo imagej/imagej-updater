@@ -122,7 +122,7 @@ public class Installer extends Downloader {
 				throw new RuntimeException("Could not mark '" + file + "' for removal");
 			}
 
-		final List<Downloadable> list = new ArrayList<Downloadable>();
+		final List<Downloadable> list = new ArrayList<>();
 		for (final FileObject file : files.toInstallOrUpdate()) {
 			final String name = file.filename;
 			File saveTo = files.prefixUpdate(name);
@@ -162,10 +162,10 @@ public class Installer extends Downloader {
 	protected final static String UPDATER_JAR_NAME = "jars/imagej-updater.jar";
 
 	public static Set<FileObject> getUpdaterFiles(final FilesCollection files, final CommandService commandService, final boolean onlyUpdateable) {
-		final Set<FileObject> result = new HashSet<FileObject>();
+		final Set<FileObject> result = new HashSet<>();
 		final FileObject updater = files.get(UPDATER_JAR_NAME);
 		if (updater == null) return result;
-		final Set<FileObject> topLevel = new HashSet<FileObject>();
+		final Set<FileObject> topLevel = new HashSet<>();
 		topLevel.add(updater);
 		if (commandService == null) {
 			final String hardcoded = "jars/imagej-ui-swing.jar";

@@ -116,7 +116,7 @@ public class UpdaterUtil {
 					platforms[i] + (platforms[i].startsWith("win") ? ".exe" : "");
 		Arrays.sort(launchers);
 
-		updateablePlatforms = new HashSet<String>();
+		updateablePlatforms = new HashSet<>();
 		updateablePlatforms.add(platform);
 		if (imagejRoot != null && new File(imagejRoot, launchers[macIndex]).exists()) {
 			updateablePlatforms.add("macosx");
@@ -193,7 +193,7 @@ public class UpdaterUtil {
 		final File file) throws FileNotFoundException, IOException
 	{
 		if (!path.endsWith(".jar")) return null;
-		final List<String> result = new ArrayList<String>();
+		final List<String> result = new ArrayList<>();
 		result.add(getJarDigest(file, true, true, false));
 		result.add(getJarDigest(file, true, false, false));
 		result.add(getJarDigest(file, false, false, false));
@@ -521,7 +521,7 @@ public class UpdaterUtil {
 			if (!matcher.matches() || Integer.parseInt(matcher.group(1)) < 6) return false;
 			try {
 				if (protectedFiles == null) {
-					protectedFiles = new HashSet<File>();
+					protectedFiles = new HashSet<>();
 					for (final String key : new String[] {
 									"PROGRAMFILES", "PROGRAMFILES(X86)", "SystemRoot", "ALLUSERSPROFILE"
 					}) {

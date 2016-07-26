@@ -201,7 +201,7 @@ public class UpdaterTestUtils {
 		} else {
 			// Write files
 
-			final List<String> list = new ArrayList<String>();
+			final List<String> list = new ArrayList<>();
 			for (final String name : fileNames) {
 				writeFile(new File(ijRoot, name), name);
 				list.add(name);
@@ -358,7 +358,7 @@ public class UpdaterTestUtils {
 	}
 
 	protected static FileObject[] makeList(final FilesCollection files) {
-		final List<FileObject> list = new ArrayList<FileObject>();
+		final List<FileObject> list = new ArrayList<>();
 		for (final FileObject object : files)
 			list.add(object);
 		return list.toArray(new FileObject[list.size()]);
@@ -531,7 +531,7 @@ public class UpdaterTestUtils {
 	protected static File writeJar(final File file, final Class<?>... classes) throws FileNotFoundException, IOException {
 		file.getParentFile().mkdirs();
 
-		final Map<String, URL> extra = new LinkedHashMap<String, URL>();
+		final Map<String, URL> extra = new LinkedHashMap<>();
 
 		final byte[] buffer = new byte[32768];
 		final JarOutputStream jar = new JarOutputStream(new FileOutputStream(file));

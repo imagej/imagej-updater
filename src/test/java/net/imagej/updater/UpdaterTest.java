@@ -326,7 +326,7 @@ public class UpdaterTest {
 		writeFile(dependencee, "still not uploaded");
 
 		Conflicts conflicts = new Conflicts(files);
-		conflicts.conflicts = new ArrayList<Conflict>();
+		conflicts.conflicts = new ArrayList<>();
 		conflicts.listUploadIssues();
 		assertCount(1, conflicts.conflicts);
 		Conflict conflict = conflicts.conflicts.get(0);
@@ -368,7 +368,7 @@ public class UpdaterTest {
 		object.setAction(files, Action.REMOVE);
 
 		conflicts = new Conflicts(files);
-		conflicts.conflicts = new ArrayList<Conflict>();
+		conflicts.conflicts = new ArrayList<>();
 		conflicts.listUploadIssues();
 		assertCount(2, conflicts.conflicts);
 
@@ -383,7 +383,7 @@ public class UpdaterTest {
 		assertEquals("Break the dependency", resolution.getDescription());
 		resolution.resolve();
 
-		conflicts.conflicts = new ArrayList<Conflict>();
+		conflicts.conflicts = new ArrayList<>();
 		conflicts.listUploadIssues();
 		assertCount(0, conflicts.conflicts);
 
@@ -446,7 +446,7 @@ public class UpdaterTest {
 		dependency.setAction(files, Action.NEW);
 
 		final Conflicts conflicts = new Conflicts(files);
-		conflicts.conflicts = new ArrayList<Conflict>();
+		conflicts.conflicts = new ArrayList<>();
 		conflicts.listUpdateIssues();
 		assertCount(3, conflicts.conflicts);
 
@@ -668,7 +668,7 @@ public class UpdaterTest {
 		files.get("jars/file.jar").stageForUpload(files, FilesCollection.DEFAULT_UPDATE_SITE);
 
 		final Conflicts conflicts = new Conflicts(files);
-		conflicts.conflicts = new ArrayList<Conflict>();
+		conflicts.conflicts = new ArrayList<>();
 		conflicts.listUploadIssues();
 		assertCount(1, conflicts.conflicts);
 
@@ -1091,7 +1091,7 @@ public class UpdaterTest {
 		FileObject plugin = files.get("jars/plugin.jar");
 		plugin.addDependency(files, files.get("jars/dependency.jar"));
 		plugin.addDependency(files, files.get("jars/not-uploaded.jar"));
-		List<Conflict> conflicts = new ArrayList<Conflict>();
+		List<Conflict> conflicts = new ArrayList<>();
 		for (Conflict conflict : new Conflicts(files).getConflicts(true))
 			conflicts.add(conflict);
 		assertCount(1, conflicts);
