@@ -1168,7 +1168,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	}
 
 	/**
-	 * Utility method for Fiji's Bug Submitter
+	 * Utility method for the Bug Submitter
 	 *
 	 * @return the list of files known to the Updater, with versions, as a String
 	 */

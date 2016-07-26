@@ -143,7 +143,7 @@ public final class AvailableSites {
 		sites.add(mainSite);
 		url2index.put(mainSite.getURL(), 0);
 
-		// read available sites from the Fiji Wiki
+		// read available sites from the ImageJ Wiki
 		try {
 			for (final UpdateSite site : getAvailableSites().values()) {
 				Integer index = url2index.get(site.getURL());
