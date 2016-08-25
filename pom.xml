@@ -10,7 +10,7 @@
 	</parent>
 
 	<artifactId>imagej-updater</artifactId>
-	<version>0.8.1-SNAPSHOT</version>
+	<version>0.8.2-SNAPSHOT</version>
 
 	<name>ImageJ Updater</name>
 	<description>Keeps components of ImageJ up-to-date.</description>
