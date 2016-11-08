@@ -922,7 +922,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 			if (other == null || overriding != dependency.overrides ||
 				!other.isUpdateablePlatform(this)) continue;
 			if (other.isObsolete() && other.willNotBeInstalled()) {
-				log.warn("Ignoring obsolete dependency " + dependency.filename
+				log.debug("Ignoring obsolete dependency " + dependency.filename
 						+ " of " + file.filename);
 				continue;
 			}
