@@ -1335,7 +1335,7 @@ public class CommandLine {
 		}
 		diffOptions.append(" ]");
 
-		throw die("Usage: imagej.updater.ui.CommandLine <command>\n"
+		throw die("Usage: ImageJ --update <command>\n"
 				+ "\n"
 				+ "Commands:\n"
 				+ "\tdiff "
