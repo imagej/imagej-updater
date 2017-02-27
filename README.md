@@ -1,4 +1,4 @@
-[![](http://jenkins.imagej.net/job/ImageJ-updater/lastBuild/badge/icon)](http://jenkins.imagej.net/job/ImageJ-updater/)
+[![](https://travis-ci.org/imagej/imagej-updater.svg?branch=master)](https://travis-ci.org/imagej/imagej-updater)
 
 ImageJ Updater
 --------------
