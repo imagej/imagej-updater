@@ -68,7 +68,8 @@ public class Upload implements GroupAction {
 	 * <p>
 	 * Uploading to a higher-ranked update site is called <i>shadowing</i>. This
 	 * table indicates what actions are valid:
-	 * <table>
+	 * </p>
+	 * <table summary="Valid uploading actions">
 	 * <tr>
 	 * <th>&nbsp;</th>
 	 * <th>upload</th>
@@ -121,6 +122,7 @@ public class Upload implements GroupAction {
 	 * </tr>
 	 * </table>
 	 * 
+	 * <p>
 	 * where <i>RANK</i> means that the rank of the update site to upload to
 	 * must be greater than the rank of the file's current update site.
 	 * </p>

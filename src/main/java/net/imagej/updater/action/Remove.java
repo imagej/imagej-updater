@@ -63,7 +63,7 @@ public class Remove implements GroupAction {
 	 * Determines whether we can remove (or unshadow) files from a particular
 	 * update site.
 	 * 
-	 * <table>
+	 * <table summary="Break down of logic for file removal or unshadowing">
 	 * <tr>
 	 * <th>&nbsp;</th>
 	 * <th>remove</th>
@@ -91,7 +91,7 @@ public class Remove implements GroupAction {
 	 * </tr>
 	 * <tr>
 	 * <td>NOT_INSTALLED</td>
-	 * <td>YES</td>>
+	 * <td>YES</td>
 	 * <td>OVERRIDES</td>
 	 * </tr>
 	 * <tr>
@@ -110,7 +110,7 @@ public class Remove implements GroupAction {
 	 * <td>NO</td>
 	 * </tr>
 	 * <tr>
-	 * <td>UPDATEABLE</td>>
+	 * <td>UPDATEABLE</td>
 	 * <td>NO</td>
 	 * <td>OVERRIDES</td>
 	 * </tr>

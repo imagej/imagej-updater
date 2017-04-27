@@ -192,7 +192,7 @@ public final class AvailableSites {
 
 	/**
 	 * Initializes the list of update sites,
-	 * <em>and<em> adds them to the given {@link FilesCollection}.
+	 * <em>and</em> adds them to the given {@link FilesCollection}.
 	 */
 	public static void initializeAndAddSites(final FilesCollection files) {
 		initializeAndAddSites(files, null);

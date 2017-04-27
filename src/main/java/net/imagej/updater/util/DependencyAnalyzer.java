@@ -55,7 +55,7 @@ import org.scijava.util.FileUtils;
  * dependencies are based on the existing files in the user's ImageJ
  * directories. It uses the static class ByteCodeAnalyzer to analyze every
  * single class file in the given JAR file, which will determine the classes
- * relied on ==> And in turn their JAR files, i.e.: The dependencies themselves
+ * relied on ==&gt; And in turn their JAR files, i.e.: The dependencies themselves
  * This class is needed to avoid running out of PermGen space (which happens if
  * you load a ton of classes into a classloader). The magic numbers and offsets
  * are taken from

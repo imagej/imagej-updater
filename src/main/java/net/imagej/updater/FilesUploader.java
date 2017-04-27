@@ -57,9 +57,9 @@ import org.scijava.log.LogService;
  * Note: Files are uploaded differently:
  * </p>
  * <ul>
- * <li>Local-only files & new file versions will have files AND details uploaded
+ * <li>Local-only files &amp; new file versions will have files AND details uploaded
  * </li>
- * <li>Uninstalled & up-to-date files will ONLY have their details uploaded
+ * <li>Uninstalled &amp; up-to-date files will ONLY have their details uploaded
  * (i.e.: XML file)</li>
  * </ul>
  * 
