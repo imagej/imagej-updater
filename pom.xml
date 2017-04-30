@@ -11,7 +11,7 @@
 
 	<groupId>net.imagej</groupId>
 	<artifactId>imagej-updater</artifactId>
-	<version>0.8.3-SNAPSHOT</version>
+	<version>0.8.4-SNAPSHOT</version>
 
 	<name>ImageJ Updater</name>
 	<description>Keeps components of ImageJ up-to-date.</description>
