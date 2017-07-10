@@ -42,6 +42,9 @@ import net.imagej.ImageJService;
  */
 public interface UpdateService extends ImageJService {
 
+	/** Gets the update site with the given name. */
+	UpdateSite getUpdateSite(String name);
+
 	/** Gets the update site housing the given file. */
 	UpdateSite getUpdateSite(File file);
 

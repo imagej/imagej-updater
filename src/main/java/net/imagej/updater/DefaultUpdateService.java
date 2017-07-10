@@ -73,6 +73,12 @@ public class DefaultUpdateService extends AbstractService implements
 	// -- UpdateService methods --
 
 	@Override
+	public UpdateSite getUpdateSite(final String name) {
+		final FilesCollection fc = filesCollection();
+		return fc.getUpdateSite(name, true);
+	}
+
+	@Override
 	public UpdateSite getUpdateSite(final File file) {
 		// TODO: Create FileUtils.isSubPath and/or FileUtils.getRelativePath
 		// utility methods, to do this comparison 100% correctly, even on
