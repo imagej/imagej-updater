@@ -95,7 +95,16 @@ public class DependencyAnalyzer {
 
 			final InputStream input = jar.getInputStream(entry);
 			final byte[] code = UpdaterUtil.readStreamAsBytes(input);
-			final ByteCodeAnalyzer analyzer = new ByteCodeAnalyzer(code, Mode.INTERFACES);
+			final ByteCodeAnalyzer analyzer;
+			try {
+				analyzer = new ByteCodeAnalyzer(code, Mode.INTERFACES);
+			}
+			catch (final RuntimeException exc) {
+				final String fqcn = entry.getName();
+				final String jarPath = jar.getName();
+				throw new RuntimeException("Could not analyze class '" + //
+					fqcn + "' from JAR '" + jarPath + "'", exc);
+			}
 
 			final Set<String> allClassNames = new HashSet<>();
 			for (final String name : analyzer)
