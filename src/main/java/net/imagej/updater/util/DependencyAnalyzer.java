@@ -92,6 +92,7 @@ public class DependencyAnalyzer {
 		final JarFile jar = new JarFile(file);
 		for (final JarEntry entry : Collections.list(jar.entries())) {
 			if (!entry.getName().endsWith(".class")) continue;
+			if (entry.getName().endsWith("module-info.class")) continue;
 
 			final InputStream input = jar.getInputStream(entry);
 			final byte[] code = UpdaterUtil.readStreamAsBytes(input);
