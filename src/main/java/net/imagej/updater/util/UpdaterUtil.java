@@ -378,8 +378,8 @@ public class UpdaterUtil {
 	public long getLastModified(final URL url) {
 		try {
 		    final URLConnection connection = openConnection(url);
-		    if (connection instanceof HttpURLConnection && ! connection.connected)
-				((HttpURLConnection) connection).setRequestMethod("HEAD");
+			if (connection instanceof HttpURLConnection) ((HttpURLConnection) connection)
+				.setRequestMethod("HEAD");
 			connection.setUseCaches(false);
 			final long lastModified = connection.getLastModified();
 			connection.getInputStream().close();
