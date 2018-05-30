@@ -380,7 +380,6 @@ public class UpdaterUtil {
 		    final URLConnection connection = openConnection(url);
 			if (connection instanceof HttpURLConnection) ((HttpURLConnection) connection)
 				.setRequestMethod("HEAD");
-			connection.setUseCaches(false);
 			final long lastModified = connection.getLastModified();
 			connection.getInputStream().close();
 			return lastModified;
@@ -389,7 +388,6 @@ public class UpdaterUtil {
 			if (e.getMessage().startsWith("Server returned HTTP response code: 407")) return -111381;
 			if (e.getMessage().startsWith("Server returned HTTP response code: 405")) try {
 				final URLConnection connection = openConnection(url);
-				connection.setUseCaches(false);
 				final long lastModified = connection.getLastModified();
 				connection.getInputStream().close();
 				return lastModified;
@@ -438,6 +436,7 @@ public class UpdaterUtil {
 
 	private URLConnection openConnection(final URL url, final String user_agent) throws IOException {
 		URLConnection connection = dropboxURLMapper.get(url).openConnection();
+		connection.setUseCaches(false);
 		if (connection instanceof HttpURLConnection) {
 			HttpURLConnection http = (HttpURLConnection)connection;
 			http.setRequestProperty("User-Agent", user_agent);

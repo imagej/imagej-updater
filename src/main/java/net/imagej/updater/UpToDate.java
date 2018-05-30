@@ -197,7 +197,6 @@ public class UpToDate {
 			final URLConnection connection = new UpdaterUtil(null).openConnection(new URL(url));
 			if (connection instanceof HttpURLConnection) ((HttpURLConnection) connection)
 				.setRequestMethod("HEAD");
-			connection.setUseCaches(false);
 			final long lastModified = connection.getLastModified();
 			connection.getInputStream().close();
 			return lastModified;
