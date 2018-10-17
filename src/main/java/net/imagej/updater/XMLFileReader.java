@@ -164,7 +164,7 @@ public class XMLFileReader extends DefaultHandler {
 			if ("true".equalsIgnoreCase(executable)) current.executable = true;
 		}
 		else if (currentTag.equals("previous-version")) current.addPreviousVersion(
-			atts.getValue("checksum"), getLong(atts, "timestamp"), atts.getValue("filename"));
+			atts.getValue("checksum"), getLong(atts, "timestamp"), atts.getValue("filename"), getLong(atts, "timestamp-obsolete"));
 		else if (currentTag.equals("version")) {
 			current.setVersion(atts.getValue("checksum"), getLong(atts, "timestamp"));
 			current.filesize = getLong(atts, "filesize");
@@ -309,10 +309,10 @@ public class XMLFileReader extends DefaultHandler {
 
 	private static void addPreviousVersions(FileObject from, FileObject to) {
 		if (from.current != null) {
-			to.addPreviousVersion(from.current.checksum, from.current.timestamp, from.getLocalFilename(false));
+			to.addPreviousVersion(from.current.checksum, from.current.timestamp, from.getLocalFilename(false), 0);
 		}
 		for (final FileObject.Version version : from.previous) {
-			to.addPreviousVersion(version.checksum, version.timestamp, version.filename);
+			to.addPreviousVersion(version);
 		}
 	}
 

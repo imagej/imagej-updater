@@ -857,7 +857,7 @@ public class CommandLine {
 					log.info("Would upload '" + name + "'");
 				}
 				if (file.localFilename != null && !file.localFilename.equals(file.filename)) {
-					file.addPreviousVersion(file.current.checksum, file.current.timestamp, file.filename);
+					file.addPreviousVersion(file.current.checksum, file.current.timestamp, file.filename, 0);
 				}
 				file.setAction(files, Action.UPLOAD);
 			}

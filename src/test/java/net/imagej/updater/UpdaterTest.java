@@ -51,11 +51,8 @@ import static net.imagej.updater.UpdaterTestUtils.upload;
 import static net.imagej.updater.UpdaterTestUtils.writeFile;
 import static net.imagej.updater.UpdaterTestUtils.writeGZippedFile;
 import static net.imagej.updater.UpdaterTestUtils.writeJar;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotEquals;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -939,7 +936,7 @@ public class UpdaterTest {
 			final FileObject file =
 				new FileObject(null, "jars/new.jar", jar.length(), triplet[1], UpdaterUtil
 					.getTimestamp(jar), Status.NOT_INSTALLED);
-			file.addPreviousVersion(triplet[0], 1, null);
+			file.addPreviousVersion(triplet[0], 1, null, 0);
 			files.add(file);
 			files.prefix(".checksums").delete();
 			new Checksummer(files, progress).updateFromLocal();
@@ -1142,6 +1139,11 @@ public class UpdaterTest {
 		final File webRoot = getWebRoot(files);
 		String db = readGzippedStream(new FileInputStream(new File(webRoot, "db.xml.gz")));
 		assertTrue(db.indexOf("<plugin filename=\"jars/obsolete.jar\"") > 0);
+		FileObject obsoleteFile = files.get("jars/obsolete.jar");
+		assertNotNull(obsoleteFile);
+		assertNull(obsoleteFile.current);
+		assertCount(1, obsoleteFile.previous);
+		assertNotEquals(0, obsoleteFile.previous.iterator().next().timestampObsolete);
 	}
 
 	@Test
@@ -1253,7 +1255,7 @@ public class UpdaterTest {
 		final FileObject file =
 			new FileObject(FilesCollection.DEFAULT_UPDATE_SITE, "jars/new.jar", jar.length(), checksumOld, UpdaterUtil
 				.getTimestamp(jar), Status.INSTALLED);
-		file.addPreviousVersion(checksumNew, UpdaterUtil.getTimestamp(jar) - 1l, null);
+		file.addPreviousVersion(checksumNew, UpdaterUtil.getTimestamp(jar) - 1l, null, 0);
 		files.add(file);
 
 		final File webRoot = getWebRoot(files);

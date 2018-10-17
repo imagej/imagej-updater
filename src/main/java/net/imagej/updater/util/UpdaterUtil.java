@@ -273,6 +273,10 @@ public class UpdaterUtil {
 
 	}
 
+	public static long currentTimestamp() {
+		return Long.parseLong(UpdaterUtil.timestamp(Calendar.getInstance()));
+	}
+
 	public static long getTimestamp(final File file) {
 		final long modified = file.lastModified();
 		return Long.parseLong(timestamp(modified));

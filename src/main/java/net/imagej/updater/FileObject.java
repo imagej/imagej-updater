@@ -66,6 +66,7 @@ public class FileObject {
 		// This timestamp is not a Unix epoch!
 		// Instead, it is Long.parseLong(Util.timestamp(epoch))
 		public long timestamp;
+		public long timestampObsolete;
 
 		// optional (can differ from FileObject.filename if the version differs)
 		public String filename;
@@ -73,6 +74,13 @@ public class FileObject {
 		Version(final String checksum, final long timestamp) {
 			this.checksum = checksum;
 			this.timestamp = timestamp;
+		}
+
+		public Version(Version other) {
+			this.checksum = other.checksum;
+			this.timestamp = other.timestamp;
+			this.filename = other.filename;
+			this.timestampObsolete = other.timestampObsolete;
 		}
 
 		@Override
@@ -206,7 +214,7 @@ public class FileObject {
 
 	public void merge(final FileObject upstream) {
 		for (final Version previous : upstream.previous)
-			addPreviousVersion(previous.checksum, previous.timestamp, previous.filename);
+			addPreviousVersion(previous);
 		if (updateSite == null || updateSite.equals(upstream.updateSite)) {
 			updateSite = upstream.updateSite;
 			description = upstream.description;
@@ -217,16 +225,14 @@ public class FileObject {
 			links = upstream.links;
 			filesize = upstream.filesize;
 			executable = upstream.executable;
-			if (current != null && !upstream.hasPreviousVersion(current.checksum)) addPreviousVersion(
-				current.checksum, current.timestamp, current.filename);
+			if (current != null && !upstream.hasPreviousVersion(current.checksum)) addPreviousVersion(current);
 			current = upstream.current;
 			status = upstream.status;
 			action = upstream.action;
 		}
 		else {
 			final Version other = upstream.current;
-			if (other != null && !hasPreviousVersion(other.checksum)) addPreviousVersion(
-				other.checksum, other.timestamp, other.filename);
+			if (other != null && !hasPreviousVersion(other.checksum)) addPreviousVersion(other);
 		}
 	}
 
@@ -455,10 +461,22 @@ public class FileObject {
 		return previous;
 	}
 
+	@Deprecated
 	public void addPreviousVersion(final String checksum, final long timestamp, final String filename) {
 		final Version version = new Version(checksum, timestamp);
 		if (filename != null && !"".equals(filename)) version.filename = filename;
 		if (!previous.contains(version)) previous.add(version);
+	}
+
+	public void addPreviousVersion(Version version) {
+		if (!previous.contains(version)) previous.add(new Version(version));
+	}
+
+	public void addPreviousVersion(final String checksum, final long timestamp, final String filename, final long timestampObsolete) {
+		final Version version = new Version(checksum, timestamp);
+		version.timestampObsolete = timestampObsolete;
+		if (filename != null && !filename.isEmpty()) version.filename = filename;
+		addPreviousVersion(version);
 	}
 
 	public void setNoAction() {
@@ -548,7 +566,8 @@ public class FileObject {
 				overridingRank = site.getRank();
 			}
 		}
-		addPreviousVersion(current.checksum, current.timestamp, current.filename);
+		current.timestampObsolete = UpdaterUtil.currentTimestamp();
+		addPreviousVersion(current);
 		setStatus(Status.OBSOLETE_UNINSTALLED);
 		current = null;
 
