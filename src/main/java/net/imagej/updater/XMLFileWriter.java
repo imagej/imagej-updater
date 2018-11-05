@@ -50,6 +50,7 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 
+import net.imagej.updater.util.UpdaterUtil;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -108,6 +109,7 @@ public class XMLFileWriter {
 		+ "<!ATTLIST version filesize CDATA #REQUIRED>\n"
 		+ "<!ATTLIST previous-version filename CDATA #IMPLIED>\n"
 		+ "<!ATTLIST previous-version timestamp CDATA #REQUIRED>\n"
+		+ "<!ATTLIST previous-version timestamp-obsolete CDATA #IMPLIED>\n"
 		+ "<!ATTLIST previous-version checksum CDATA #REQUIRED>]>\n";
 
 	public XMLFileWriter(final FilesCollection files) {
@@ -164,8 +166,14 @@ public class XMLFileWriter {
 			}
 		}
 
+		/*
+		 * We take currentTimestamp() once and reuse if for all files that are
+		 * obsoleted when writing the XML. This avoids timestamp-obsolete skew
+		 * between files obsoleted with the same update.
+		 */
+		final long timestampObsolete = UpdaterUtil.currentTimestamp();
 		for (final FileObject file : files.managedFiles()) {
-			writeSingle(local, attr, file);
+			writeSingle(local, attr, file, timestampObsolete);
 		}
 		handler.endElement("", "", "pluginRecords");
 		handler.endDocument();
@@ -174,7 +182,7 @@ public class XMLFileWriter {
 	}
 
 	protected void writeSingle(final boolean local, final AttributesImpl attr,
-			final FileObject file) throws SAXException {
+			final FileObject file, final long timestampObsolete) throws SAXException {
 		attr.clear();
 		assert (file.updateSite != null && !file.updateSite.equals(""));
 		if (local) setAttribute(attr, "update-site", file.updateSite);
@@ -206,11 +214,14 @@ public class XMLFileWriter {
 			writeSimpleTags("author", file.getAuthors());
 			handler.endElement("", "", "version");
 		}
-		if (current != null && !current.checksum.equals(file.getChecksum())) file
-			.addPreviousVersion(current.checksum, current.timestamp, current.filename);
+		if (current != null && !current.checksum.equals(file.getChecksum())) {
+			current.timestampObsolete = timestampObsolete;
+			file.addPreviousVersion(current);
+		}
 		for (final FileObject.Version version : file.getPrevious()) {
 			attr.clear();
 			setAttribute(attr, "timestamp", version.timestamp);
+			setAttribute(attr, "timestamp-obsolete", version.timestampObsolete);
 			setAttribute(attr, "checksum", version.checksum);
 			if (version.filename != null) setAttribute(attr, "filename", version.filename);
 			writeSimpleTag("previous-version", null, attr);
