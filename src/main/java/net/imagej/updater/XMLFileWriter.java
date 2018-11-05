@@ -166,8 +166,14 @@ public class XMLFileWriter {
 			}
 		}
 
+		/*
+		 * We take currentTimestamp() once and reuse if for all files that are
+		 * obsoleted when writing the XML. This avoids timestamp-obsolete skew
+		 * between files obsoleted with the same update.
+		 */
+		final long timestampObsolete = UpdaterUtil.currentTimestamp();
 		for (final FileObject file : files.managedFiles()) {
-			writeSingle(local, attr, file);
+			writeSingle(local, attr, file, timestampObsolete);
 		}
 		handler.endElement("", "", "pluginRecords");
 		handler.endDocument();
@@ -176,7 +182,7 @@ public class XMLFileWriter {
 	}
 
 	protected void writeSingle(final boolean local, final AttributesImpl attr,
-			final FileObject file) throws SAXException {
+			final FileObject file, final long timestampObsolete) throws SAXException {
 		attr.clear();
 		assert (file.updateSite != null && !file.updateSite.equals(""));
 		if (local) setAttribute(attr, "update-site", file.updateSite);
@@ -209,7 +215,7 @@ public class XMLFileWriter {
 			handler.endElement("", "", "version");
 		}
 		if (current != null && !current.checksum.equals(file.getChecksum())) {
-			current.timestampObsolete = UpdaterUtil.currentTimestamp();
+			current.timestampObsolete = timestampObsolete;
 			file.addPreviousVersion(current);
 		}
 		for (final FileObject.Version version : file.getPrevious()) {
