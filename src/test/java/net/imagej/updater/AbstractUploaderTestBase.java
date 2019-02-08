@@ -31,12 +31,10 @@
 
 package net.imagej.updater;
 
-import static net.imagej.updater.UpdaterTestUtils.cleanup;
-import static net.imagej.updater.UpdaterTestUtils.initialize;
-import static net.imagej.updater.UpdaterTestUtils.writeFile;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeNotNull;
+import net.imagej.updater.util.StderrProgress;
+import net.imagej.updater.util.UpdaterUtil;
+import org.apache.commons.lang.NotImplementedException;
+import org.junit.After;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,11 +42,10 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import net.imagej.updater.FilesCollection;
-import net.imagej.updater.util.StderrProgress;
-import net.imagej.updater.util.UpdaterUtil;
-
-import org.junit.After;
+import static net.imagej.updater.UpdaterTestUtils.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeNotNull;
 
 /**
  * An abstract base class for testing uploader backends.
@@ -87,6 +84,8 @@ public abstract class AbstractUploaderTestBase {
 			assertTrue(deleter.login());
 			deleter.delete(UpdaterUtil.XML_COMPRESSED);
 			deleter.delete("plugins/");
+			assertTrue(deleter.isDeleted(UpdaterUtil.XML_COMPRESSED));
+			assertTrue(deleter.isDeleted("plugins/"));
 			deleter.logout();
 		}
 
@@ -144,8 +143,11 @@ public abstract class AbstractUploaderTestBase {
 	}
 
 	public interface Deleter {
-		public abstract boolean login();
-		public abstract void delete(final String path) throws IOException;
-		public abstract void logout();
+		boolean login();
+		void delete(final String path) throws IOException;
+		void logout();
+		default boolean isDeleted(String path) throws IOException {
+			throw new NotImplementedException();
+		}
 	}
 }
