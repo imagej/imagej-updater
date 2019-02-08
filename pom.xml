@@ -141,5 +141,10 @@ Institute of Molecular Cell Biology and Genetics.</license.copyrightOwners>
 			<classifier>tests</classifier>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.6</version>
+		</dependency>
 	</dependencies>
 </project>
