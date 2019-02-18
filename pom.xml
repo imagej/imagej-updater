@@ -15,11 +15,11 @@
 
 	<name>ImageJ Updater</name>
 	<description>Keeps components of ImageJ up-to-date.</description>
-	<url>http://imagej.net/ImageJ_Updater</url>
+	<url>https://imagej.net/ImageJ_Updater</url>
 	<inceptionYear>2009</inceptionYear>
 	<organization>
 		<name>ImageJ</name>
-		<url>http://imagej.net/</url>
+		<url>https://imagej.net/</url>
 	</organization>
 	<licenses>
 		<license>
@@ -32,7 +32,7 @@
 		<developer>
 			<id>ctrueden</id>
 			<name>Curtis Rueden</name>
-			<url>http://imagej.net/User:Rueden</url>
+			<url>https://imagej.net/User:Rueden</url>
 			<roles>
 				<role>lead</role>
 				<role>developer</role>
@@ -46,7 +46,7 @@
 	<contributors>
 		<contributor>
 			<name>Johannes Schindelin</name>
-			<url>http://imagej.net/User:Schindelin</url>
+			<url>https://imagej.net/User:Schindelin</url>
 			<roles><role>founder</role></roles>
 			<properties><id>dscho</id></properties>
 		</contributor>
@@ -55,21 +55,21 @@
 		</contributor>
 		<contributor>
 			<name>Albert Cardona</name>
-			<url>http://imagej.net/User:Albertcardona</url>
+			<url>https://imagej.net/User:Albertcardona</url>
 			<properties><id>acardona</id></properties>
 		</contributor>
 		<contributor>
 			<name>Mark Longair</name>
-			<url>http://imagej.net/User:Mark</url>
+			<url>https://imagej.net/User:Mark</url>
 			<properties><id>mhl</id></properties>
 		</contributor>
 		<contributor>
 			<name>Jarek Sacha</name>
-			<url>http://imagej.net/User:Jpsacha</url>
+			<url>https://imagej.net/User:Jpsacha</url>
 		</contributor>
 		<contributor>
 			<name>Mark Hiner</name>
-			<url>http://imagej.net/User:Hinerm</url>
+			<url>https://imagej.net/User:Hinerm</url>
 			<properties><id>hinerm</id></properties>
 		</contributor>
 	</contributors>
@@ -112,7 +112,7 @@ Institute of Molecular Cell Biology and Genetics.</license.copyrightOwners>
 	<repositories>
 		<repository>
 			<id>imagej.public</id>
-			<url>http://maven.imagej.net/content/groups/public</url>
+			<url>https://maven.imagej.net/content/groups/public</url>
 		</repository>
 	</repositories>
 
