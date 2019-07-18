@@ -185,6 +185,10 @@ public class XMLFileReader extends DefaultHandler {
 					atts.getValue("description"),
 					atts.getValue("maintainer"),
 					Long.parseLong(atts.getValue("timestamp")));
+			String official = atts.getValue("official");
+			if(official != null) {
+				site.setOfficial(Boolean.valueOf(official));
+			}
 			site.setActive(currentTag.equals("update-site"));
 			files.addUpdateSite(site);
 		}
