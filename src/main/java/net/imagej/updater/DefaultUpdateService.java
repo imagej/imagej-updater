@@ -38,6 +38,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import net.imagej.updater.util.AvailableSites;
 
+import net.imagej.updater.util.HTTPSUtil;
 import org.scijava.app.AppService;
 import org.scijava.command.CommandService;
 import org.scijava.event.EventHandler;
@@ -122,6 +123,7 @@ public class DefaultUpdateService extends AbstractService implements
 		final FilesCollection fc = new FilesCollection(rootDir());
 
 		// parse the official list of update sites
+		HTTPSUtil.checkHTTPSSupport(log);
 		AvailableSites.initializeAndAddSites(fc);
 
 		// parse the user's update site database (db.xml.gz)

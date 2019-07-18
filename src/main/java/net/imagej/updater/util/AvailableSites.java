@@ -46,6 +46,7 @@ import net.imagej.updater.UpdateSite;
 import net.imagej.util.MediaWikiClient;
 
 import org.scijava.log.LogService;
+import org.scijava.log.Logger;
 
 /**
  * Utility class for parsing the list of available update sites.
@@ -62,7 +63,16 @@ public final class AvailableSites {
 	private static final String SITE_LIST_PAGE_TITLE = "List of update sites";
 
 	public static Map<String, UpdateSite> getAvailableSites() throws IOException {
-		final MediaWikiClient wiki = new MediaWikiClient();
+		return getAvailableSites(null);
+	}
+
+	public static Map<String, UpdateSite> getAvailableSites(Logger log) throws IOException {
+		String wikiURL = HTTPSUtil.getProtocol() + "imagej.net/";
+
+		if(log != null) log.info("Reading available sites from " + wikiURL);
+		else System.out.println("[INFO] Reading available sites from " + wikiURL);
+
+		final MediaWikiClient wiki = new MediaWikiClient(wikiURL);
 		final String text = wiki.getPageSource(SITE_LIST_PAGE_TITLE);
 
 		final int start = text.indexOf("\n{| class=\"wikitable\"\n");
@@ -105,12 +115,14 @@ public final class AvailableSites {
 		final Iterator<UpdateSite> iter = result.values().iterator();
 		if (!iter.hasNext()) throw new IOException("Invalid page: " + SITE_LIST_PAGE_TITLE);
 		UpdateSite site = iter.next();
-		if (!site.getName().equals("ImageJ") || !site.getURL().equals("http://update.imagej.net/")) {
+		if (!site.getName().equals("ImageJ") || !site.getURL().equals(
+				HTTPSUtil.getProtocol() + "update.imagej.net/")) {
 			throw new IOException("Invalid page: " + SITE_LIST_PAGE_TITLE);
 		}
 		if (!iter.hasNext()) throw new IOException("Invalid page: " + SITE_LIST_PAGE_TITLE);
 		site = iter.next();
-		if (!site.getName().equals("Fiji") || !site.getURL().equals("http://update.fiji.sc/")) {
+		if (!site.getName().equals("Fiji") || !site.getURL().equals(
+				HTTPSUtil.getProtocol() + "update.fiji.sc/")) {
 			throw new IOException("Invalid page: " + SITE_LIST_PAGE_TITLE);
 		}
 

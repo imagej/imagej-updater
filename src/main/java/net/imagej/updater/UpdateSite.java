@@ -31,6 +31,7 @@
 
 package net.imagej.updater;
 
+import net.imagej.updater.util.HTTPSUtil;
 import net.imagej.updater.util.UpdaterUtil;
 
 /**
@@ -216,9 +217,8 @@ public class UpdateSite implements Cloneable, Comparable<UpdateSite> {
 	/** Rewrites known-obsolete URLs to the current ones. */
 	private void rewriteOldURLs() {
 		if ("http://pacific.mpi-cbg.de/update/".equals(url) ||
-			"http://fiji.sc/update/".equals(url))
-		{
-			url = "http://update.fiji.sc/";
+				"http://fiji.sc/update/".equals(url)) {
+			url = HTTPSUtil.getProtocol() + "update.fiji.sc/";
 		}
 	}
 
