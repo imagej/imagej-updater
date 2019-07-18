@@ -86,6 +86,8 @@ public class XMLFileWriter {
 		+ "<!ELEMENT platform (#PCDATA)>\n" + "<!ELEMENT category (#PCDATA)>\n"
 		+ "<!ATTLIST update-site name CDATA #REQUIRED>\n"
 		+ "<!ATTLIST update-site url CDATA #REQUIRED>\n"
+		+ "<!ATTLIST update-site keep-url CDATA #IMPLIED>\n"
+		+ "<!ATTLIST update-site official CDATA #IMPLIED>\n"
 		+ "<!ATTLIST update-site ssh-host CDATA #IMPLIED>\n"
 		+ "<!ATTLIST update-site upload-directory CDATA #IMPLIED>\n"
 		+ "<!ATTLIST update-site description CDATA #IMPLIED>\n"
@@ -93,6 +95,8 @@ public class XMLFileWriter {
 		+ "<!ATTLIST update-site timestamp CDATA #REQUIRED>\n"
 		+ "<!ATTLIST disabled-update-site name CDATA #REQUIRED>\n"
 		+ "<!ATTLIST disabled-update-site url CDATA #REQUIRED>\n"
+		+ "<!ATTLIST disabled-update-site keep-url CDATA #IMPLIED>\n"
+		+ "<!ATTLIST disabled-update-site official CDATA #IMPLIED>\n"
 		+ "<!ATTLIST disabled-update-site ssh-host CDATA #IMPLIED>\n"
 		+ "<!ATTLIST disabled-update-site upload-directory CDATA #IMPLIED>\n"
 		+ "<!ATTLIST disabled-update-site description CDATA #IMPLIED>\n"
@@ -156,6 +160,10 @@ public class XMLFileWriter {
 				final UpdateSite site = files.getUpdateSite(name, true);
 				setAttribute(attr, "name", name);
 				setAttribute(attr, "url", site.getURL());
+				if(site.shouldKeepURL()) {
+					setAttribute(attr, "keep-url", String.valueOf(site.shouldKeepURL()));
+				}
+				setAttribute(attr, "official", String.valueOf(site.isOfficial()));
 				if (site.getHost() != null) setAttribute(attr, "ssh-host", site.getHost());
 				if (site.getUploadDirectory() != null) setAttribute(attr,
 					"upload-directory", site.getUploadDirectory());

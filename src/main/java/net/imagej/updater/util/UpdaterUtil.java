@@ -84,7 +84,7 @@ import org.scijava.log.StderrLogService;
  */
 public class UpdaterUtil {
 
-	public static String MAIN_URL = "http://update.imagej.net/";
+	public static String MAIN_URL = HTTPSUtil.getProtocol() + "update.imagej.net/";
 	public static String UPDATE_DIRECTORY = "/home/imagej/update-site";
 	public static String SSH_HOST = "update.imagej.net";
 

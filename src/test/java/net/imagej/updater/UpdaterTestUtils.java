@@ -314,7 +314,7 @@ public class UpdaterTestUtils {
 		final UpdateSite updateSite = files.getUpdateSite(FilesCollection.DEFAULT_UPDATE_SITE, false);
 		assertNotNull(updateSite);
 
-		updateSite.setURL( webRoot.toURI().toURL().toString());
+		updateSite.setURL(webRoot.toURI().toURL().toString());
 		updateSite.setHost("file:localhost");
 		updateSite.setUploadDirectory(webRoot.getAbsolutePath());
 	}

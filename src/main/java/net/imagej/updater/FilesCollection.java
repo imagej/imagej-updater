@@ -63,10 +63,7 @@ import net.imagej.updater.action.KeepAsIs;
 import net.imagej.updater.action.Remove;
 import net.imagej.updater.action.Uninstall;
 import net.imagej.updater.action.Upload;
-import net.imagej.updater.util.DependencyAnalyzer;
-import net.imagej.updater.util.Progress;
-import net.imagej.updater.util.UpdateCanceledException;
-import net.imagej.updater.util.UpdaterUtil;
+import net.imagej.updater.util.*;
 
 import org.scijava.log.LogService;
 import org.xml.sax.SAXException;
@@ -1123,7 +1120,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 		};
 	}
 
-	public String downloadIndexAndChecksum(final Progress progress) throws ParserConfigurationException, SAXException {
+	public void tryLoadingCollection() throws ParserConfigurationException, SAXException {
 		try {
 			read();
 		}
@@ -1132,12 +1129,14 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 				// make sure that the Fiji update site is enabled
 				UpdateSite fiji = getUpdateSite("Fiji", true);
 				if (fiji == null) {
-					addUpdateSite("Fiji", "http://update.fiji.sc/", null, null, 0);
+					addUpdateSite("Fiji", HTTPSUtil.getProtocol() + "update.fiji.sc/", null, null, 0);
 				}
 			}
 		}
 		catch (final IOException e) { /* ignore */ }
+	}
 
+	public String reloadCollectionAndChecksum(final Progress progress) {
 		// clear the files
 		clear();
 
@@ -1146,8 +1145,8 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 		try {
 			downloader.start(false);
 		} catch (final UpdateCanceledException e) {
-				downloader.done();
-				throw e;
+			downloader.done();
+			throw e;
 		}
 		new Checksummer(this, progress).updateFromLocal();
 
@@ -1161,6 +1160,11 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 		}
 
 		return downloader.getWarnings();
+	}
+
+	public String downloadIndexAndChecksum(final Progress progress) throws ParserConfigurationException, SAXException {
+		tryLoadingCollection();
+		return reloadCollectionAndChecksum(progress);
 	}
 
 	public List<Conflict> getConflicts() {

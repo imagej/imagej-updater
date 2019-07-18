@@ -42,6 +42,18 @@
 				<role>maintainer</role>
 			</roles>
 		</developer>
+		<developer>
+			<id>frauzufall</id>
+			<name>Deborah Schmidt</name>
+			<url>https://imagej.net/User:Frauzufall</url>
+			<roles>
+				<role>developer</role>
+				<role>debugger</role>
+				<role>reviewer</role>
+				<role>support</role>
+				<role>maintainer</role>
+			</roles>
+		</developer>
 	</developers>
 	<contributors>
 		<contributor>
@@ -71,6 +83,11 @@
 			<name>Mark Hiner</name>
 			<url>https://imagej.net/User:Hinerm</url>
 			<properties><id>hinerm</id></properties>
+		</contributor>
+		<contributor>
+			<name>Matthias Arzt</name>
+			<url>https://imagej.net/User:Maarzt</url>
+			<properties><id>maarzt</id></properties>
 		</contributor>
 	</contributors>
 
@@ -127,6 +144,12 @@ Institute of Molecular Cell Biology and Genetics.</license.copyrightOwners>
 		<dependency>
 			<groupId>org.scijava</groupId>
 			<artifactId>scijava-common</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.6</version>
 		</dependency>
 
 		<!-- Test scope dependencies -->

@@ -31,28 +31,17 @@
 
 package net.imagej.updater;
 
-import static net.imagej.updater.UpdaterTestUtils.addUpdateSite;
-import static net.imagej.updater.UpdaterTestUtils.assertAction;
-import static net.imagej.updater.UpdaterTestUtils.assertCount;
-import static net.imagej.updater.UpdaterTestUtils.assertNotEqual;
-import static net.imagej.updater.UpdaterTestUtils.assertStatus;
-import static net.imagej.updater.UpdaterTestUtils.cleanup;
-import static net.imagej.updater.UpdaterTestUtils.getWebRoot;
-import static net.imagej.updater.UpdaterTestUtils.initDb;
-import static net.imagej.updater.UpdaterTestUtils.initialize;
-import static net.imagej.updater.UpdaterTestUtils.makeIJRoot;
-import static net.imagej.updater.UpdaterTestUtils.makeList;
-import static net.imagej.updater.UpdaterTestUtils.progress;
-import static net.imagej.updater.UpdaterTestUtils.readDb;
-import static net.imagej.updater.UpdaterTestUtils.readGzippedStream;
-import static net.imagej.updater.UpdaterTestUtils.touch;
-import static net.imagej.updater.UpdaterTestUtils.update;
-import static net.imagej.updater.UpdaterTestUtils.upload;
-import static net.imagej.updater.UpdaterTestUtils.writeFile;
-import static net.imagej.updater.UpdaterTestUtils.writeGZippedFile;
-import static net.imagej.updater.UpdaterTestUtils.writeJar;
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertNotEquals;
+import net.imagej.updater.Conflicts.Conflict;
+import net.imagej.updater.Conflicts.Resolution;
+import net.imagej.updater.FileObject.Action;
+import net.imagej.updater.FileObject.Status;
+import net.imagej.updater.test.Dependencee;
+import net.imagej.updater.test.Dependency;
+import net.imagej.updater.util.UpdaterUtil;
+import org.junit.After;
+import org.junit.Test;
+import org.scijava.test.TestUtils;
+import org.scijava.util.FileUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -63,26 +52,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
-import net.imagej.updater.Checksummer;
-import net.imagej.updater.Conflicts;
-import net.imagej.updater.FileObject;
-import net.imagej.updater.FilesCollection;
-import net.imagej.updater.Installer;
-import net.imagej.updater.XMLFileDownloader;
-import net.imagej.updater.XMLFileReader;
-import net.imagej.updater.XMLFileWriter;
-import net.imagej.updater.Conflicts.Conflict;
-import net.imagej.updater.Conflicts.Resolution;
-import net.imagej.updater.FileObject.Action;
-import net.imagej.updater.FileObject.Status;
-import net.imagej.updater.test.Dependencee;
-import net.imagej.updater.test.Dependency;
-import net.imagej.updater.util.UpdaterUtil;
-
-import org.junit.After;
-import org.junit.Test;
-import org.scijava.test.TestUtils;
-import org.scijava.util.FileUtils;
+import static net.imagej.updater.UpdaterTestUtils.*;
+import static org.junit.Assert.*;
 
 /**
  * Tests various classes of the {@link net.imagej.updater} package and
@@ -711,6 +682,8 @@ public class UpdaterTest {
 		assertStatus(Status.MODIFIED, files.get("jars/hello.jar"));
 
 		FileUtils.deleteRecursively(webRoot2);
+
+		cleanup(files2);
 	}
 
 	@Test
@@ -1308,6 +1281,7 @@ public class UpdaterTest {
 		assertStatus(Status.OBSOLETE_UNINSTALLED, files.get("jars/something-cool.jar"));
 		FileUtils.deleteRecursively(ijRoot2);
 		FileUtils.deleteRecursively(webRoot2);
+
 	}
 
 	@Test

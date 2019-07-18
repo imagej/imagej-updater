@@ -31,21 +31,15 @@
 
 package net.imagej.updater.util;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import net.imagej.updater.URLChange;
 import net.imagej.updater.FilesCollection;
 import net.imagej.updater.UpdateSite;
 import net.imagej.util.MediaWikiClient;
-
-import org.scijava.log.LogService;
+import org.scijava.log.Logger;
+import org.xml.sax.SAXException;
+import javax.xml.transform.TransformerConfigurationException;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Utility class for parsing the list of available update sites.
@@ -55,14 +49,23 @@ import org.scijava.log.LogService;
  */
 public final class AvailableSites {
 
-  private AvailableSites() {
-    // NB: prevent instantiation of utility class
-  }
+	private AvailableSites() {
+		// NB: prevent instantiation of utility class
+	}
 
 	private static final String SITE_LIST_PAGE_TITLE = "List of update sites";
 
 	public static Map<String, UpdateSite> getAvailableSites() throws IOException {
-		final MediaWikiClient wiki = new MediaWikiClient();
+		return getAvailableSites(null);
+	}
+
+	public static Map<String, UpdateSite> getAvailableSites(final Logger log) throws IOException {
+		String wikiURL = HTTPSUtil.getProtocol() + "imagej.net/";
+
+		if(log != null) log.info("Reading available sites from " + wikiURL);
+		else System.out.println("[INFO] Reading available sites from " + wikiURL);
+
+		final MediaWikiClient wiki = new MediaWikiClient(wikiURL);
 		final String text = wiki.getPageSource(SITE_LIST_PAGE_TITLE);
 
 		final int start = text.indexOf("\n{| class=\"wikitable\"\n");
@@ -105,12 +108,14 @@ public final class AvailableSites {
 		final Iterator<UpdateSite> iter = result.values().iterator();
 		if (!iter.hasNext()) throw new IOException("Invalid page: " + SITE_LIST_PAGE_TITLE);
 		UpdateSite site = iter.next();
-		if (!site.getName().equals("ImageJ") || !site.getURL().equals("http://update.imagej.net/")) {
+		if (!site.getName().equals("ImageJ") || !site.getURL().equals(
+				HTTPSUtil.getProtocol() + "update.imagej.net/")) {
 			throw new IOException("Invalid page: " + SITE_LIST_PAGE_TITLE);
 		}
 		if (!iter.hasNext()) throw new IOException("Invalid page: " + SITE_LIST_PAGE_TITLE);
 		site = iter.next();
-		if (!site.getName().equals("Fiji") || !site.getURL().equals("http://update.fiji.sc/")) {
+		if (!site.getName().equals("Fiji") || !site.getURL().equals(
+				HTTPSUtil.getProtocol() + "update.fiji.sc/")) {
 			throw new IOException("Invalid page: " + SITE_LIST_PAGE_TITLE);
 		}
 
@@ -118,64 +123,106 @@ public final class AvailableSites {
 	}
 
 	/**
-	 * Parses the list of known update sites from the ImageJ wiki.
-	 * <p>
-	 * <strong>NB:</strong> This method does <em>not</em> add the sites to the
-	 * given {@link FilesCollection}! Use
-	 * {@link #initializeAndAddSites(FilesCollection)} for that.
-	 * </p>
+	 * As {@link #initializeAndAddSites(FilesCollection)} with an optional
+	 * {@link Logger} for reporting errors.
 	 */
-	public static List<UpdateSite> initializeSites(final FilesCollection files) {
-		return initializeSites(files, null);
+	public static List< URLChange > initializeAndAddSites(final FilesCollection files, final Logger log) {
+		return initializeAndAddSites(files, tryGetAvailableSites(log));
 	}
 
-	/**
-	 * As {@link #initializeSites(FilesCollection)} with an optional
-	 * {@link LogService} for reporting errors.
-	 */
-	public static List<UpdateSite> initializeSites(final FilesCollection files, final LogService log) {
+	static List< URLChange > initializeAndAddSites(
+			final FilesCollection files, final Collection< UpdateSite > availableSites)
+	{
+		final List< UpdateSite > sites = prepareAvailableUpdateSites(availableSites);
+		// method is package private to allow testing
+		ArrayList< URLChange > urlChanges = mergeLocalAndAvailabelUpdateSites(
+				files, sites);
+		makeSureNamesAreUnique(sites);
+		for (final UpdateSite site : sites) {
+			files.addUpdateSite(site);
+		}
+		return urlChanges;
+	}
+
+	private static List< UpdateSite > prepareAvailableUpdateSites(
+			Collection< UpdateSite > availableSites)
+	{
+		// method is package private to allow testing
+		for (final UpdateSite site : availableSites)
+			site.setURL(HTTPSUtil.fixImageJUserSiteProtocol(site.getURL()));
 		final List<UpdateSite> sites = new ArrayList<>();
-		final Map<String, Integer> url2index = new HashMap<>();
-
 		// make sure that the main update site is the first one.
-		final UpdateSite mainSite = new UpdateSite(FilesCollection.DEFAULT_UPDATE_SITE, UpdaterUtil.MAIN_URL, "", "", null, null, 0l);
-		mainSite.setOfficial(true);
-		sites.add(mainSite);
-		url2index.put(mainSite.getURL(), 0);
+		sites.add(initializeMainUpdateSite());
+		addAvailableUpdateSites(sites, availableSites);
+		return sites;
+	}
 
-		// read available sites from the ImageJ Wiki
+	private static Collection< UpdateSite > tryGetAvailableSites(Logger log)
+	{
 		try {
-			for (final UpdateSite site : getAvailableSites().values()) {
-				Integer index = url2index.get(site.getURL());
-				if (index == null) {
-					url2index.put(site.getURL(), sites.size());
-					sites.add(site);
-				} else {
-					sites.set(index.intValue(), site);
-				}
-			}
+			return getAvailableSites(log).values();
 		} catch (Exception e) {
 			if (log != null) log.error("Error processing available update sites from ImageJ wiki", e);
 			else e.printStackTrace();
+			return Collections.emptyList();
 		}
+	}
 
-		// add active / upload information
-		final Set<String> names = new HashSet<>();
-		for (final String name : files.getUpdateSiteNames(true)) {
-			final UpdateSite site = files.getUpdateSite(name, true);
-			Integer index = url2index.get(site.getURL());
+	private static UpdateSite initializeMainUpdateSite() {
+		final UpdateSite mainSite = new UpdateSite(FilesCollection.DEFAULT_UPDATE_SITE, UpdaterUtil.MAIN_URL, "", "", null, null, 0l);
+		mainSite.setOfficial(true);
+		return mainSite;
+	}
+
+	private static void addAvailableUpdateSites(List< UpdateSite > sites,
+			Collection< UpdateSite > availableSites)
+	{
+		for (final UpdateSite site : availableSites ) {
+			Integer index = findIndexByName(sites, site);
 			if (index == null) {
-				url2index.put(site.getURL(), sites.size());
 				sites.add(site);
 			} else {
-				final UpdateSite listed = sites.get(index.intValue());
-				site.setDescription(listed.getDescription());
-				site.setMaintainer(listed.getMaintainer());
-				sites.set(index.intValue(), site);
+				sites.set(index, site);
 			}
 		}
+	}
 
-		// make sure names are unique
+	private static ArrayList< URLChange > mergeLocalAndAvailabelUpdateSites(FilesCollection files,
+			List< UpdateSite > sites)
+	{
+		ArrayList< URLChange > urlChanges = new ArrayList<>();
+		for (final UpdateSite local : files.getUpdateSites(true)) {
+			Integer index = findIndexByName(sites, local);
+			if (index == null) {
+				sites.add(local);
+				Optional< URLChange > change = URLChange.create(local,
+						HTTPSUtil.fixImageJUserSiteProtocol(local.getURL()));
+				change.ifPresent( urlChanges::add );
+			} else {
+				final UpdateSite available = sites.get(index);
+				local.setOfficial(available.isOfficial());
+				local.setDescription(available.getDescription());
+				local.setMaintainer(available.getMaintainer());
+				Optional< URLChange > change =
+						URLChange.create(local, available.getURL());
+				change.ifPresent( urlChanges::add );
+				sites.set(index, local);
+			}
+		}
+		return urlChanges;
+	}
+
+	private static Integer findIndexByName(List<UpdateSite> sites, UpdateSite site) {
+		for (int i = 0; i < sites.size(); i++) {
+			if( sites.get(i).getName().equals(site.getName()) )
+				return i;
+		}
+		return null;
+	}
+
+	private static void makeSureNamesAreUnique(List< UpdateSite > sites)
+	{
+		final Set<String> names = new HashSet<>();
 		for (final UpdateSite site : sites) {
 			if (site.isActive()) continue;
 			if (names.contains(site.getName())) {
@@ -186,8 +233,6 @@ public final class AvailableSites {
 			}
 			names.add(site.getName());
 		}
-
-		return sites;
 	}
 
 	/**
@@ -195,18 +240,7 @@ public final class AvailableSites {
 	 * <em>and</em> adds them to the given {@link FilesCollection}.
 	 */
 	public static void initializeAndAddSites(final FilesCollection files) {
-		initializeAndAddSites(files, null);
-	}
-
-	/**
-	 * As {@link #initializeAndAddSites(FilesCollection)} with an optional
-	 * {@link LogService} for reporting errors.
-	 */
-	public static void initializeAndAddSites(final FilesCollection files, final LogService log) {
-		for (final UpdateSite site : initializeSites(files, log)) {
-			files.addUpdateSite(site);
-		}
-
+		initializeAndAddSites(files, (Logger) null);
 	}
 
 	private static String stripWikiMarkup(final String[] columns, int index) {
@@ -215,4 +249,42 @@ public final class AvailableSites {
 		return string.replaceAll("'''", "").replaceAll("\\[\\[([^\\|\\]]*\\|)?([^\\]]*)\\]\\]", "$2").replaceAll("\\[[^\\[][^ ]*([^\\]]*)\\]", "$1");
 	}
 
+	/**
+	 * Checks whether for all update sites of a given {@link FilesCollection} there is
+	 * an updated URL on the remote list of available update sites.
+	 */
+	public static boolean hasUpdateSiteURLUpdates(FilesCollection plugins) throws IOException {
+		return hasUpdateSiteURLUpdates(plugins, getAvailableSites());
+	}
+
+	/**
+	 * Checks whether for all update sites of a given {@link FilesCollection} there is
+	 * an updated URL on the given list of available sites.
+	 */
+	public static boolean hasUpdateSiteURLUpdates(FilesCollection plugins, Map<String, UpdateSite> availableSites) {
+		for(UpdateSite site : availableSites.values()) {
+			// TODO use site id
+			UpdateSite local = plugins.getUpdateSite(site.getName(), false);
+			if(local == null) continue;
+			if(!local.shouldKeepURL() && !local.getURL().equals(site.getURL())) {
+				return true;
+			}
+		}
+		if(HTTPSUtil.hasImageJUserSiteProtocolUpdates(plugins)) return true;
+		return false;
+	}
+
+	/**
+	 * Apply prepared changes to update site URLs
+	 */
+	public static void applySitesURLUpdates(FilesCollection plugins, List< URLChange > urlChanges ) {
+		for(URLChange site : urlChanges) {
+			site.applyIfApproved();
+		}
+		try {
+			plugins.write();
+		} catch (IOException | SAXException | TransformerConfigurationException e) {
+			e.printStackTrace();
+		}
+	}
 }
