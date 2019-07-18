@@ -1,5 +1,7 @@
 package net.imagej.updater.util;
 
+import net.imagej.updater.FilesCollection;
+import net.imagej.updater.UpdateSite;
 import org.scijava.log.LogService;
 
 import javax.net.ssl.SSLHandshakeException;
@@ -60,9 +62,64 @@ public class HTTPSUtil {
 	}
 
 	/**
+	 * @return whether this ImageJ instance can handle HTTPS
+	 */
+	public static boolean supportsHTTPS() {
+		return secureMode;
+	}
+
+	/**
 	 * @return the protocol component of the URL depending on whether this ImageJ instance can handle HTTPS
 	 */
 	public static String getProtocol() {
 		return secureMode ? "https://" : "http://";
+	}
+
+	/**
+	 * This method returns ImageJ user site URLs in the correct protocol (HTTPS or HTTPS), depending on what's supported.
+	 * In case the site is not an ImageJ user site, the original url will be returned.
+	 */
+	public static String fixImageJUserSiteProtocol(final String url) {
+		if(!supportsHTTPS() && isHTTPSUserSiteURL(url)) {
+			return userSiteConvertToHTTP(url);
+		}
+		if(supportsHTTPS() && isHTTPUserSiteURL(url)) {
+			return userSiteConvertToHTTPS(url);
+		}
+		return url;
+	}
+
+	private static boolean isHTTPUserSiteURL(String url) {
+		return url.startsWith(insecureUserSiteURL);
+	}
+
+	private static boolean isHTTPSUserSiteURL(String url) {
+		return url.startsWith(secureUserSiteURL);
+	}
+
+	public static boolean supportsURLProtocol(String url) {
+		if(!url.startsWith(secureUserSiteURL)) return true;
+		return supportsHTTPS();
+	}
+
+	public static String userSiteConvertToHTTP(String url) {
+		return url.replace(secureUserSiteURL, insecureUserSiteURL);
+	}
+
+	private static String userSiteConvertToHTTPS(String url) {
+		return url.replace(insecureUserSiteURL, secureUserSiteURL);
+	}
+
+	public static boolean hasImageJUserSiteProtocolUpdates(FilesCollection plugins) {
+		if(supportsHTTPS()) {
+			for(UpdateSite site : plugins.getUpdateSites(false)) {
+				if(site.getURL().startsWith(insecureUserSiteURL)) return true;
+			}
+		} else {
+			for(UpdateSite site : plugins.getUpdateSites(false)) {
+				if(site.getURL().startsWith(secureUserSiteURL)) return true;
+			}
+		}
+		return false;
 	}
 }

@@ -51,6 +51,8 @@ public class UpdateSite implements Cloneable, Comparable<UpdateSite> {
 	private boolean official;
 	private String name;
 	private String url;
+	private boolean keepURLModification;
+
 	private String host;
 	private String uploadDirectory;
 	private String description;
@@ -59,7 +61,7 @@ public class UpdateSite implements Cloneable, Comparable<UpdateSite> {
 	int rank;
 
 	public UpdateSite(final String name, String url, final String sshHost, String uploadDirectory,
-		final String description, final String maintainer, final long timestamp)
+	                  final String description, final String maintainer, final long timestamp)
 	{
 		setName(name);
 		setURL(url);
@@ -108,10 +110,9 @@ public class UpdateSite implements Cloneable, Comparable<UpdateSite> {
 		return url;
 	}
 
-	public void setURL(final String url) {
-		if (url == null || url.equals("") || url.endsWith("/")) this.url = url;
-		else this.url = url + "/";
-		rewriteOldURLs();
+	public void setURL(String url) {
+		url = format(url);
+		this.url = url;
 	}
 
 	public String getHost() {
@@ -182,7 +183,7 @@ public class UpdateSite implements Cloneable, Comparable<UpdateSite> {
 
 	@Override
 	public String toString() {
-		return url + (host != null ? ", " + host : "") +
+		return getURL() + (host != null ? ", " + host : "") +
 			(uploadDirectory != null ? ", " + uploadDirectory : "");
 	}
 
@@ -212,14 +213,29 @@ public class UpdateSite implements Cloneable, Comparable<UpdateSite> {
 		return "ssh";
 	}
 
-	// -- Helper methods --
-
-	/** Rewrites known-obsolete URLs to the current ones. */
-	private void rewriteOldURLs() {
-		if ("http://pacific.mpi-cbg.de/update/".equals(url) ||
-				"http://fiji.sc/update/".equals(url)) {
-			url = HTTPSUtil.getProtocol() + "update.fiji.sc/";
-		}
+	public boolean shouldKeepURL() {
+		return keepURLModification;
 	}
 
+	public void setKeepURL(boolean keepURL) {
+		this.keepURLModification = keepURL;
+	}
+
+	public static String format(String url) {
+		if(url == null || url.isEmpty()) return url;
+		if (!url.endsWith("/")) {
+			url += "/";
+		}
+		url = rewriteOldURLs(url);
+		return url;
+	}
+
+	/** Rewrites known-obsolete URLs to the current ones. */
+	private static String rewriteOldURLs(String url) {
+		if ("http://pacific.mpi-cbg.de/update/".equals(url) ||
+				"http://fiji.sc/update/".equals(url)) {
+			return HTTPSUtil.getProtocol() + "update.fiji.sc/";
+		}
+		return url;
+	}
 }

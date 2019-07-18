@@ -1120,7 +1120,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 		};
 	}
 
-	public String downloadIndexAndChecksum(final Progress progress) throws ParserConfigurationException, SAXException {
+	public void tryLoadingCollection() throws ParserConfigurationException, SAXException {
 		try {
 			read();
 		}
@@ -1134,7 +1134,9 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 			}
 		}
 		catch (final IOException e) { /* ignore */ }
+	}
 
+	public String reloadCollectionAndChecksum(final Progress progress) {
 		// clear the files
 		clear();
 
@@ -1143,8 +1145,8 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 		try {
 			downloader.start(false);
 		} catch (final UpdateCanceledException e) {
-				downloader.done();
-				throw e;
+			downloader.done();
+			throw e;
 		}
 		new Checksummer(this, progress).updateFromLocal();
 
@@ -1158,6 +1160,11 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 		}
 
 		return downloader.getWarnings();
+	}
+
+	public String downloadIndexAndChecksum(final Progress progress) throws ParserConfigurationException, SAXException {
+		tryLoadingCollection();
+		return reloadCollectionAndChecksum(progress);
 	}
 
 	public List<Conflict> getConflicts() {

@@ -189,6 +189,9 @@ public class XMLFileReader extends DefaultHandler {
 			if(official != null) {
 				site.setOfficial(Boolean.valueOf(official));
 			}
+			String keepURL = atts.getValue("keep-url");
+			if(keepURL == null) site.setKeepURL(false);
+			site.setKeepURL(Boolean.valueOf(keepURL));
 			site.setActive(currentTag.equals("update-site"));
 			files.addUpdateSite(site);
 		}

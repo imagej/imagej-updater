@@ -45,6 +45,7 @@ import java.util.Enumeration;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import net.imagej.updater.util.AvailableSites;
 import net.imagej.updater.util.HTTPSUtil;
 import net.imagej.updater.util.UpdaterUtil;
 
@@ -110,6 +111,9 @@ public class UpToDate {
 			}
 			catch (final FileNotFoundException e) { /* ignore */}
 			HTTPSUtil.checkHTTPSSupport(null);
+			if(AvailableSites.hasUpdateSiteURLUpdates(plugins)) {
+				return Result.UPDATEABLE;
+			}
 			for (final String name : plugins.getUpdateSiteNames(false)) {
 				final UpdateSite updateSite = plugins.getUpdateSite(name, true);
 				final long lastModified =
