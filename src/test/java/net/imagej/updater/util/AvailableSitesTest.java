@@ -257,6 +257,61 @@ public class AvailableSitesTest {
 		cleanup(files);
 
 	}
+
+	@Test
+	public void testCommandLineRefreshUpdateSites() throws Exception {
+
+		// load initial files collection
+		FilesCollection files = initialize();
+		// there should be a main update site
+		UpdateSite updateSite = files.getUpdateSite("ImageJ", true);
+		updateSite.setActive(true);
+		// the main update site should point to a local folder
+		String oldLocalUrl = files.getUpdateSite("ImageJ", true).getURL();
+
+		// when simulating refreshing the update sites, we can observe the changes
+		System.out.println("ImageJ --update refresh-update-sites --simulate");
+		files = main(files, "refresh-update-sites", "--simulate");
+		// the main update site URL should still be the same
+		assertEquals(oldLocalUrl, files.getUpdateSite("ImageJ", true).getURL());
+
+		// refresh the URLs again, now forcing to update all URLs
+		System.out.println("ImageJ --update refresh-update-sites --updateall");
+		files = main(files, "refresh-update-sites", "--updateall");
+		// the main update site should now point to the imagej.net server
+		assertNotEquals(oldLocalUrl, files.getUpdateSite("ImageJ", true).getURL());
+		assertFalse(files.getUpdateSite("ImageJ", true).shouldKeepURL());
+
+		cleanup(files);
+	}
+
+	@Test
+	public void testCommandLineRefreshInactiveUpdateSites() throws Exception {
+
+		// load initial files collection
+		FilesCollection files = initialize();
+		// there should be a main update site
+		UpdateSite updateSite = files.getUpdateSite("ImageJ", true);
+		updateSite.setActive(false);
+		// the main update site should point to a local folder
+		String oldLocalUrl = files.getUpdateSite("ImageJ", true).getURL();
+
+		// when simulating refreshing the update sites, we can observe the changes
+		System.out.println("ImageJ --update refresh-update-sites --simulate");
+		files = main(files, "refresh-update-sites", "--simulate");
+		// the main update site URL should still be the same
+		assertEquals(oldLocalUrl, files.getUpdateSite("ImageJ", true).getURL());
+
+		// refresh the URLs again, now forcing to update all URLs
+		System.out.println("ImageJ --update refresh-update-sites");
+		files = main(files, "refresh-update-sites");
+		// the main update site should now point to the imagej.net server
+		assertNotEquals(oldLocalUrl, files.getUpdateSite("ImageJ", true).getURL());
+		assertFalse(files.getUpdateSite("ImageJ", true).shouldKeepURL());
+
+		cleanup(files);
+	}
+
 	@Test
 	public void testURLFormattingChange() {
 		UpdateSite updateSite = createOfficialSite("ImageJ", "https://sites.imagej.net/ImageJ/");

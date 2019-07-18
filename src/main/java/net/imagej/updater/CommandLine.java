@@ -66,18 +66,16 @@ import net.imagej.updater.FileObject.Action;
 import net.imagej.updater.FileObject.Status;
 import net.imagej.updater.FileObject.Version;
 import net.imagej.updater.FilesCollection.Filter;
-import net.imagej.updater.util.Downloadable;
-import net.imagej.updater.util.Downloader;
-import net.imagej.updater.util.Progress;
-import net.imagej.updater.util.StderrProgress;
-import net.imagej.updater.util.UpdaterUserInterface;
-import net.imagej.updater.util.UpdaterUtil;
+import net.imagej.updater.util.*;
 
 import org.scijava.log.LogService;
 import org.scijava.util.AppUtils;
 import org.scijava.util.FileUtils;
 import org.scijava.util.IteratorPlus;
 import org.scijava.util.POM;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * This is the command-line interface into the ImageJ Updater.
@@ -1286,6 +1284,46 @@ public class CommandLine {
 		}
 	}
 
+	public void refreshUpdateSites(List<String> list) {
+		boolean simulate = false, updateall = false;
+		while (list.size() > 0 && list.get(0).startsWith("-")) {
+			final String option = list.remove(0);
+			if ("--simulate".equals(option)) {
+				simulate = true;
+				continue;
+			}
+			if ("--updateall".equals(option)) {
+				updateall = true;
+				continue;
+			}
+			throw die("Unknown option: " + option);
+		}
+		try {
+			files.tryLoadingCollection();
+		} catch (ParserConfigurationException | SAXException e) {
+			e.printStackTrace();
+		}
+		HTTPSUtil.checkHTTPSSupport(log);
+		List< URLChange > urlChanges = AvailableSites.initializeAndAddSites(files, log);
+		if(updateall) {
+			urlChanges.forEach( change -> change.setApproved(true));
+		}
+		else {
+			urlChanges.forEach( change -> change.setApproved(change.isRecommended()));
+		}
+		urlChanges.forEach(change -> {
+			UpdateSite site = change.updateSite();
+			if(change.isApproved()) {
+				System.out.println("  [UPDATE] " + site.getName() + ": " + site.getURL() + " -> " + change.getNewURL());
+			} else {
+				System.out.println("  [KEEP] " + site.getName() + ": " + site.getURL() + " (new: " + change.getNewURL() + ")");
+			}
+		});
+		if(!simulate) {
+			AvailableSites.applySitesURLUpdates(files, urlChanges);
+		}
+	}
+
 	@Deprecated
 	public static CommandLine getInstance() {
 		try {
@@ -1359,7 +1397,8 @@ public class CommandLine {
 				+ "\tupload-complete-site [--simulate] [--force] [--force-shadow] [--platforms <platform>[,<platform>...]] <name>\n"
 				+ "\tlist-update-sites [<nick>...]\n"
 				+ "\tadd-update-site <nick> <url> [<host> <upload-directory>]\n"
-				+ "\tedit-update-site <nick> <url> [<host> <upload-directory>]");
+				+ "\tedit-update-site <nick> <url> [<host> <upload-directory>]\n"
+				+ "\trefresh-update-sites [--simulate] [--updateall]");
 	}
 
 	public static void main(final String... args) {
@@ -1468,6 +1507,8 @@ public class CommandLine {
 			instance.addOrEditUploadSite(makeList(args, 1), false);
 		} else if (command.equals("remove-update-site")) {
 			instance.removeUploadSite(makeList(args, 1));
+		} else if (command.equals("refresh-update-sites")) {
+			instance.refreshUpdateSites(makeList(args, 1));
 		// hidden commands, i.e. not for public consumption
 		} else if (command.equals("history")) {
 			instance.history(makeList(args, 1));
