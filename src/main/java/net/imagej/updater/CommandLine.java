@@ -69,6 +69,7 @@ import net.imagej.updater.FilesCollection.Filter;
 import net.imagej.updater.util.*;
 
 import org.scijava.log.LogService;
+import org.scijava.log.Logger;
 import org.scijava.util.AppUtils;
 import org.scijava.util.FileUtils;
 import org.scijava.util.IteratorPlus;
@@ -1304,7 +1305,7 @@ public class CommandLine {
 			e.printStackTrace();
 		}
 		HTTPSUtil.checkHTTPSSupport(log);
-		List< URLChange > urlChanges = AvailableSites.initializeAndAddSites(files, log);
+		final List< URLChange > urlChanges = AvailableSites.initializeAndAddSites(files, (Logger)log);
 		if(updateall) {
 			urlChanges.forEach( change -> change.setApproved(true));
 		}

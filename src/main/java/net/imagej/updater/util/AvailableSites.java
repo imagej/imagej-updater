@@ -35,6 +35,7 @@ import net.imagej.updater.URLChange;
 import net.imagej.updater.FilesCollection;
 import net.imagej.updater.UpdateSite;
 import net.imagej.util.MediaWikiClient;
+import org.scijava.log.LogService;
 import org.scijava.log.Logger;
 import org.xml.sax.SAXException;
 import javax.xml.transform.TransformerConfigurationException;
@@ -128,6 +129,10 @@ public final class AvailableSites {
 	 */
 	public static List< URLChange > initializeAndAddSites(final FilesCollection files, final Logger log) {
 		return initializeAndAddSites(files, tryGetAvailableSites(log));
+	}
+
+	public static void initializeAndAddSites(final FilesCollection files, final LogService log) {
+		initializeAndAddSites(files, tryGetAvailableSites(log));
 	}
 
 	static List< URLChange > initializeAndAddSites(
