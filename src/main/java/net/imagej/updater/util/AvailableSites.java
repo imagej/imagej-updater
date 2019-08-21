@@ -149,7 +149,7 @@ public final class AvailableSites {
 	{
 		final List< UpdateSite > sites = prepareAvailableUpdateSites(availableSites);
 		// method is package private to allow testing
-		ArrayList< URLChange > urlChanges = mergeLocalAndAvailabelUpdateSites(
+		ArrayList< URLChange > urlChanges = mergeLocalAndAvailableUpdateSites(
 				files, sites);
 		makeSureNamesAreUnique(sites);
 
@@ -201,8 +201,8 @@ public final class AvailableSites {
 		}
 	}
 
-	private static ArrayList< URLChange > mergeLocalAndAvailabelUpdateSites(FilesCollection files,
-			List< UpdateSite > sites)
+	private static ArrayList< URLChange > mergeLocalAndAvailableUpdateSites(FilesCollection files,
+	                                                                        List< UpdateSite > sites)
 	{
 		ArrayList< URLChange > urlChanges = new ArrayList<>();
 		for (final UpdateSite local : files.getUpdateSites(true)) {
