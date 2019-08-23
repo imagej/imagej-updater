@@ -63,8 +63,12 @@ import net.imagej.updater.action.KeepAsIs;
 import net.imagej.updater.action.Remove;
 import net.imagej.updater.action.Uninstall;
 import net.imagej.updater.action.Upload;
-import net.imagej.updater.util.*;
 
+import net.imagej.updater.util.DependencyAnalyzer;
+import net.imagej.updater.util.HTTPSUtil;
+import net.imagej.updater.util.Progress;
+import net.imagej.updater.util.UpdateCanceledException;
+import net.imagej.updater.util.UpdaterUtil;
 import org.scijava.log.LogService;
 import org.xml.sax.SAXException;
 
@@ -170,6 +174,11 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 		for (final Map.Entry<String, UpdateSite> entry : updateSites.entrySet()) {
 			entry.getValue().rank = counter++;
 		}
+	}
+
+	public void replaceUpdateSites(List<UpdateSite> sites) {
+		updateSites.clear();
+		sites.forEach(site -> addUpdateSite(site));
 	}
 
 	/** @deprecated use {@link #getUpdateSite(String, boolean)} instead */

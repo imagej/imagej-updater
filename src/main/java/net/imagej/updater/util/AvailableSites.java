@@ -40,7 +40,16 @@ import org.scijava.log.Logger;
 import org.xml.sax.SAXException;
 import javax.xml.transform.TransformerConfigurationException;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Utility class for parsing the list of available update sites.
@@ -140,12 +149,12 @@ public final class AvailableSites {
 	{
 		final List< UpdateSite > sites = prepareAvailableUpdateSites(availableSites);
 		// method is package private to allow testing
-		ArrayList< URLChange > urlChanges = mergeLocalAndAvailabelUpdateSites(
+		ArrayList< URLChange > urlChanges = mergeLocalAndAvailableUpdateSites(
 				files, sites);
 		makeSureNamesAreUnique(sites);
-		for (final UpdateSite site : sites) {
-			files.addUpdateSite(site);
-		}
+
+		files.replaceUpdateSites(sites);
+
 		return urlChanges;
 	}
 
@@ -192,8 +201,8 @@ public final class AvailableSites {
 		}
 	}
 
-	private static ArrayList< URLChange > mergeLocalAndAvailabelUpdateSites(FilesCollection files,
-			List< UpdateSite > sites)
+	private static ArrayList< URLChange > mergeLocalAndAvailableUpdateSites(FilesCollection files,
+	                                                                        List< UpdateSite > sites)
 	{
 		ArrayList< URLChange > urlChanges = new ArrayList<>();
 		for (final UpdateSite local : files.getUpdateSites(true)) {

@@ -40,13 +40,20 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import static junit.framework.TestCase.assertTrue;
-import static net.imagej.updater.UpdaterTestUtils.*;
-import static org.junit.Assert.*;
+import static net.imagej.updater.UpdaterTestUtils.cleanup;
+import static net.imagej.updater.UpdaterTestUtils.initialize;
+import static net.imagej.updater.UpdaterTestUtils.main;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
 
 /**
@@ -213,6 +220,52 @@ public class AvailableSitesTest {
 	}
 
 	@Test
+	public void testUpdateSiteOrder() throws Exception {
+
+		// load initial files collection
+		FilesCollection files = initialize();
+
+		// add a personal update site
+		files.addUpdateSite(createPersonalSite("test", "https://sites.imagej.net/test"));
+
+		// write and read the changes (= restart)
+		files.write();
+		files = readFromDb(files);
+
+		// add an official update site
+		applyOfficialUpdateSitesList(files, "a", "https://sites.imagej.net/a");
+
+		// add another personal update site
+		files.addUpdateSite(createPersonalSite("test2", "https://sites.imagej.net/test2"));
+
+		// check if personal update site is the last one in the list
+		// check if rank equals list index
+
+		Collection<UpdateSite> sites = files.getUpdateSites(true);
+		Iterator<UpdateSite> iterator = sites.iterator();
+		assertTrue(iterator.hasNext());
+		UpdateSite site = iterator.next();
+		assertEquals("ImageJ", site.getName());
+		assertEquals(0, site.getRank());
+		assertTrue(iterator.hasNext());
+		site = iterator.next();
+		assertEquals("a", site.getName());
+		assertEquals(1, site.getRank());
+		site = iterator.next();
+		assertTrue(iterator.hasNext());
+		assertEquals("test", site.getName());
+		assertEquals(2, site.getRank());
+		assertTrue(iterator.hasNext());
+		site = iterator.next();
+		assertEquals("test2", site.getName());
+		assertEquals(3, site.getRank());
+		assertFalse(iterator.hasNext());
+
+		cleanup(files);
+
+	}
+
+	@Test
 	public void testOfficialFlag() throws Exception {
 
 		// load initial files collection
@@ -348,8 +401,13 @@ public class AvailableSitesTest {
 	}
 
 	private UpdateSite createOfficialSite(String name, String url) {
-		UpdateSite site = new UpdateSite(name, url, "", "", "", "", 0);
+		UpdateSite site = createPersonalSite(name, url);
 		site.setOfficial(true);
+		return site;
+	}
+
+	private UpdateSite createPersonalSite(String name, String url) {
+		UpdateSite site = new UpdateSite(name, url, "", "", "", "", 0);
 		site.setHost("file:localhost");
 		return site;
 	}
