@@ -48,6 +48,7 @@ import org.scijava.plugin.Plugin;
 import org.scijava.service.AbstractService;
 import org.scijava.service.Service;
 import org.scijava.ui.event.UIShownEvent;
+import org.scijava.ui.headless.HeadlessUI;
 import org.xml.sax.SAXException;
 
 /**
@@ -103,6 +104,8 @@ public class DefaultUpdateService extends AbstractService implements
 	 */
 	@EventHandler
 	protected void onEvent(final UIShownEvent evt) {
+		if (evt.getUI() instanceof HeadlessUI) return;
+
 		// NB: Check for updates, but on a separate thread (not the EDT!).
 		commandService.run(CheckForUpdates.class, true);
 	}
