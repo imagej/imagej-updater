@@ -62,6 +62,7 @@ public class DefaultUpdateService extends AbstractService implements
 	UpdateService
 {
 
+	private static final String DISABLE_AUTOCHECK_PROPERTY = "imagej.updater.disableAutocheck";
 	private static final String LAST_SOFT_CHECK_KEY = "lastSoftCheck";
 	private static final long TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
 
@@ -112,6 +113,7 @@ public class DefaultUpdateService extends AbstractService implements
 	@EventHandler
 	protected void onEvent(final UIShownEvent evt) {
 		if (evt.getUI() instanceof HeadlessUI) return;
+		if (Boolean.getBoolean(DISABLE_AUTOCHECK_PROPERTY)) return;
 
 		// Auto-check only once every 24 hours.
 		final long now = System.currentTimeMillis();
