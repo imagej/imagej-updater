@@ -37,14 +37,15 @@ import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
 
 import net.imagej.updater.util.AvailableSites;
-
 import net.imagej.updater.util.HTTPSUtil;
+
 import org.scijava.app.AppService;
 import org.scijava.command.CommandService;
 import org.scijava.event.EventHandler;
 import org.scijava.log.LogService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
+import org.scijava.prefs.PrefService;
 import org.scijava.service.AbstractService;
 import org.scijava.service.Service;
 import org.scijava.ui.event.UIShownEvent;
@@ -61,11 +62,17 @@ public class DefaultUpdateService extends AbstractService implements
 	UpdateService
 {
 
+	private static final String LAST_SOFT_CHECK_KEY = "lastSoftCheck";
+	private static final long TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+
 	@Parameter
 	private CommandService commandService;
 
 	@Parameter
 	private AppService appService;
+
+	@Parameter
+	private PrefService prefService;
 
 	@Parameter(required = false)
 	private LogService log;
@@ -105,6 +112,12 @@ public class DefaultUpdateService extends AbstractService implements
 	@EventHandler
 	protected void onEvent(final UIShownEvent evt) {
 		if (evt.getUI() instanceof HeadlessUI) return;
+
+		// Auto-check only once every 24 hours.
+		final long now = System.currentTimeMillis();
+		final long lastSoftCheck = prefService.getLong(getClass(), LAST_SOFT_CHECK_KEY, 0);
+		if (now < lastSoftCheck + TWENTY_FOUR_HOURS) return;
+		prefService.put(getClass(), LAST_SOFT_CHECK_KEY, now);
 
 		// NB: Check for updates, but on a separate thread (not the EDT!).
 		commandService.run(CheckForUpdates.class, true);
