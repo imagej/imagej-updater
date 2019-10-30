@@ -530,7 +530,10 @@ public class UpdaterUtil {
 									"PROGRAMFILES", "PROGRAMFILES(X86)", "SystemRoot", "ALLUSERSPROFILE"
 					}) {
 						final String path = System.getenv(key);
-						if (path != null) protectedFiles.add(new File(path).getCanonicalFile());
+						if (path != null) {
+							File f = new File(path).getCanonicalFile();
+							if (!f.canWrite()) protectedFiles.add(f);
+						}
 					}
 				}
 				for (File dir = ijRoot.getCanonicalFile(); dir != null; dir = dir.getParentFile()) {
