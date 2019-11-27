@@ -25,6 +25,7 @@ public class HTTPSUtil {
 	 * Calls {@link #secureURL} to check whether the HTTPS certificate can be handled by the JVM.
 	 */
 	public static void checkHTTPSSupport(LogService log) {
+		offlineMode = false;
 		HttpURLConnection connection = null;
 		try {
 			connection = (HttpURLConnection) new URL(secureURL).openConnection();
