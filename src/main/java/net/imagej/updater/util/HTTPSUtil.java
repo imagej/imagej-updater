@@ -15,6 +15,7 @@ import java.net.UnknownHostException;
 public class HTTPSUtil {
 
 	private static boolean secureMode = true;
+	private static boolean offlineMode = false;
 
 	private static final String secureURL = "https://imagej.net/api.php";
 	private static final String insecureUserSiteURL = "http://sites.imagej.net";
@@ -24,6 +25,7 @@ public class HTTPSUtil {
 	 * Calls {@link #secureURL} to check whether the HTTPS certificate can be handled by the JVM.
 	 */
 	public static void checkHTTPSSupport(LogService log) {
+		offlineMode = false;
 		HttpURLConnection connection = null;
 		try {
 			connection = (HttpURLConnection) new URL(secureURL).openConnection();
@@ -44,6 +46,7 @@ public class HTTPSUtil {
 					+ "Make sure you are connected to a network.";
 			if (log != null) log.warn(msg);
 			else System.out.println("[WARNING] " + msg);
+			offlineMode = true;
 		} catch (SSLHandshakeException e) {
 			secureMode = false;
 			String msg = "Your Java might be too old to handle updates via HTTPS. This is a security risk. " +
@@ -66,6 +69,10 @@ public class HTTPSUtil {
 	 */
 	public static boolean supportsHTTPS() {
 		return secureMode;
+	}
+
+	public static boolean noConnection() {
+		return offlineMode;
 	}
 
 	/**

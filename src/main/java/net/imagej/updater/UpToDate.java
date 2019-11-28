@@ -40,6 +40,7 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.Enumeration;
 
@@ -111,6 +112,9 @@ public class UpToDate {
 			}
 			catch (final FileNotFoundException e) { /* ignore */}
 			HTTPSUtil.checkHTTPSSupport(null);
+			if(HTTPSUtil.noConnection()) {
+				return Result.OFFLINE;
+			}
 			if(AvailableSites.hasUpdateSiteURLUpdates(plugins)) {
 				return Result.UPDATEABLE;
 			}
@@ -126,7 +130,7 @@ public class UpToDate {
 				}
 			}
 		}
-		catch (final FileNotFoundException e) {
+		catch (final FileNotFoundException  | UnknownHostException e) {
 			/*
 			 * Ignore when it is a temporary failure, or even when the site went away:
 			 * this is just an up-to-date-check, nothing more.
