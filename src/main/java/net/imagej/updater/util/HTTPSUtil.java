@@ -8,6 +8,7 @@ import javax.net.ssl.SSLHandshakeException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -57,6 +58,12 @@ public class HTTPSUtil {
 			secureMode = false;
 			String msg = "Timeout while trying to update securely via HTTPS. Will fall back to HTTP. This is a security risk. " +
 					"Please contact your system administrator to enable communication via HTTPS.";
+			if (log != null) log.warn(msg);
+			else System.out.println("[WARNING] " + msg);
+		} catch (SocketException e) {
+			secureMode = false;
+			String msg = "SocketException while trying to update securely via HTTPS. Will fall back to HTTP. This is a security risk. " +
+					"Try downloading a new version of this software. If you're behind a proxy, call Edit > Options > Proxy Settings.";
 			if (log != null) log.warn(msg);
 			else System.out.println("[WARNING] " + msg);
 		} catch (IOException e) {
