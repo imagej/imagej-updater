@@ -26,15 +26,13 @@ importClass(Packages.java.net.URL);
 importClass(Packages.java.net.URLClassLoader);
 importClass(Packages.java.util.regex.Pattern);
 
-baseURL = 'http://update.imagej.net/jars/';
+baseURL = 'https://sites.imagej.net/Java-8/jars/';
 jars = [
-	'imagej-ui-swing-0.11.2.jar-20150501184913',
-	'imagej-plugins-uploader-webdav-0.2.0.jar-20141219193933',
-	'imagej-updater-0.7.5.jar-20150522102918',
-	'scijava-common-2.44.2.jar-20150720161756',
-	'imagej-common-0.14.0.jar-20150415222444',
-	'eventbus-1.4.jar-20120404210913',
-	'gentyref-1.1.0.jar-20140516211031'
+	'imagej-ui-swing-0.23.1.jar-20190813144239',
+	'imagej-plugins-uploader-webdav-0.3.1.jar-20190813144239',
+	'imagej-updater-0.10.4.jar-20200225103842',
+	'scijava-common-2.80.1.jar-20191101144016',
+	'imagej-common-0.28.2.jar-20190516211613'
 ];
 
 isCommandLine = typeof arguments != 'undefined';
@@ -210,7 +208,8 @@ if (!new File(imagejDir, "db.xml.gz").exists()) {
 	files.getUpdateSite("ImageJ").timestamp = -1;
 	if (!"true".equalsIgnoreCase(System.getProperty("skip.fiji"))) {
 		IJ.showStatus("adding the Fiji update site");
-		files.addUpdateSite("Fiji", "http://update.fiji.sc/", null, null, -1);
+		files.addUpdateSite("Fiji", "https://update.fiji.sc/", null, null, -1);
+		files.addUpdateSite("Java-8", "https://sites.imagej.net/Java-8/", null, null, -1);
 	}
 	files.write();
 }
