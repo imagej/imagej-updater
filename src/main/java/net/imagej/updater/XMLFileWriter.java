@@ -72,9 +72,9 @@ public class XMLFileWriter {
 
 	private FilesCollection files;
 	private TransformerHandler handler;
-	private final String XALAN_INDENT_AMOUNT = "{http://xml.apache.org/xslt}"
+	private static final String XALAN_INDENT_AMOUNT = "{http://xml.apache.org/xslt}"
 		+ "indent-amount";
-	private final static String dtd = "<!DOCTYPE pluginRecords [\n"
+	private static final String DTD = "<!DOCTYPE pluginRecords [\n"
 		+ "<!ELEMENT pluginRecords ((update-site | disabled-update-site)*, plugin*)>\n"
 		+ "<!ELEMENT update-site EMPTY>\n"
 		+ "<!ELEMENT disabled-update-site EMPTY>\n"
@@ -357,7 +357,7 @@ public class XMLFileWriter {
 			if (found < 0) return false;
 
 			if (found > off) out.write(b, off, found - off);
-			out.write(dtd.getBytes());
+			out.write(DTD.getBytes());
 			out.write(b, found, len - found);
 			dtdInserted = true;
 			return true;
