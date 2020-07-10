@@ -189,6 +189,32 @@ public class XMLFileWriter {
 		out.close();
 	}
 
+	/**
+	 * HACK: Invoke Xalan XML writing classes early, to ensure XML writing
+	 * infrastructure is loaded before the Updater deletes classpath elements.
+	 * <p>
+	 * See <a href=
+	 * "https://github.com/imagej/imagej-updater/issues/88">imagej/imagej-updater#88</a>.
+	 */
+	static void prepare() {
+		final StreamResult streamResult =
+			new StreamResult(new DTDInserter(new ByteArrayOutputStream()));
+		final SAXTransformerFactory tf =
+			(SAXTransformerFactory) TransformerFactory.newInstance();
+
+		try {
+			final TransformerHandler h = tf.newTransformerHandler();
+			final Transformer serializer = h.getTransformer();
+			serializer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+			serializer.setOutputProperty(OutputKeys.INDENT, "yes");
+			serializer.setOutputProperty(XALAN_INDENT_AMOUNT, "4");
+			h.setResult(streamResult);
+		}
+		catch (final TransformerConfigurationException exc) {
+			throw new RuntimeException(exc);
+		}
+	}
+
 	protected void writeSingle(final boolean local, final AttributesImpl attr,
 			final FileObject file, final long timestampObsolete) throws SAXException {
 		attr.clear();

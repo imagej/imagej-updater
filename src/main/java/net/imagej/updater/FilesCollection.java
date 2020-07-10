@@ -82,6 +82,10 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	implements Iterable<FileObject>
 {
 
+	static {
+		XMLFileWriter.prepare();
+	}
+
 	public final static String DEFAULT_UPDATE_SITE = "ImageJ";
 	private File imagejRoot;
 	public final LogService log;
