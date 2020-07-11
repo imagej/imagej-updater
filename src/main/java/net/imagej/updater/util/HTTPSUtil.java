@@ -66,7 +66,8 @@ public class HTTPSUtil {
 			connection.setRequestMethod("HEAD");
 			connection.setConnectTimeout(10000);
 		} catch (ProtocolException e) {
-			e.printStackTrace();
+			if (log != null) log.error(e);
+			else e.printStackTrace();
 		}
 		try {
 			connection.getResponseCode();
@@ -74,24 +75,29 @@ public class HTTPSUtil {
 		} catch (UnknownHostException e) {
 			String msg = "Could not determine the IP address of https://imagej.net. "
 					+ "Make sure you are connected to a network.";
-			if (log != null) log.warn(msg);
-			else System.out.println("[WARNING] " + msg);
+			warn(log, msg, e);
 			offlineMode = true;
 		} catch (SSLHandshakeException e) {
 			secureMode = false;
 			String msg = "Your Java might be too old to handle updates via HTTPS. This is a security risk. " +
 					"Depending on your setup please download a recent version of this software or update your local Java installation.";
-			if (log != null) log.warn(msg);
-			else System.out.println("[WARNING] " + msg);
+			warn(log, msg, e);
 		} catch (SocketTimeoutException e) {
 			secureMode = false;
 			String msg = "Timeout while trying to update securely via HTTPS. Will fall back to HTTP. This is a security risk. " +
 					"Please contact your system administrator to enable communication via HTTPS.";
-			if (log != null) log.warn(msg);
-			else System.out.println("[WARNING] " + msg);
+			warn(log, msg, e);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private static void warn(final LogService log, final String msg, final Throwable t) {
+		if (log != null) {
+			if (log.isDebug()) log.debug(msg, t);
+			else log.warn(msg);
+		}
+		else System.out.println("[WARNING] " + msg);
 	}
 
 	/**
