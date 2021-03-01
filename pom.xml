@@ -30,19 +30,6 @@
 
 	<developers>
 		<developer>
-			<id>frauzufall</id>
-			<name>Deborah Schmidt</name>
-			<url>https://imagej.net/User:Frauzufall</url>
-			<roles>
-				<role>lead</role>
-				<role>developer</role>
-				<role>debugger</role>
-				<role>reviewer</role>
-				<role>support</role>
-				<role>maintainer</role>
-			</roles>
-		</developer>
-		<developer>
 			<id>ctrueden</id>
 			<name>Curtis Rueden</name>
 			<url>https://imagej.net/User:Rueden</url>
@@ -87,6 +74,11 @@
 			<name>Matthias Arzt</name>
 			<url>https://imagej.net/User:Maarzt</url>
 			<properties><id>maarzt</id></properties>
+		</contributor>
+		<contributor>
+			<name>Deborah Schmidt</name>
+			<url>https://imagej.net/User:Frauzufall</url>
+			<properties><id>frauzufall</id></properties>
 		</contributor>
 	</contributors>
 
