@@ -85,7 +85,8 @@ public class CheckForUpdates implements Command {
 					break;
 				case READ_ONLY:
 					final String message =
-						"Your ImageJ installation cannot be updated because it is read-only";
+						"Your ImageJ installation cannot be updated because it is read-only\n" +
+						"You can find potential solutions online https://forum.image.sc/t/warning-your-imagej-installation-cannot-be-updated-because-it-is-read-only/20333";
 					if (log != null) log.warn(message);
 					if (statusService != null) statusService.showStatus(message);
 					break;
