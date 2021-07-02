@@ -1,4 +1,4 @@
-[![](https://travis-ci.org/imagej/imagej-updater.svg?branch=master)](https://travis-ci.org/imagej/imagej-updater)
+[![](https://github.com/imagej/imagej-updater/actions/workflows/build-main.yml/badge.svg)](https://github.com/imagej/imagej-updater/actions/workflows/build-main.yml)
 
 ImageJ Updater
 --------------
