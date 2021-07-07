@@ -145,24 +145,16 @@ public class FilesUploader {
 	}
 
 	public String getDefaultUsername() {
-		String host = site.getHost();
-		if (host.startsWith("sftp:")) host = host.substring(5);
-		final int at = host.indexOf('@');
-		if (at > 0) return host.substring(0, at);
-		final String name = UpdaterUserInterface.get().getPref(UpdaterUtil.PREFS_USER);
-		if (name == null) return "";
-		return name;
+		String username = site.getUploadUsername();
+		if (username  == null)
+			username = UpdaterUserInterface.get().getPref(UpdaterUtil.PREFS_USER);
+		if (username  == null)
+			username = "";
+		return username;
 	}
 
 	public String getUploadHost() {
-		String host = site.getHost();
-		if (uploader != null) {
-			final String protocol = uploader.getProtocol();
-			if (protocol != null && host.startsWith(protocol + ":")) {
-				host = host.substring(protocol.length() + 1);
-			}
-		}
-		return host.substring(host.indexOf('@') + 1);
+		return site.getUploadHost();
 	}
 
 	public String getUploadDirectory() {
