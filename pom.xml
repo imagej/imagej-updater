@@ -15,7 +15,7 @@
 
 	<name>ImageJ Updater</name>
 	<description>Keeps components of ImageJ up-to-date.</description>
-	<url>https://imagej.net/ImageJ_Updater</url>
+	<url>https://imagej.net/plugins/updater</url>
 	<inceptionYear>2009</inceptionYear>
 	<organization>
 		<name>ImageJ</name>
@@ -32,7 +32,7 @@
 		<developer>
 			<id>ctrueden</id>
 			<name>Curtis Rueden</name>
-			<url>https://imagej.net/User:Rueden</url>
+			<url>https://imagej.net/people/ctrueden</url>
 			<roles>
 				<role>debugger</role>
 				<role>reviewer</role>
@@ -44,7 +44,7 @@
 	<contributors>
 		<contributor>
 			<name>Johannes Schindelin</name>
-			<url>https://imagej.net/User:Schindelin</url>
+			<url>https://imagej.net/dscho</url>
 			<roles><role>founder</role></roles>
 			<properties><id>dscho</id></properties>
 		</contributor>
@@ -53,31 +53,31 @@
 		</contributor>
 		<contributor>
 			<name>Albert Cardona</name>
-			<url>https://imagej.net/User:Albertcardona</url>
+			<url>https://imagej.net/acardona</url>
 			<properties><id>acardona</id></properties>
 		</contributor>
 		<contributor>
 			<name>Mark Longair</name>
-			<url>https://imagej.net/User:Mark</url>
+			<url>https://imagej.net/mhl</url>
 			<properties><id>mhl</id></properties>
 		</contributor>
 		<contributor>
 			<name>Jarek Sacha</name>
-			<url>https://imagej.net/User:Jpsacha</url>
+			<url>https://imagej.net/hinerm</url>
 		</contributor>
 		<contributor>
 			<name>Mark Hiner</name>
-			<url>https://imagej.net/User:Hinerm</url>
+			<url>https://imagej.net/hinerm</url>
 			<properties><id>hinerm</id></properties>
 		</contributor>
 		<contributor>
 			<name>Matthias Arzt</name>
-			<url>https://imagej.net/User:Maarzt</url>
+			<url>https://imagej.net/maarzt</url>
 			<properties><id>maarzt</id></properties>
 		</contributor>
 		<contributor>
 			<name>Deborah Schmidt</name>
-			<url>https://imagej.net/User:Frauzufall</url>
+			<url>https://imagej.net/frauzufall</url>
 			<properties><id>frauzufall</id></properties>
 		</contributor>
 	</contributors>
@@ -85,7 +85,7 @@
 	<mailingLists>
 		<mailingList>
 			<name>Image.sc Forum</name>
-			<archive>https://forum.image.sc/tags/imagej</archive>
+			<archive>https://forum.image.sc/tag/imagej</archive>
 		</mailingList>
 	</mailingLists>
 
