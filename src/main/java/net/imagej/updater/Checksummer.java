@@ -441,6 +441,7 @@ public class Checksummer extends AbstractProgressable {
 		{ "plugins" }, { ".jar", ".class", ".txt", ".ijm", ".py", ".rb", ".clj", ".js", ".bsh", ".groovy", ".gvy" },
 		{ "scripts" }, { ".m",                     ".ijm", ".py", ".rb", ".clj", ".js", ".bsh", ".groovy", ".gvy" },
 		{ "macros" }, { ".txt", ".ijm" },
+		{ "models" }, { "" },
 		{ "luts" }, { ".lut" },
 		{ "images" }, { ".png", ".tif", ".txt" },
 		{ "Contents" }, { ".icns", ".plist" },
