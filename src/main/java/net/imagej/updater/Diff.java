@@ -269,7 +269,8 @@ public class Diff {
 
 		try {
 			boolean color = false;
-			ProcessUtils.exec(null, out, out, "git", "diff",
+			final String git = System.getProperty("imagej.updater.git.command", "git");
+			ProcessUtils.exec(null, out, out, git, "diff",
 					"--color=" + (color ? "always" : "auto"),
 					"--no-index",
 					"--src-prefix=remote/" + name + "/", "--dst-prefix=local/" + name + "/",
