@@ -104,7 +104,6 @@ public class Downloader extends AbstractProgressable {
 		throws IOException
 	{
 		final URLConnection connection = util.openConnection(new URL(current.getURL()));
-		connection.setUseCaches(false);
 		lastModified = connection.getLastModified();
 		int currentTotal = connection.getContentLength();
 		if (currentTotal < 0) currentTotal = (int) current.getFilesize();

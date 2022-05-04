@@ -381,10 +381,7 @@ public class UpdaterUtil {
 
 	public long getLastModified(final URL url) {
 		try {
-			final URLConnection connection = openConnection(url);
-			if (connection instanceof HttpURLConnection) ((HttpURLConnection) connection)
-				.setRequestMethod("HEAD");
-			connection.setUseCaches(false);
+		    final URLConnection connection = openConnection(url);
 			final long lastModified = connection.getLastModified();
 			connection.getInputStream().close();
 			return lastModified;
@@ -393,7 +390,6 @@ public class UpdaterUtil {
 			if (e.getMessage().startsWith("Server returned HTTP response code: 407")) return -111381;
 			if (e.getMessage().startsWith("Server returned HTTP response code: 405")) try {
 				final URLConnection connection = openConnection(url);
-				connection.setUseCaches(false);
 				final long lastModified = connection.getLastModified();
 				connection.getInputStream().close();
 				return lastModified;
@@ -417,6 +413,18 @@ public class UpdaterUtil {
 		return openConnection(url).getInputStream();
 	}
 
+	private String getUserAgent() {
+		final String javaVmVersion = System.getProperty("java.runtime.version");
+		final String javaVersion = javaVmVersion != null ?
+		javaVmVersion : System.getProperty("java.version");
+		final String osVersion = System.getProperty("os.version");
+		final String os = "" + System.getProperty("os.name") + "-"
+			+ (osVersion != null ? osVersion + "-" : "")
+			+ System.getProperty("os.arch");
+		final String agent = "curl/7.22.0 compatible ImageJ updater/2.0.0-SNAPSHOT "
+			+ "(Java " + javaVersion + "/" + os + ")";
+		return agent;
+	}
 	/**
 	 * Open a connection to a {@link URL}.
 	 * 
@@ -425,22 +433,26 @@ public class UpdaterUtil {
 	 * @param url the URL to open
 	 */
 	public URLConnection openConnection(final URL url) throws IOException {
-		final URLConnection connection = dropboxURLMapper.get(url).openConnection();
+		return openConnection(url, getUserAgent());
+	}
+
+	private URLConnection openConnection(final URL url, final String user_agent) throws IOException {
+		URLConnection connection = dropboxURLMapper.get(url).openConnection();
+		connection.setUseCaches(false);
 		if (connection instanceof HttpURLConnection) {
 			HttpURLConnection http = (HttpURLConnection)connection;
-			final String javaVmVersion = System.getProperty("java.runtime.version");
-			final String javaVersion = javaVmVersion != null ?
-					javaVmVersion : System.getProperty("java.version");
-			final String osVersion = System.getProperty("os.version");
-			final String os = "" + System.getProperty("os.name") + "-"
-					+ (osVersion != null ? osVersion + "-" : "")
-					+ System.getProperty("os.arch");
-			http.setRequestProperty("User-Agent",
-					"curl/7.22.0 compatible ImageJ updater/2.0.0-SNAPSHOT (Java "
-					+ javaVersion + "/" + os + ")");
+			http.setRequestProperty("User-Agent", user_agent);
+			final int response = http.getResponseCode();
+			if (response == HttpURLConnection.HTTP_MOVED_TEMP
+			    || response == HttpURLConnection.HTTP_MOVED_PERM
+			    || response == HttpURLConnection.HTTP_SEE_OTHER) {
+				final URL new_url = new URL(connection.getHeaderField("Location"));
+				connection = openConnection(new_url, user_agent);
+			}
 		}
 		return connection;
 	}
+
 
 	// Get entire byte data
 	public static byte[] readStreamAsBytes(final InputStream input)
