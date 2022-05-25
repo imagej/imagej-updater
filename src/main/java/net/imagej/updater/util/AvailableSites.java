@@ -70,14 +70,23 @@ public final class AvailableSites {
 	}
 
 	public static Map<String, UpdateSite> getAvailableSites(final Logger log) throws IOException {
+		final String text = downloadWikiPage(log);
+		final Map<String, UpdateSite> result = parseWikiPage(text);
+		runSanityChecks(result);
+		return result;
+	}
+
+	private static String downloadWikiPage(final Logger log) throws IOException {
 		String wikiURL = HTTPSUtil.getProtocol() + "imagej.net/";
 
 		if(log != null) log.info("Reading available sites from " + wikiURL);
 		else System.out.println("[INFO] Reading available sites from " + wikiURL);
 
 		final MediaWikiClient wiki = new MediaWikiClient(wikiURL);
-		final String text = wiki.getPageSource(SITE_LIST_PAGE_TITLE);
+		return wiki.getPageSource(SITE_LIST_PAGE_TITLE);
+	}
 
+	private static Map<String, UpdateSite> parseWikiPage(final String text) throws IOException {
 		final int start = text.indexOf("\n{| class=\"wikitable\"\n");
 		int end = text.indexOf("\n|}\n", start);
 		if (end < 0) end = text.length();
@@ -106,15 +115,19 @@ public final class AvailableSites {
 					i++;
 				}
 			} else if (nameColumn >= 0 && urlColumn >= 0 && columns.length > nameColumn && columns.length > urlColumn) {
-				final UpdateSite info = new UpdateSite(stripWikiMarkup(columns, nameColumn), stripWikiMarkup(columns, urlColumn),
-						null, null,
-						stripWikiMarkup(columns, descriptionColumn), stripWikiMarkup(columns, maintainerColumn), 0l);
+				final String name = stripWikiMarkup(columns, nameColumn);
+				final String url = stripWikiMarkup(columns, urlColumn);
+				final String description = stripWikiMarkup(columns, descriptionColumn);
+				final String maintainer = stripWikiMarkup(columns, maintainerColumn);
+				final UpdateSite info = new UpdateSite(name, url, null, null, description, maintainer, 0l);
 				info.setOfficial(true);
 				result.put(info.getURL(), info);
 			}
 		}
+		return result;
+	}
 
-		// Sanity checks
+	private static void runSanityChecks(final Map<String, UpdateSite> result) throws IOException {
 		final Iterator<UpdateSite> iter = result.values().iterator();
 		if (!iter.hasNext()) throw new IOException("Invalid page: " + SITE_LIST_PAGE_TITLE);
 		UpdateSite site = iter.next();
@@ -128,8 +141,6 @@ public final class AvailableSites {
 				HTTPSUtil.getProtocol() + "update.fiji.sc/")) {
 			throw new IOException("Invalid page: " + SITE_LIST_PAGE_TITLE);
 		}
-
-		return result;
 	}
 
 	/**
