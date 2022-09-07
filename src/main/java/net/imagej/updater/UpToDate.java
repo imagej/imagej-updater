@@ -64,9 +64,16 @@ import org.xml.sax.SAXException;
 public class UpToDate {
 
 	public enum Result {
-		UP_TO_DATE, UPDATEABLE, PROXY_NEEDS_AUTHENTICATION, OFFLINE, REMIND_LATER,
-		CHECK_TURNED_OFF, READ_ONLY, UPDATES_MANAGED_DIFFERENTLY /* e.g. Debian packaging */, DEVELOPER,
-		PROTECTED_LOCATION /* e.g. C:\Program Files on Windows Vista and later */
+		UP_TO_DATE,
+		UPDATEABLE,
+		PROXY_NEEDS_AUTHENTICATION,
+		OFFLINE,
+		REMIND_LATER,
+		CHECK_TURNED_OFF,
+		READ_ONLY,
+		UPDATES_MANAGED_DIFFERENTLY, // e.g. Debian packaging
+		DEVELOPER,
+		PROTECTED_LOCATION           // e.g. "C:\Program Files" on Windows
 	}
 
 	private final static String KEY = "latestNag";

@@ -31,12 +31,14 @@
 
 package net.imagej.updater;
 
-import org.scijava.app.StatusService;
+import static org.scijava.ui.DialogPrompt.MessageType.WARNING_MESSAGE;
+
 import org.scijava.command.Command;
 import org.scijava.command.CommandService;
 import org.scijava.log.LogService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
+import org.scijava.ui.UIService;
 
 /**
  * This plugin checks whether updates are available, and prompts the user to
@@ -52,7 +54,7 @@ public class CheckForUpdates implements Command {
 	private CommandService commandService;
 
 	@Parameter(required = false)
-	private StatusService statusService;
+	private UIService uiService;
 
 	@Parameter(required = false)
 	private LogService log;
@@ -76,18 +78,13 @@ public class CheckForUpdates implements Command {
 					throw new RuntimeException(
 						"TODO: authenticate proxy with the configured user/pass pair");
 				case PROTECTED_LOCATION:
-					final String protectedMessage =
-						"Your ImageJ installation cannot be updated because it is in " +
-							"a protected location (e.g., \"C:\\Program Files\").\nPlease " +
-							"move your installation to a directory with write permission";
-					if (log != null) log.warn(protectedMessage);
-					if (statusService != null) statusService.showStatus(protectedMessage);
+					fail("Your ImageJ installation cannot be updated because it is in " +
+						"a protected location (e.g., \"C:\\Program Files\").\nPlease " +
+						"move your installation to a directory with write permission.");
 					break;
 				case READ_ONLY:
-					final String message =
-						"Your ImageJ installation cannot be updated because it is read-only";
-					if (log != null) log.warn(message);
-					if (statusService != null) statusService.showStatus(message);
+					fail("Your ImageJ installation cannot be updated because " +
+						"it is read-only.");
 					break;
 				default:
 					if (log != null) log.error("Unhandled UpToDate case: " + result);
@@ -98,4 +95,10 @@ public class CheckForUpdates implements Command {
 		}
 	}
 
+	private void fail(final String message) {
+		if (log != null) log.warn(message);
+		if (uiService != null) {
+			uiService.showDialog(message, "ImageJ Updater", WARNING_MESSAGE);
+		}
+	}
 }
