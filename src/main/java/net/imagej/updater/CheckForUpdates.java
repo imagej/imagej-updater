@@ -86,6 +86,14 @@ public class CheckForUpdates implements Command {
 					fail("Your ImageJ installation cannot be updated because " +
 						"it is read-only.");
 					break;
+				case GPR_ACTIVATED:
+					final String gprURL = "https://weblog.rogueamoeba.com" +
+						"/2016/06/29/sierra-and-gatekeeper-path-randomization/";
+					fail("<html>Your ImageJ installation is affected by <a href=\"" +
+						gprURL + "\">Gatekeeper Path Randomization</a>. Please try " +
+						"dragging the application somewhere else (e.g. /Applications) " +
+						"rather than running it straight out of your Downloads folder.");
+					break;
 				default:
 					if (log != null) log.error("Unhandled UpToDate case: " + result);
 			}

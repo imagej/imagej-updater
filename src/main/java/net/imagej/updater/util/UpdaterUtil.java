@@ -500,6 +500,20 @@ public class UpdaterUtil {
 		}
 	}
 
+	/**
+	 * Determines whether the ImageJ root directory has been moved to an area
+	 * dictated by macOS's Gatekeeper Path Randomization feature. This happens
+	 * when the application is downloaded, unpacked, and launched without first
+	 * moving the application to a different folder such as Applications.
+	 * 
+	 * @param ijRoot the root directory to test
+	 * @return whether the directory is protected by GPR
+	 */
+	public static boolean isGPRActivated(final File ijRoot) {
+		final String path = ijRoot.getAbsolutePath();
+		return path.matches("^/private/var/folders/.*/AppTranslocation/.*");
+	}
+
 	private static Set<File> protectedFiles;
 	private final static Pattern majorVersionPattern = Pattern.compile("([0-9]+).*");
 

@@ -73,7 +73,8 @@ public class UpToDate {
 		READ_ONLY,
 		UPDATES_MANAGED_DIFFERENTLY, // e.g. Debian packaging
 		DEVELOPER,
-		PROTECTED_LOCATION           // e.g. "C:\Program Files" on Windows
+		PROTECTED_LOCATION,          // e.g. "C:\Program Files" on Windows
+		GPR_ACTIVATED                // Gatekeeper Path Randomization on macOS
 	}
 
 	private final static String KEY = "latestNag";
@@ -109,6 +110,7 @@ public class UpToDate {
 		if (neverRemind()) return Result.CHECK_TURNED_OFF;
 		if (shouldRemindLater()) return Result.REMIND_LATER;
 		if (!canWrite(ijRoot)) return Result.READ_ONLY;
+		if (UpdaterUtil.isGPRActivated(ijRoot)) return Result.GPR_ACTIVATED;
 		if (UpdaterUtil.isProtectedLocation(ijRoot)) return Result.PROTECTED_LOCATION;
 		if (isDeveloper()) return Result.DEVELOPER;
 		if (!haveNetworkConnection()) return Result.OFFLINE;
