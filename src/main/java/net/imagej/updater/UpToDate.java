@@ -109,9 +109,9 @@ public class UpToDate {
 	{
 		if (neverRemind()) return Result.CHECK_TURNED_OFF;
 		if (shouldRemindLater()) return Result.REMIND_LATER;
-		if (!canWrite(ijRoot)) return Result.READ_ONLY;
 		if (UpdaterUtil.isGPRActivated(ijRoot)) return Result.GPR_ACTIVATED;
 		if (UpdaterUtil.isProtectedLocation(ijRoot)) return Result.PROTECTED_LOCATION;
+		if (!canWrite(ijRoot)) return Result.READ_ONLY;
 		if (isDeveloper()) return Result.DEVELOPER;
 		if (!haveNetworkConnection()) return Result.OFFLINE;
 		final FilesCollection plugins = new FilesCollection(ijRoot);
