@@ -1265,6 +1265,27 @@ public class CommandLine {
 		}
 	}
 
+	public void addUploadSites(final List<String> names, final List<String> urls) {
+		final int size = Math.min(names.size(), urls.size());
+		ensureChecksummed();
+		for (int i = 0; i < size; i++) {
+			final String name = names.get(i);
+			final String url = urls.get(i);
+			final String sshHost = null;
+			final String uploadDirectory = null;
+			final UpdateSite site = files.getUpdateSite(name, true);
+			if (site != null)
+				throw die("Site '" + name + "' was already added!");
+			files.addUpdateSite(name, url, sshHost, uploadDirectory, 0l);
+		}
+		try {
+			files.write();
+		} catch (final Exception e) {
+			UpdaterUserInterface.get().handleException(e);
+			throw die("Could not write local file database");
+		}
+	}
+
 	public void removeUploadSite(final List<String> names) {
 		if (names == null || names.size() < 1) {
 			throw die("Which update-site do you want to remove, exactly?");
@@ -1398,6 +1419,7 @@ public class CommandLine {
 				+ "\tupload-complete-site [--simulate] [--force] [--force-shadow] [--platforms <platform>[,<platform>...]] <name>\n"
 				+ "\tlist-update-sites [<nick>...]\n"
 				+ "\tadd-update-site <nick> <url> [<host> <upload-directory>]\n"
+				+ "\tadd-update-sites <nick1> <url1> [<nick2> <url2> ...]\n"
 				+ "\tedit-update-site <nick> <url> [<host> <upload-directory>]\n"
 				+ "\trefresh-update-sites [--simulate] [--updateall]");
 	}
@@ -1506,6 +1528,14 @@ public class CommandLine {
 			instance.addOrEditUploadSite(makeList(args, 1), true);
 		} else if (command.equals("edit-update-site")) {
 			instance.addOrEditUploadSite(makeList(args, 1), false);
+		} else if (command.equals("add-update-sites")) {
+			final List<String> names = new ArrayList<>();
+			final List<String> urls = new ArrayList<>();
+			for (int i = 1; i < args.length - 1; i += 2) {
+				names.add(args[i]);
+				urls.add(args[i + 1]);
+			}
+			instance.addUploadSites(names, urls);
 		} else if (command.equals("remove-update-site")) {
 			instance.removeUploadSite(makeList(args, 1));
 		} else if (command.equals("refresh-update-sites")) {
