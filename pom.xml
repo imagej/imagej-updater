@@ -137,15 +137,15 @@ Institute of Molecular Cell Biology and Genetics.</license.copyrightOwners>
 			<artifactId>scijava-common</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-		</dependency>
-
 		<!-- Test scope dependencies -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
