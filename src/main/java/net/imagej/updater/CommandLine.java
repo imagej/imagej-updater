@@ -1246,7 +1246,7 @@ public class CommandLine {
 			final String sshHost, final String uploadDirectory,
 			final boolean add) {
 		ensureChecksummed();
-		final UpdateSite site = files.getUpdateSite(name, true);
+		final UpdateSite site = files.getUpdateSite(name, false);
 		if (site == null || add) {
 			if (site != null)
 				throw die("Site '" + name + "' was already added!");
@@ -1273,7 +1273,7 @@ public class CommandLine {
 			final String url = urls.get(i);
 			final String sshHost = null;
 			final String uploadDirectory = null;
-			final UpdateSite site = files.getUpdateSite(name, true);
+			final UpdateSite site = files.getUpdateSite(name, false);
 			if (site != null)
 				throw die("Site '" + name + "' was already added!");
 			files.addUpdateSite(name, url, sshHost, uploadDirectory, 0l);
