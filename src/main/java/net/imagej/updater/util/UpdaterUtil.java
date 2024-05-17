@@ -180,11 +180,11 @@ public class UpdaterUtil {
 	}
 
 	public static String getPlatform() {
-		final boolean is64bit =
-			System.getProperty("os.arch", "").indexOf("64") >= 0;
+		final String osArch = System.getProperty("os.arch", "");
+		final boolean is64bit = osArch.indexOf("64") >= 0;
 		final String osName = System.getProperty("os.name", "<unknown>");
 		if (osName.equals("Linux")) return "linux" + (is64bit ? "64" : "32");
-		if (osName.equals("Mac OS X")) return "macosx";
+		if (osName.equals("Mac OS X")) return osArch.equals("aarch64") ? "macos-arm64" : "macosx";
 		if (osName.startsWith("Windows")) return "win" + (is64bit ? "64" : "32");
 		// System.err.println("Unknown platform: " + osName);
 		return osName.toLowerCase();
