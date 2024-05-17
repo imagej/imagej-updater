@@ -104,16 +104,46 @@ public class UpdaterUtil {
 	public UpdaterUtil(final File imagejRoot) {
 		platform = getPlatform();
 
+
+		// These platform names determine what can be supported in the updater
 		platforms =
-			new String[] { "linux32", "linux64", "macosx", "tiger", "win32", "win64" };
+			new String[] { "linux32", "linux64", "linux-arm64", "macosx", "tiger",
+				"macos-arm64", "win32", "win64" };
+
+		List<String> launcherNames = new ArrayList<>();
+
+		// Derive the old-style ImageJ launcher names
+		final String[] ijLaunchers =
+				{ "linux32", "linux64", "macosx", "tiger", "win32", "win64" };
 		final int macIndex = 2;
 
-		launchers = platforms.clone();
-		for (int i = 0; i < launchers.length; i++)
-			launchers[i] =
-				(i == macIndex || i == macIndex + 1 ? macPrefix : "") + "ImageJ-" +
-					platforms[i] + (platforms[i].startsWith("win") ? ".exe" : "");
-		Arrays.sort(launchers);
+		for (int i = 0; i < ijLaunchers.length; i++)
+			launcherNames.add((i == macIndex || i == macIndex + 1 ? macPrefix
+					: "") + "ImageJ-" + ijLaunchers[i] + (ijLaunchers[i].startsWith("win")
+					? ".exe" : ""));
+
+		// Derive the new-style Jaunch launcher names
+		final String[] jaunchers = { "linux-x64", "linux-arm64", "macos-x64",
+			"macos-arm64", "macos-universal", "windows-x64" };
+
+		for (int i=0; i<jaunchers.length; i++) {
+			String launcherDir = "";
+			String jaunchDir = "";
+			String extension = "";
+			if (jaunchers[i].startsWith("macos")) {
+				launcherDir = macPrefix;
+				jaunchDir = macPrefix;
+			} else if (jaunchers[i].startsWith("windows")) {
+				jaunchDir = "jaunch/";
+				extension = ".exe";
+			} else if (jaunchers[i].startsWith("linux")) {
+				jaunchDir = "jaunch/";
+			}
+			launcherNames.add(launcherDir + "fiji-" + jaunchers[i] + extension);
+			launcherNames.add(jaunchDir + "jaunch-" + jaunchers[i] + extension);
+		}
+
+		launchers = launcherNames.toArray(new String[launcherNames.size()]);
 
 		updateablePlatforms = new HashSet<>();
 		updateablePlatforms.add(platform);
