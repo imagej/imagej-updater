@@ -107,7 +107,6 @@ public class UpdaterUtil {
 		platforms =
 			new String[] { "linux32", "linux64", "macosx", "tiger", "win32", "win64" };
 		final int macIndex = 2;
-		Arrays.sort(platforms);
 
 		launchers = platforms.clone();
 		for (int i = 0; i < launchers.length; i++)
