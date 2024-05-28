@@ -104,17 +104,46 @@ public class UpdaterUtil {
 	public UpdaterUtil(final File imagejRoot) {
 		platform = getPlatform();
 
-		platforms =
-			new String[] { "linux32", "linux64", "macosx", "tiger", "win32", "win64" };
-		final int macIndex = 2;
-		Arrays.sort(platforms);
 
-		launchers = platforms.clone();
-		for (int i = 0; i < launchers.length; i++)
-			launchers[i] =
-				(i == macIndex || i == macIndex + 1 ? macPrefix : "") + "ImageJ-" +
-					platforms[i] + (platforms[i].startsWith("win") ? ".exe" : "");
-		Arrays.sort(launchers);
+		// These platform names determine what can be supported in the updater
+		platforms =
+			new String[] { "linux32", "linux64", "linux-arm64", "macosx", "tiger",
+				"macos-arm64", "win32", "win64" };
+
+		List<String> launcherNames = new ArrayList<>();
+
+		// Derive the old-style ImageJ launcher names
+		final String[] ijLaunchers =
+				{ "linux32", "linux64", "macosx", "tiger", "win32", "win64" };
+		final int macIndex = 2;
+
+		for (int i = 0; i < ijLaunchers.length; i++)
+			launcherNames.add((i == macIndex || i == macIndex + 1 ? macPrefix
+					: "") + "ImageJ-" + ijLaunchers[i] + (ijLaunchers[i].startsWith("win")
+					? ".exe" : ""));
+
+		// Derive the new-style Jaunch launcher names
+		final String[] jaunchers = { "linux-x64", "linux-arm64", "macos-x64",
+			"macos-arm64", "macos-universal", "windows-x64" };
+
+		for (int i=0; i<jaunchers.length; i++) {
+			String launcherDir = "";
+			String jaunchDir = "";
+			String extension = "";
+			if (jaunchers[i].startsWith("macos")) {
+				launcherDir = macPrefix;
+				jaunchDir = macPrefix;
+			} else if (jaunchers[i].startsWith("windows")) {
+				jaunchDir = "jaunch/";
+				extension = ".exe";
+			} else if (jaunchers[i].startsWith("linux")) {
+				jaunchDir = "jaunch/";
+			}
+			launcherNames.add(launcherDir + "fiji-" + jaunchers[i] + extension);
+			launcherNames.add(jaunchDir + "jaunch-" + jaunchers[i] + extension);
+		}
+
+		launchers = launcherNames.toArray(new String[launcherNames.size()]);
 
 		updateablePlatforms = new HashSet<>();
 		updateablePlatforms.add(platform);
@@ -151,11 +180,11 @@ public class UpdaterUtil {
 	}
 
 	public static String getPlatform() {
-		final boolean is64bit =
-			System.getProperty("os.arch", "").indexOf("64") >= 0;
+		final String osArch = System.getProperty("os.arch", "");
+		final boolean is64bit = osArch.indexOf("64") >= 0;
 		final String osName = System.getProperty("os.name", "<unknown>");
 		if (osName.equals("Linux")) return "linux" + (is64bit ? "64" : "32");
-		if (osName.equals("Mac OS X")) return "macosx";
+		if (osName.equals("Mac OS X")) return osArch.equals("aarch64") ? "macos-arm64" : "macosx";
 		if (osName.startsWith("Windows")) return "win" + (is64bit ? "64" : "32");
 		// System.err.println("Unknown platform: " + osName);
 		return osName.toLowerCase();
