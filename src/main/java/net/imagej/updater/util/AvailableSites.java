@@ -130,17 +130,6 @@ public final class AvailableSites {
 	private static void runSanityChecks(final Map<String, UpdateSite> result) throws IOException {
 		final Iterator<UpdateSite> iter = result.values().iterator();
 		if (!iter.hasNext()) throw new IOException("Invalid page: " + SITE_LIST_PAGE_TITLE);
-		UpdateSite site = iter.next();
-		if (!site.getName().equals("ImageJ") || !site.getURL().equals(
-				HTTPSUtil.getProtocol() + "update.imagej.net/")) {
-			throw new IOException("Invalid page: " + SITE_LIST_PAGE_TITLE);
-		}
-		if (!iter.hasNext()) throw new IOException("Invalid page: " + SITE_LIST_PAGE_TITLE);
-		site = iter.next();
-		if (!site.getName().equals("Fiji") || !site.getURL().equals(
-				HTTPSUtil.getProtocol() + "update.fiji.sc/")) {
-			throw new IOException("Invalid page: " + SITE_LIST_PAGE_TITLE);
-		}
 	}
 
 	/**
