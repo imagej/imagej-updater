@@ -55,9 +55,11 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -95,78 +97,67 @@ public class UpdaterUtil {
 
 	public final static String macPrefix = "Contents/MacOS/";
 
+	private static final Map<String, String> launcherToPlatform;
+
 	public final String platform;
 	public final String[] platforms, launchers;
 	protected final Set<String> updateablePlatforms;
+
+	static {
+		launcherToPlatform = new HashMap<>();
+		// Jaunch: https://github.com/apposed/jaunch
+		launcherToPlatform.put("Contents/MacOS/fiji-macos-arm64", "macos-arm64");
+		launcherToPlatform.put("Contents/MacOS/fiji-macos-x64", "macosx");
+		launcherToPlatform.put("Contents/MacOS/fiji-macos-universal", "macos-arm64");
+		launcherToPlatform.put("Contents/MacOS/jaunch-macos-arm64", "macos-arm64");
+		launcherToPlatform.put("Contents/MacOS/jaunch-macos-x64", "macosx");
+		launcherToPlatform.put("Contents/MacOS/jaunch-macos-universal", "macos-arm64");
+		launcherToPlatform.put("fiji-linux-arm64", "linux-arm64");
+		launcherToPlatform.put("fiji-linux-x64", "linux64");
+		launcherToPlatform.put("fiji-windows-arm64.exe", "win-arm64");
+		launcherToPlatform.put("fiji-windows-x64.exe", "win64");
+		launcherToPlatform.put("config/jaunch/jaunch-linux-arm64", "linux-arm64");
+		launcherToPlatform.put("config/jaunch/jaunch-linux-x64", "linux64");
+		launcherToPlatform.put("config/jaunch/jaunch-windows-arm64.exe", "win-arm64");
+		launcherToPlatform.put("config/jaunch/jaunch-windows-x64.exe", "win64");
+		// ImageJ Launcher: https://github.com/imagej/imagej-launcher
+		launcherToPlatform.put("ImageJ-linux32", "linux32");
+		launcherToPlatform.put("ImageJ-linux64", "linux64");
+		launcherToPlatform.put("Contents/MacOS/ImageJ-macosx", "macosx");
+		launcherToPlatform.put("Contents/MacOS/ImageJ-tiger", "macosx");
+		launcherToPlatform.put("ImageJ-win32.exe", "win32");
+		launcherToPlatform.put("ImageJ-win64.exe", "win64");
+	}
 
 	protected final DropboxURLMapper dropboxURLMapper;
 
 	public UpdaterUtil(final File imagejRoot) {
 		platform = getPlatform();
 
-
 		// These platform names determine what can be supported in the updater
 		platforms =
 			new String[] { "linux32", "linux64", "linux-arm64", "macosx", "tiger",
-				"macos-arm64", "win32", "win64" };
+				"macos-arm64", "win32", "win64", "win-arm64" };
 
-		List<String> launcherNames = new ArrayList<>();
+		launchers = launcherToPlatform.keySet().toArray(new String[0]);
+		Arrays.sort(launchers);
 
-		// Derive the old-style ImageJ launcher names
-		final String[] ijLaunchers =
-				{ "linux32", "linux64", "macosx", "tiger", "win32", "win64" };
-		final int macIndex = 2;
-
-		for (int i = 0; i < ijLaunchers.length; i++)
-			launcherNames.add((i == macIndex || i == macIndex + 1 ? macPrefix
-					: "") + "ImageJ-" + ijLaunchers[i] + (ijLaunchers[i].startsWith("win")
-					? ".exe" : ""));
-
-		// Derive the new-style Jaunch launcher names
-		final String[] jaunchers = { "linux-x64", "linux-arm64", "macos-x64",
-			"macos-arm64", "macos-universal", "windows-x64" };
-
-		for (int i=0; i<jaunchers.length; i++) {
-			String launcherDir = "";
-			String jaunchDir = "";
-			String extension = "";
-			if (jaunchers[i].startsWith("macos")) {
-				launcherDir = macPrefix;
-				jaunchDir = macPrefix;
-			} else if (jaunchers[i].startsWith("windows")) {
-				jaunchDir = "jaunch/";
-				extension = ".exe";
-			} else if (jaunchers[i].startsWith("linux")) {
-				jaunchDir = "jaunch/";
-			}
-			launcherNames.add(launcherDir + "fiji-" + jaunchers[i] + extension);
-			launcherNames.add(jaunchDir + "jaunch-" + jaunchers[i] + extension);
-		}
-
-		launchers = launcherNames.toArray(new String[launcherNames.size()]);
-
+		// Note: A platform is "updateable" if at least one
+		// launcher for that platform is currently installed.
 		updateablePlatforms = new HashSet<>();
 		updateablePlatforms.add(platform);
-		if (imagejRoot != null && new File(imagejRoot, launchers[macIndex]).exists()) {
-			updateablePlatforms.add("macosx");
-		}
-		final String[] files = imagejRoot == null ? null : imagejRoot.list();
-		for (final String name : files == null ? new String[0] : files) {
-			if (name.startsWith("ImageJ-")) {
-				updateablePlatforms.add(platformForLauncher(name));
+		if (imagejRoot != null) {
+			for (Map.Entry<String, String> lap : launcherToPlatform.entrySet()) {
+				if (new File(imagejRoot, lap.getKey()).exists()) {
+					updateablePlatforms.add(lap.getValue());
+				}
 			}
 		}
 		dropboxURLMapper = new DropboxURLMapper(this);
 	}
 
-	public static String platformForLauncher(final String fileName) {
-		final int dash = fileName.lastIndexOf('-');
-		if (dash < 0) return null;
-		String name = fileName.substring(dash + 1);
-		if (name.endsWith(".exe")) name = name.substring(0, name.length() - 4);
-		if (name.equals("tiger") || name.equals("panther")) name = "macosx";
-		else if (name.equals("linux")) name = "linux32";
-		return name;
+	public static String platformForLauncher(final String filename) {
+		return launcherToPlatform.get(filename);
 	}
 
 	public static String stripSuffix(final String string, final String suffix) {

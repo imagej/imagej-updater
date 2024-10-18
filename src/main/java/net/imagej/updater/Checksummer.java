@@ -438,7 +438,7 @@ public class Checksummer extends AbstractProgressable {
 
 	public static final String[][] directories = {
 		{ "jars", "retro", "misc" }, { ".jar", ".class" },
-		{ "jaunch" }, { ".toml", ".class", ".java", ".py", ".txt" },
+		{ "config" }, { ".toml", ".class", ".py", ".txt" },
 		{ "plugins" }, { ".jar", ".class", ".txt", ".ijm", ".py", ".rb", ".clj", ".js", ".bsh", ".groovy", ".gvy" },
 		{ "scripts" }, { ".m",                     ".ijm", ".py", ".rb", ".clj", ".js", ".bsh", ".groovy", ".gvy" },
 		{ "macros" }, { ".txt", ".ijm", ".png" },
@@ -473,7 +473,7 @@ public class Checksummer extends AbstractProgressable {
 		if (slash < 0) return files.util.isLauncher(path);
 		final Set<String> exts = extensions.get(path.substring(0, slash));
 		final int dot = path.lastIndexOf('.');
-		return exts == null || dot < 0 ? false : exts.contains(path.substring(dot));
+		return exts != null && dot >= 0 && exts.contains(path.substring(dot));
 	}
 
 	protected void initializeQueue() {
