@@ -70,6 +70,7 @@ import net.imagej.updater.util.Progress;
 import net.imagej.updater.util.UpdateCanceledException;
 import net.imagej.updater.util.UpdaterUtil;
 import org.scijava.log.LogService;
+import org.scijava.log.StderrLogService;
 import org.xml.sax.SAXException;
 
 /**
@@ -114,7 +115,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	 * @param imagejRoot the ImageJ directory
 	 */
 	public FilesCollection(final LogService log, final File imagejRoot) {
-		this.log = log;
+		this.log = log == null ? new StderrLogService() : log;
 		this.imagejRoot = imagejRoot;
 		util = new UpdaterUtil(imagejRoot);
 		updateSites = new LinkedHashMap<>();
