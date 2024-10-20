@@ -65,6 +65,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.scijava.log.LogService;
 import org.scijava.log.StderrLogService;
@@ -135,9 +136,7 @@ public class UpdaterUtil {
 		platform = getPlatform();
 
 		// These platform names determine what can be supported in the updater
-		platforms =
-			new String[] { "linux32", "linux64", "linux-arm64", "macosx", "tiger",
-				"macos-arm64", "win32", "win64", "win-arm64" };
+		platforms = new HashSet<>(launcherToPlatform.values()).toArray(new String[0]);
 
 		launchers = launcherToPlatform.keySet().toArray(new String[0]);
 		Arrays.sort(launchers);
