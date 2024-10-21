@@ -447,6 +447,7 @@ public class UpdaterUtil {
 		final URLConnection connection = dropboxURLMapper.get(url).openConnection();
 		if (connection instanceof HttpURLConnection) {
 			HttpURLConnection http = (HttpURLConnection)connection;
+			http.setInstanceFollowRedirects(true); // Follow HTTP 3xx redirects.
 			final String javaVmVersion = System.getProperty("java.runtime.version");
 			final String javaVersion = javaVmVersion != null ?
 					javaVmVersion : System.getProperty("java.version");
