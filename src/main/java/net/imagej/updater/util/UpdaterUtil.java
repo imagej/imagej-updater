@@ -107,9 +107,11 @@ public class UpdaterUtil {
 	static {
 		launcherToPlatform = new HashMap<>();
 		// Jaunch: https://github.com/apposed/jaunch
+		launcherToPlatform.put("Contents/MacOS/fiji-macos", "macos-arm64");
 		launcherToPlatform.put("Contents/MacOS/fiji-macos-arm64", "macos-arm64");
-		launcherToPlatform.put("Contents/MacOS/fiji-macos-x64", "macosx");
 		launcherToPlatform.put("Contents/MacOS/fiji-macos-universal", "macos-arm64");
+		launcherToPlatform.put("Contents/MacOS/fiji-macos-x64", "macosx");
+		launcherToPlatform.put("Contents/MacOS/jaunch-macos", "macos-arm64");
 		launcherToPlatform.put("Contents/MacOS/jaunch-macos-arm64", "macos-arm64");
 		launcherToPlatform.put("Contents/MacOS/jaunch-macos-x64", "macosx");
 		launcherToPlatform.put("Contents/MacOS/jaunch-macos-universal", "macos-arm64");
