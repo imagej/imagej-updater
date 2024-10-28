@@ -47,6 +47,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.zip.ZipException;
@@ -95,6 +96,18 @@ public class Checksummer extends AbstractProgressable {
 		@Override
 		public String toString() {
 			return "{" + path + " - " + file + "}";
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (!(o instanceof StringAndFile)) return false;
+			StringAndFile that = (StringAndFile) o;
+			return Objects.equals(this.path, that.path) && Objects.equals(this.file, that.file);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(path, file);
 		}
 	}
 
@@ -153,7 +166,9 @@ public class Checksummer extends AbstractProgressable {
 		String unversioned = FileObject.getFilename(path, true);
 		if (!queue.containsKey(unversioned))
 			queue.put(unversioned, new ArrayList<StringAndFile>());
-		queue.get(unversioned).add(new StringAndFile(path, file));
+		List<StringAndFile> list = queue.get(unversioned);
+		StringAndFile entry = new StringAndFile(path, file);
+		if (!list.contains(entry)) list.add(entry);
 	}
 
 	/**
