@@ -116,6 +116,8 @@ Institute of Molecular Cell Biology and Genetics.</license.copyrightOwners>
 
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
+
+		<app-launcher.version>2.0.0</app-launcher.version>
 	</properties>
 
 	<repositories>
@@ -133,6 +135,11 @@ Institute of Molecular Cell Biology and Genetics.</license.copyrightOwners>
 		</dependency>
 
 		<!-- SciJava dependencies -->
+		<dependency>
+			<groupId>org.scijava</groupId>
+			<artifactId>app-launcher</artifactId>
+			<version>${app-launcher.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.scijava</groupId>
 			<artifactId>scijava-common</artifactId>

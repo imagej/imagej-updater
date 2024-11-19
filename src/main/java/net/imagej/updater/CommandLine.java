@@ -68,6 +68,7 @@ import net.imagej.updater.FileObject.Version;
 import net.imagej.updater.FilesCollection.Filter;
 import net.imagej.updater.util.*;
 
+import org.scijava.launcher.Java;
 import org.scijava.log.LogService;
 import org.scijava.log.Logger;
 import org.scijava.util.AppUtils;
@@ -1415,6 +1416,7 @@ public class CommandLine {
 				+ "\tupdate-force [<files>]\n"
 				+ "\tupdate-force-pristine [<files>]\n"
 				+ "\trevert-unreal-changes [<files>]\n"
+				+ "\tupgrade-java\n"
 				+ "\tupload [--simulate] [--[update-]site <name>] [--force-shadow] [--forget-missing-dependencies] [<files>]\n"
 				+ "\tupload-complete-site [--simulate] [--force] [--force-shadow] [--platforms <platform>[,<platform>...]] <name>\n"
 				+ "\tlist-update-sites [<nick>...]\n"
@@ -1518,6 +1520,8 @@ public class CommandLine {
 			instance.update(makeList(args, 1), true, true);
 		} else if (command.equals("revert-unreal-changes")) {
 			instance.revertUnrealChanges(makeList(args, 1));
+		} else if (command.equals("upgrade-java")) {
+			instance.upgradeJava(makeList(args, 1));
 		} else if (command.equals("upload")) {
 			instance.upload(makeList(args, 1));
 		} else if (command.equals("upload-complete-site")) {
@@ -1547,6 +1551,18 @@ public class CommandLine {
 			instance.downgrade(makeList(args, 1));
 		} else {
 			instance.usage();
+		}
+	}
+
+	private void upgradeJava(List<String> list) {
+		boolean simulate = false;
+		if (list != null && !list.isEmpty() && "--simulate".equals(list.get(0))) {
+			simulate = true;
+			list.remove(0);
+		}
+		if (Java.isBelowRecommended()) {
+			if (simulate) System.out.println("Would upgrade Java");
+			else Java.upgrade();
 		}
 	}
 
