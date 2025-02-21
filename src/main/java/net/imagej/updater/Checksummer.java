@@ -500,6 +500,17 @@ public class Checksummer extends AbstractProgressable {
 		for (final String launcher : files.util.launchers)
 			queueIfExists(launcher);
 
+		// Queue any macOS .app folders.
+		File appDir = files.getAppRoot();
+		if (appDir != null) {
+			Set<String> allExtensions = Collections.singleton("");
+			for (File file : appDir.listFiles()) {
+				if (file.isDirectory() && file.getName().endsWith(".app")) {
+					queueDir(file.getName(), allExtensions);
+				}
+			}
+		}
+
 		for (int i = 0; i < directories.length; i += 2)
 			queueDir(directories[i], directories[i + 1]);
 

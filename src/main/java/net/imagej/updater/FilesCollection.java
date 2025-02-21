@@ -125,6 +125,10 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 		updateSite.setOfficial(true);
 	}
 
+	public File getAppRoot() {
+		return imagejRoot;
+	}
+
 	public UpdateSite addUpdateSite(final String name, final String url,
 		final String sshHost, final String uploadDirectory, final long timestamp)
 	{
