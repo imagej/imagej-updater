@@ -346,6 +346,23 @@ public class UpdaterUtil {
 	}
 
 	public boolean isLauncher(final String filename) {
+		int slash = filename.indexOf("/");
+		if (slash >= 0 && filename.substring(0, slash).endsWith(".app")) {
+			// This file appears to reside inside a macOS-style .app folder.
+			// In this case, instead of matching against the full file path relative
+			// to the application base directory, let's match against the file path
+			// relative to the app folder. For example, for the file path:
+			//
+			//   Fiji.app/Contents/MacOS/fiji-macos
+			//
+			// we'll instead try to match against:
+			//
+			//   Contents/MacOS/fiji-macos
+			//
+			// So that regardless of the app directory name, the
+			// Updater still recognizes the file as a launcher.
+			return isLauncher(filename.substring(slash + 1));
+		}
 		return Arrays.binarySearch(launchers, filename) >= 0;
 	}
 
