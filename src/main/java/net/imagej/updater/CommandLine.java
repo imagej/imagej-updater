@@ -1420,6 +1420,7 @@ public class CommandLine {
 				+ "\tlist-update-sites [<nick>...]\n"
 				+ "\tadd-update-site <nick> <url> [<host> <upload-directory>]\n"
 				+ "\tadd-update-sites <nick1> <url1> [<nick2> <url2> ...]\n"
+				+ "\tremove-update-site <nick1> [<nick2> ...]\n"
 				+ "\tedit-update-site <nick> <url> [<host> <upload-directory>]\n"
 				+ "\trefresh-update-sites [--simulate] [--updateall]");
 	}
