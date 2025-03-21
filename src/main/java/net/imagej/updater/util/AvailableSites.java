@@ -124,6 +124,15 @@ public final class AvailableSites {
 				result.put(info.getURL(), info);
 			}
 		}
+		UpdateSite fijiFuture =
+				new UpdateSite("Fiji-future", "https://sites.imagej.net/Fiji/", null,
+						null, "Fiji upgrade test", "Mark", 0l);
+		fijiFuture.setOfficial(true);
+		result.put(fijiFuture.getURL(), fijiFuture);
+//		UpdateSite fiji = result.remove("Fiji");
+//		UpdateSite fijiRenamed = new UpdateSite("Fiji renamed", fiji.getURL(), null, null, fiji.getDescription(), fiji.getMaintainer(), fiji.getTimestamp());
+//		fijiRenamed.setActive(true);
+//		fijiRenamed.setOfficial(true);
 		return result;
 	}
 
