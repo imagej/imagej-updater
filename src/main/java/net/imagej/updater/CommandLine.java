@@ -1306,6 +1306,44 @@ public class CommandLine {
 		}
 	}
 
+	/**
+	 * Turn off an update site without removing it from the list. Requires restart
+	 * to apply the update.
+	 */
+	public void deactivateUpdateSite(final List<String> names) {
+		if (names == null || names.size() < 1) {
+			throw die("Which update-site do you want to deactivate, exactly?");
+		}
+		deactivateUpdateSite(names.toArray(new String[names.size()]));
+	}
+
+	/**
+	 * @see {@link #deactivateUpdateSite(List)}
+	 */
+	public void deactivateUpdateSite(final String... names) {
+		ensureChecksummed();
+
+		// Deactivate the indicated update site(s)
+		for (final String name : names) {
+			UpdateSite site = files.getUpdateSite(name, false);
+			if (site != null) {
+				files.deactivateUpdateSite(site);
+			}
+		}
+
+		// Prepare any changes for update
+		try {
+			resolveConflicts(false);
+			// NB: necessary to create the update folder
+			new Installer(files, progress).start();
+			// NB: don't Installer#moveUpdatedIntoPlace(); as this will fail
+			files.write();
+		} catch (final Exception e) {
+			UpdaterUserInterface.get().handleException(e);
+			throw die("Could not write local file database");
+		}
+	}
+
 	public void refreshUpdateSites(List<String> list) {
 		boolean simulate = false, updateall = false;
 		while (list.size() > 0 && list.get(0).startsWith("-")) {
@@ -1421,6 +1459,7 @@ public class CommandLine {
 				+ "\tadd-update-site <nick> <url> [<host> <upload-directory>]\n"
 				+ "\tadd-update-sites <nick1> <url1> [<nick2> <url2> ...]\n"
 				+ "\tremove-update-site <nick1> [<nick2> ...]\n"
+				+ "\tdeactivate-update-site <nick> [<nick2> ...]\n"
 				+ "\tedit-update-site <nick> <url> [<host> <upload-directory>]\n"
 				+ "\trefresh-update-sites [--simulate] [--updateall]");
 	}
@@ -1539,6 +1578,8 @@ public class CommandLine {
 			instance.addUploadSites(names, urls);
 		} else if (command.equals("remove-update-site")) {
 			instance.removeUploadSite(makeList(args, 1));
+		} else if (command.equals("deactivate-update-site")) {
+			instance.deactivateUpdateSite(makeList(args, 1));
 		} else if (command.equals("refresh-update-sites")) {
 			instance.refreshUpdateSites(makeList(args, 1));
 		// hidden commands, i.e. not for public consumption
