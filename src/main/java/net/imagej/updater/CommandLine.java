@@ -1318,7 +1318,7 @@ public class CommandLine {
 	}
 
 	/**
-	 * @see {@link #deactivateUpdateSite(List)}
+	 * See {@link #deactivateUpdateSite(List)}
 	 */
 	public void deactivateUpdateSite(final String... names) {
 		ensureChecksummed();
