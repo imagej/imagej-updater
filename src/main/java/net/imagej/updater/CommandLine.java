@@ -1333,7 +1333,6 @@ public class CommandLine {
 
 		// Prepare any changes for update
 		try {
-			resolveConflicts(false);
 			// NB: necessary to create the update folder
 			new Installer(files, progress).start();
 			// NB: don't Installer#moveUpdatedIntoPlace(); as this will fail
