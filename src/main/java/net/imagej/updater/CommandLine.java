@@ -1259,6 +1259,14 @@ public class CommandLine {
 		}
 		try {
 			files.write();
+			files.reloadCollectionAndChecksum(progress);
+			for (FileObject file : files.forUpdateSite(name)) {
+				if (file.getStatus() != Status.INSTALLED
+						&& !file.stageForUpdate(files, false)) {
+					log.warn("Skipping " + file.filename);
+				}
+			}
+			new Installer(files, progress).start();
 		} catch (final Exception e) {
 			UpdaterUserInterface.get().handleException(e);
 			throw die("Could not write local file database");
