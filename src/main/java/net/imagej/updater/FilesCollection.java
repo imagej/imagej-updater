@@ -75,6 +75,18 @@ import org.xml.sax.SAXException;
 
 /**
  * This class represents the database of available {@link FileObject}s.
+ * <p>
+ * By itself, a {@code FilesCollection} is fairly naive. If built around an
+ * existing installation, the first action to take after instantiation is often
+ * {@link #tryLoadingCollection()} - which will then recongnize update sites,
+ * etc...
+ * </p>
+ * <p>
+ * After any updates to the {@code FilesCollection}, the {@link #write()} method
+ * is used to persist state to the {@code db.xml.gz} on disk. Note that this
+ * does not actually perform any file updates - the
+ * {@link net.imagej.updater.Installer} is required for such operations.
+ * </p>
  * 
  * @author Johannes Schindelin
  */
