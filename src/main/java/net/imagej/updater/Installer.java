@@ -52,7 +52,23 @@ import org.scijava.command.CommandService;
 
 /**
  * A class that updates local files from all available update sites.
- * 
+ * <p>
+ * An installer wraps a {@link FilesCollection} ({@code db.xml.gz}) and can be
+ * used to stage potential changes to that collection.
+ * </p>
+ * <p>
+ * The {@link #start()} method is the key to actually doing the work, downloading
+ * new files as needed or creating empty files to signify deletion. These all go
+ * in the {@code update} sub-directory, but the update can be finalized with
+ * {@link #moveUpdatedIntoPlace()}.
+ * </p>
+ * <p>
+ * NB: the installer will only operate on {@link FileObject}s in the collection
+ * that have an appropriate {@link Status}. Thus the first step in updating is
+ * typically to use {@link FileObject#stageForUpdate(FilesCollection, boolean)}
+ * or {@link FileObject#stageForUninstall(FilesCollection)} as needed, with the
+ * {@code Installer} used to activate these staged changes.
+ * </p>
  * @author Johannes Schindelin
  */
 public class Installer extends Downloader {
