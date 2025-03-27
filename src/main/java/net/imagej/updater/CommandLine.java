@@ -1265,14 +1265,18 @@ public class CommandLine {
 			site.setActive(true);
 		}
 		try {
+			// Update the db.xml.gz
 			files.write();
+			// Generate FileObjects for the new update site's files
 			files.reloadCollectionAndChecksum(progress);
+			// Flag any files in need of update
 			for (FileObject file : files.forUpdateSite(name)) {
 				if (file.getStatus() != Status.INSTALLED
 						&& !file.stageForUpdate(files, false)) {
 					log.warn("Skipping " + file.filename);
 				}
 			}
+			// Stage changes on disk in the update folder
 			new Installer(files, progress).start();
 		} catch (final Exception e) {
 			UpdaterUserInterface.get().handleException(e);
