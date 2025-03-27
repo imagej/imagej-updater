@@ -80,7 +80,14 @@ import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * This is the command-line interface into the ImageJ Updater.
- * 
+ * Note that many actions, such as {@code add-update-site} or
+ * {@code deactivate-update-site}, will stage changes without applying them.
+ * If there is an {@code update} subdir, this will have any prospective changes
+ * that can be applied automatically on the next ImageJ launch. Some commands
+ * might not create the staging directory though, e.g. the {@code db.xml.gz} is
+ * updated but no files are staged, in which case the {@code update} directive
+ * can be used to apply the changes.
+ *
  * @author Johannes Schindelin
  */
 public class CommandLine {
