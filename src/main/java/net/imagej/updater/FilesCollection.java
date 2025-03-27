@@ -78,14 +78,22 @@ import org.xml.sax.SAXException;
  * <p>
  * By itself, a {@code FilesCollection} is fairly naive. If built around an
  * existing installation, the first action to take after instantiation is often
- * {@link #tryLoadingCollection()} - which will then recongnize update sites,
+ * {@link #tryLoadingCollection()} - which will then recognize update sites,
  * etc...
  * </p>
  * <p>
  * After any updates to the {@code FilesCollection}, the {@link #write()} method
- * is used to persist state to the {@code db.xml.gz} on disk. Note that this
- * does not actually perform any file updates - the
- * {@link net.imagej.updater.Installer} is required for such operations.
+ * is used to persist configuration state to the {@code db.xml.gz} on disk. 
+ * To rebuild the {@code FilesCollection} after such a modification, use
+ * {@link #reloadCollectionAndChecksum(Progress)}. This will, for example,
+ * provide {@link FileObject} instances for newly added update sites that are
+ * not yet installed. To make actual file changes (not just modifications to the
+ * database) you must first stage them with 
+ * {@link FileObject#stageForUninstall(FilesCollection)} or
+ * {@link FileObject#stageForUpdate(FilesCollection, boolean)}. At that point,
+ * an {@link net.imagej.updater.Installer} can be used to create an
+ * {@code update} directory reflecting the staged changes, and apply them if
+ * needed.
  * </p>
  * 
  * @author Johannes Schindelin
