@@ -164,6 +164,10 @@ public class Checksummer extends AbstractProgressable {
 
 	protected void queue(final String path, final File file) {
 		String unversioned = FileObject.getFilename(path, true);
+		// Any .old file is a backup of an executable that was left after an update.
+		// These will always be considered "local-only" so we want to exclude them
+		// from the consideration.
+		if (unversioned.contains(".old")) return;
 		if (!queue.containsKey(unversioned))
 			queue.put(unversioned, new ArrayList<StringAndFile>());
 		List<StringAndFile> list = queue.get(unversioned);
