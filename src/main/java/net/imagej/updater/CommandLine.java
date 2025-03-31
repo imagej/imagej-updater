@@ -84,9 +84,9 @@ import javax.xml.parsers.ParserConfigurationException;
  * {@code deactivate-update-site}, will stage changes without applying them.
  * If there is an {@code update} subdir, this will have any prospective changes
  * that can be applied automatically on the next ImageJ launch. Some commands
- * might not create the staging directory though, e.g. the {@code db.xml.gz} is
- * updated but no files are staged, in which case the {@code update} directive
- * can be used to apply the changes.
+ * (such as {@code add-update-site}), do not create the staging directory
+ * though, e.g. the {@code db.xml.gz} is updated but no files are staged, in
+ * which case the {@code update} directive can be used to apply the changes.
  *
  * @author Johannes Schindelin
  */
@@ -1267,17 +1267,6 @@ public class CommandLine {
 		try {
 			// Update the db.xml.gz
 			files.write();
-			// Generate FileObjects for the new update site's files
-			files.reloadCollectionAndChecksum(progress);
-			// Flag any files in need of update
-			for (FileObject file : files.forUpdateSite(name)) {
-				if (file.getStatus() != Status.INSTALLED
-						&& !file.stageForUpdate(files, false)) {
-					log.warn("Skipping " + file.filename);
-				}
-			}
-			// Stage changes on disk in the update folder
-			new Installer(files, progress).start();
 		} catch (final Exception e) {
 			UpdaterUserInterface.get().handleException(e);
 			throw die("Could not write local file database");
