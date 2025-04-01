@@ -62,6 +62,13 @@ import net.imagej.updater.util.UpdaterUtil;
 
 /**
  * A class to checksum and timestamp all the files shown in the Updater's UI.
+ * <p>
+ * This class essentially determines which files are recognized and evaluated
+ * by the updater. The general process is to use the {@link #queue} series of
+ * methods to register files of interest, and then the {@link #handle} methods
+ * to do the checksumming, flagging "conflicts" such as obsolete or local-only
+ * files in the process.
+ * </p>
  * 
  * @author Johannes Schindelin
  * @author Yap Chin Kiet
