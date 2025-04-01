@@ -95,6 +95,10 @@ import org.xml.sax.SAXException;
  * {@code update} directory reflecting the staged changes, and apply them if
  * needed.
  * </p>
+ * <p>
+ * Note that which files are incorporated into the {@code FilesCollection} is
+ * based on the behavior of the {@link Checksummer}.
+ * </p>
  * 
  * @author Johannes Schindelin
  */
