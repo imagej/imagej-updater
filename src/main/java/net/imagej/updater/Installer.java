@@ -146,6 +146,10 @@ public class Installer extends Downloader {
 				// if the name changed, remove the file with the old name
 				FileObject.touch(files.prefixUpdate(file.localFilename));
 			}
+			// Files necessary for launch are handled differently - we do not want to
+			// put them in the update subdir to migrate over as they must be in place
+			// for the launch itself. So we rename the old file to a backup (.old) and
+			// set up the download of the new file directly to replace it.
 			if (file.executable) {
 				saveTo = files.prefix(name);
 				String oldName = saveTo.getAbsolutePath() + ".old";
