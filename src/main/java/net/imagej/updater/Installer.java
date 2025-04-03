@@ -150,7 +150,8 @@ public class Installer extends Downloader {
 			// put them in the update subdir to migrate over as they must be in place
 			// for the launch itself. So we rename the old file to a backup (.old) and
 			// set up the download of the new file directly to replace it.
-			if (file.executable) {
+			if (file.executable ||
+					saveTo.getAbsolutePath().contains("config" + File.separator + "jaunch")) {
 				saveTo = files.prefix(name);
 				String oldName = saveTo.getAbsolutePath() + ".old";
 				if (oldName.endsWith(".exe.old")) oldName =
