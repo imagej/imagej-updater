@@ -33,6 +33,8 @@ package net.imagej.updater;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -139,6 +141,35 @@ public class Installer extends Downloader {
 			}
 
 		final List<Downloadable> list = new ArrayList<>();
+
+		// Special care must be taken when updating files in the Mac bundle (Fiji.app)
+		// These files are all signed together as one unit, so individual files can not be modified.
+		// First we scan the update list to see if there's anything in Fiji.app to update
+		boolean updateMacApp = false;
+		for (final FileObject file : files.toInstallOrUpdate()) {
+			if (file.filename.contains("Fiji.app")) {
+				updateMacApp = true;
+				break;
+			}
+		}
+		// If there is a Mac app update, we need to flag ALL installed files in Fiji.app for update
+		if (updateMacApp) {
+			for (FileObject installed : files.installed()) {
+				if (installed.filename.contains("Fiji.app")) {
+					installed.stageForUpdate(files, true);
+				}
+			}
+			Path macBundlePath = files.prefix("Fiji.app").toPath();
+			File backupAppFile = files.prefix("Fiji.old.app");
+			Path backupAppPath = backupAppFile.toPath();
+			// Remove the existing Fiji.old.app if it exists
+			if (backupAppFile.exists()) {
+				deleteDirectory(backupAppPath);
+			}
+			// Create a new Fiji.old.app backup
+			copyDirectory(macBundlePath, backupAppPath);
+		}
+
 		for (final FileObject file : files.toInstallOrUpdate()) {
 			final String name = file.filename;
 			File saveTo = files.prefixUpdate(name);
@@ -150,7 +181,12 @@ public class Installer extends Downloader {
 			// put them in the update subdir to migrate over as they must be in place
 			// for the launch itself. So we rename the old file to a backup (.old) and
 			// set up the download of the new file directly to replace it.
-			if (file.executable ||
+			//
+			// However - in the case of Fiji.app files, we already handled the backup process atomically above,
+			// so all we need to do is update the saveTo to download directly and not to the update directory
+			if (name.contains("Fiji.app")) {
+				saveTo = files.prefix(name);
+			} else if (file.executable ||
 					saveTo.getAbsolutePath().contains("config" + File.separator + "jaunch")) {
 				saveTo = files.prefix(name);
 				String oldName = saveTo.getAbsolutePath() + ".old";
@@ -416,4 +452,39 @@ public class Installer extends Downloader {
 		return file.renameTo(backup);
 	}
 
+	private static void deleteDirectory(Path directory) throws IOException {
+		Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+				Files.delete(file); // Delete each file
+				return FileVisitResult.CONTINUE;
+			}
+
+			@Override
+			public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+				Files.delete(dir); // Delete directory after contents
+				return FileVisitResult.CONTINUE;
+			}
+		});
+	}
+
+	private static void copyDirectory(Path sourceDir, Path targetDir) throws IOException {
+		Files.walkFileTree(sourceDir, new SimpleFileVisitor<Path>() {
+			@Override
+			public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+				Path targetPath = targetDir.resolve(sourceDir.relativize(dir));
+				if (!Files.exists(targetPath)) {
+					Files.createDirectories(targetPath);
+				}
+				return FileVisitResult.CONTINUE;
+			}
+
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+				Path targetPath = targetDir.resolve(sourceDir.relativize(file));
+				Files.copy(file, targetPath, StandardCopyOption.REPLACE_EXISTING);
+				return FileVisitResult.CONTINUE;
+			}
+		});
+	}
 }
