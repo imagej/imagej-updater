@@ -107,11 +107,11 @@ public class UpdaterUtil {
 	static {
 		launcherToPlatform = new HashMap<>();
 		// Jaunch: https://github.com/apposed/jaunch
-		launcherToPlatform.put("Fiji.app/Contents/MacOS/fiji-macos", "macos-arm64,macosx");
-		launcherToPlatform.put("Fiji.app/Contents/MacOS/fiji-macos-arm64", "macos-arm64");
+		launcherToPlatform.put("Fiji.app/Contents/MacOS/fiji-macos", "macosx");
+		launcherToPlatform.put("Fiji.app/Contents/MacOS/fiji-macos-arm64", "macosx");
 		launcherToPlatform.put("Fiji.app/Contents/MacOS/fiji-macos-x64", "macosx");
-		launcherToPlatform.put("Fiji.app/Contents/MacOS/jaunch-macos", "macos-arm64,macosx");
-		launcherToPlatform.put("Fiji.app/Contents/MacOS/jaunch-macos-arm64", "macos-arm64");
+		launcherToPlatform.put("Fiji.app/Contents/MacOS/jaunch-macos", "macosx");
+		launcherToPlatform.put("Fiji.app/Contents/MacOS/jaunch-macos-arm64", "macosx");
 		launcherToPlatform.put("Fiji.app/Contents/MacOS/jaunch-macos-x64", "macosx");
 		launcherToPlatform.put("fiji-linux-arm64", "linux-arm64");
 		launcherToPlatform.put("fiji-linux-x64", "linux64");
@@ -122,17 +122,17 @@ public class UpdaterUtil {
 		launcherToPlatform.put("config/jaunch/jaunch-windows-arm64.exe", "win-arm64");
 		launcherToPlatform.put("config/jaunch/jaunch-windows-x64.exe", "win64");
 		// Jaunch but deprecated
-		launcherToPlatform.put("Contents/MacOS/fiji-macos", "macos-arm64,macosx");
-		launcherToPlatform.put("Contents/MacOS/fiji-macos-arm64", "macos-arm64");
-		launcherToPlatform.put("Contents/MacOS/fiji-macos-universal", "macos-arm64,macosx");
+		launcherToPlatform.put("Contents/MacOS/fiji-macos", "macosx");
+		launcherToPlatform.put("Contents/MacOS/fiji-macos-arm64", "macosx");
+		launcherToPlatform.put("Contents/MacOS/fiji-macos-universal", "macosx");
 		launcherToPlatform.put("Contents/MacOS/fiji-macos-x64", "macosx");
-		launcherToPlatform.put("Contents/MacOS/jaunch-macos", "macos-arm64");
-		launcherToPlatform.put("Contents/MacOS/jaunch-macos-arm64", "macos-arm64");
-		launcherToPlatform.put("Contents/MacOS/jaunch-macos-universal", "macos-arm64");
+		launcherToPlatform.put("Contents/MacOS/jaunch-macos", "macosx");
+		launcherToPlatform.put("Contents/MacOS/jaunch-macos-arm64", "macosx");
+		launcherToPlatform.put("Contents/MacOS/jaunch-macos-universal", "macosx");
 		launcherToPlatform.put("Contents/MacOS/jaunch-macos-x64", "macosx");
-		launcherToPlatform.put("Fiji.app/Contents/MacOS/fiji-macos-universal", "macos-arm64,macosx");
-		launcherToPlatform.put("Fiji.app/Contents/MacOS/jaunch-macos-universal", "macos-arm64");
-		// ImageJ Launcher: https://github.com/imagej/imagej-launcher
+		launcherToPlatform.put("Fiji.app/Contents/MacOS/fiji-macos-universal", "macosx");
+		launcherToPlatform.put("Fiji.app/Contents/MacOS/jaunch-macos-universal", "macosx");
+		// Deprecated ImageJ Launcher: https://github.com/imagej/imagej-launcher
 		launcherToPlatform.put("ImageJ-linux32", "linux32");
 		launcherToPlatform.put("ImageJ-linux64", "linux64");
 		launcherToPlatform.put("Contents/MacOS/ImageJ-macosx", "macosx");
