@@ -930,7 +930,7 @@ public class CommandLine {
 			throw die("Which files do you mean to upload?");
 		}
 		boolean ignoreWarnings = false, forceShadow = false, simulate = false;
-		while (list.size() > 0 && list.get(0).startsWith("-")) {
+		while (!list.isEmpty() && list.get(0).startsWith("-")) {
 			final String option = list.remove(0);
 			if ("--force".equals(option)) {
 				ignoreWarnings = true;
@@ -939,7 +939,7 @@ public class CommandLine {
 			} else if ("--simulate".equals(option)) {
 				simulate = true;
 			} else if ("--platforms".equals(option)) {
-				if (list.size() == 0) {
+				if (list.isEmpty()) {
 					throw die("Need a comma-separated list of platforms with --platform");
 				}
 				files.util.setUpdateablePlatforms(list.remove(0).split(","));

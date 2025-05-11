@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -75,10 +76,10 @@ import net.imagej.updater.util.UpdaterUtil;
  */
 public class Checksummer extends AbstractProgressable {
 
-	private FilesCollection files;
+	private final FilesCollection files;
 	private int counter, total;
 	private Map<String, FileObject.Version> cachedChecksums;
-	private boolean isWindows; // time tax for Redmond
+	private final boolean isWindows; // time tax for Redmond
 	private Map<String, List<StringAndFile>> queue;
 
 	public Checksummer(final FilesCollection files, final Progress progress) {
@@ -90,8 +91,8 @@ public class Checksummer extends AbstractProgressable {
 
 	protected static class StringAndFile {
 
-		private String path;
-		private File file;
+		private final String path;
+		private final File file;
 		public long timestamp;
 		public String checksum;
 
@@ -135,8 +136,7 @@ public class Checksummer extends AbstractProgressable {
 
 	public void queueDir(final String[] dirs, final String[] extensions) {
 		final Set<String> set = new HashSet<>();
-		for (final String extension : extensions)
-			set.add(extension);
+		Collections.addAll(set, extensions);
 		for (final String dir : dirs)
 			queueDir(dir, set);
 	}
@@ -176,7 +176,7 @@ public class Checksummer extends AbstractProgressable {
 		// from the consideration.
 		if (unversioned.contains(".old")) return;
 		if (!queue.containsKey(unversioned))
-			queue.put(unversioned, new ArrayList<StringAndFile>());
+			queue.put(unversioned, new ArrayList<>());
 		List<StringAndFile> list = queue.get(unversioned);
 		StringAndFile entry = new StringAndFile(path, file);
 		if (!list.contains(entry)) list.add(entry);
@@ -242,27 +242,24 @@ public class Checksummer extends AbstractProgressable {
 				else
 					locallyModifieds.add(p);
 			}
-			Comparator<StringAndFile> comparator = new Comparator<StringAndFile>() {
-				@Override
-				public int compare(StringAndFile a, StringAndFile b) {
-					long diff = a.file.lastModified() - b.file.lastModified();
-					return diff < 0 ? +1 : diff > 0 ? -1 : 0;
-				}
+			Comparator<StringAndFile> comparator = (a, b) -> {
+				long diff = a.file.lastModified() - b.file.lastModified();
+				return diff < 0 ? +1 : diff > 0 ? -1 : 0;
 			};
-			Collections.sort(upToDates, comparator);
-			Collections.sort(obsoletes, comparator);
-			Collections.sort(locallyModifieds, comparator);
-			if (upToDates.size() > 0)
+			upToDates.sort(comparator);
+			obsoletes.sort(comparator);
+			locallyModifieds.sort(comparator);
+			if (!upToDates.isEmpty())
 				pair = pickNewest(upToDates);
-			else if (obsoletes.size() > 0)
+			else if (!obsoletes.isEmpty())
 				pair = pickNewest(obsoletes);
 			else
 				pair = pickNewest(locallyModifieds);
-			if (locallyModifieds.size() > 0)
+			if (!locallyModifieds.isEmpty())
 				addConflict(pair.path, "locally-modified", true, convert(locallyModifieds));
-			if (obsoletes.size() > 0)
+			if (!obsoletes.isEmpty())
 				addConflict(pair.path, "obsolete", false, convert(obsoletes));
-			if (upToDates.size() > 0)
+			if (!upToDates.isEmpty())
 				addConflict(pair.path, "up-to-date", false, convert(upToDates));
 		}
 		handle(pair);
@@ -289,7 +286,7 @@ public class Checksummer extends AbstractProgressable {
 	}
 
 	protected void addConflict(final String filename, String adjective, boolean isCritical, final List<File> toDelete) {
-		if (!adjective.equals("") && !adjective.endsWith(" "))
+		if (!adjective.isEmpty() && !adjective.endsWith(" "))
 			adjective += " ";
 		String conflictMessage = "Multiple " + adjective + "versions of " + filename + " exist: " + UpdaterUtil.join(", ", toDelete);
 		Resolution ignore = new Resolution("Ignore for now") {
@@ -367,7 +364,7 @@ public class Checksummer extends AbstractProgressable {
 						}
 					}
 				} else if (object.current != null && obsoletes != null
-						&& (":" + obsoletes.checksum + ":").indexOf(":" + object.current.checksum + ":") >= 0) {
+						&& (":" + obsoletes.checksum + ":").contains(":" + object.current.checksum + ":")) {
 					// if the recorded checksum is an obsolete equivalent of the current one, use the obsolete one
 					pair.checksum = object.current.checksum;
 				}
@@ -485,9 +482,7 @@ public class Checksummer extends AbstractProgressable {
 	static {
 		extensions = new HashMap<>();
 		for (int i = 0; i < directories.length; i += 2) {
-			final Set<String> set = new HashSet<>();
-			for (final String extension : directories[i + 1])
-				set.add(extension);
+			final Set<String> set = new HashSet<>(Arrays.asList(directories[i + 1]));
 			for (final String dir : directories[i + 1])
 				extensions.put(dir, set);
 		}
@@ -585,8 +580,7 @@ public class Checksummer extends AbstractProgressable {
 	}
 
 	protected String getDigest(final String path, final File file,
-		final long timestamp) throws IOException, NoSuchAlgorithmException,
-		ZipException
+		final long timestamp) throws IOException, NoSuchAlgorithmException
 	{
 		if (cachedChecksums == null) readCachedChecksums();
 		FileObject.Version version = cachedChecksums.get(path);
