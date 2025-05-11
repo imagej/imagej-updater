@@ -405,9 +405,13 @@ public class FileObject {
 	}
 
 	public void addPlatform(String platform) {
-		if ("linux".equals(platform)) platforms.add("linux32");
-		else if (platform != null && !platform.trim().equals("")) platforms.add(platform
-			.trim());
+		if (platform == null) return;
+		// Note: It's OK if it's actually a comma-separated list of platform names.
+		for (String p : platform.split(",")) {
+			p = p.trim();
+			if ("linux".equals(p)) platforms.add("linux32");
+			else if (!p.isEmpty()) platforms.add(p);
+		}
 	}
 
 	public Iterable<String> getPlatforms() {
