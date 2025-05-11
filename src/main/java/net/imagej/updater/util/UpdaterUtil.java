@@ -141,8 +141,6 @@ public class UpdaterUtil {
 		launcherToPlatform.put("ImageJ-win64.exe", "win64");
 	}
 
-	protected final DropboxURLMapper dropboxURLMapper;
-
 	public UpdaterUtil(final File imagejRoot) {
 		platform = getPlatform();
 
@@ -163,7 +161,6 @@ public class UpdaterUtil {
 				}
 			}
 		}
-		dropboxURLMapper = new DropboxURLMapper(this);
 	}
 
 	public static String platformForLauncher(final String filename) {
@@ -455,9 +452,7 @@ public class UpdaterUtil {
 
 	/**
 	 * Open a stream to a {@link URL}.
-	 * 
-	 * ... possibly mapping Dropbox URLs.
-	 * 
+	 *
 	 * @param url the URL to open
 	 */
 	public InputStream openStream(final URL url) throws IOException {
@@ -466,13 +461,11 @@ public class UpdaterUtil {
 
 	/**
 	 * Open a connection to a {@link URL}.
-	 * 
-	 * ... possibly mapping Dropbox URLs.
-	 * 
+	 *
 	 * @param url the URL to open
 	 */
 	public URLConnection openConnection(final URL url) throws IOException {
-		final URLConnection connection = dropboxURLMapper.get(url).openConnection();
+		final URLConnection connection = url.openConnection();
 		if (connection instanceof HttpURLConnection) {
 			HttpURLConnection http = (HttpURLConnection)connection;
 			http.setInstanceFollowRedirects(true); // Follow HTTP 3xx redirects.
