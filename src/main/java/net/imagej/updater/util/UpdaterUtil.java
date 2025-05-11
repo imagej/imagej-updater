@@ -414,15 +414,6 @@ public class UpdaterUtil {
 		System.setProperty("java.net.useSystemProxies", "true");
 	}
 
-	@Deprecated
-	public static long getLastModified(final String url) {
-		try {
-			return new UpdaterUtil(null).getLastModified(new URL(url));
-		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
 	public long getLastModified(final URL url) {
 		try {
 			final URLConnection connection = openConnection(url);
