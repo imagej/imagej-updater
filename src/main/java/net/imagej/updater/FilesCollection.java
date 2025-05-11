@@ -63,9 +63,9 @@ import net.imagej.updater.action.KeepAsIs;
 import net.imagej.updater.action.Remove;
 import net.imagej.updater.action.Uninstall;
 import net.imagej.updater.action.Upload;
-
 import net.imagej.updater.util.DependencyAnalyzer;
 import net.imagej.updater.util.HTTPSUtil;
+import net.imagej.updater.util.Platforms;
 import net.imagej.updater.util.Progress;
 import net.imagej.updater.util.UpdateCanceledException;
 import net.imagej.updater.util.UpdaterUtil;
@@ -112,7 +112,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	}
 
 	public final static String DEFAULT_UPDATE_SITE = "ImageJ";
-	private File imagejRoot;
+	private final File appRoot;
 	public final LogService log;
 	protected Set<FileObject> ignoredConflicts = new HashSet<>();
 	protected List<Conflict> conflicts = new ArrayList<>();
@@ -121,27 +121,32 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	private boolean updateSitesChanged = false;
 
 	private DependencyAnalyzer dependencyAnalyzer;
-	public final UpdaterUtil util;
+
+	private final String platform;
+	private final Set<String> activePlatforms;
 
 	/**
-	 * This constructor takes the imagejRoot primarily for testing purposes.
+	 * This constructor takes the app root primarily for testing purposes.
 	 * 
-	 * @param imagejRoot the ImageJ directory
+	 * @param appRoot the application base directory
 	 */
-	public FilesCollection(final File imagejRoot) {
-		this(UpdaterUtil.getLogService(), imagejRoot);
+	public FilesCollection(final File appRoot) {
+		this(UpdaterUtil.getLogService(), appRoot);
 	}
 
 	/**
-	 * This constructor takes the imagejRoot primarily for testing purposes.
+	 * This constructor takes the app root primarily for testing purposes.
 	 * 
 	 * @param log the log service
-	 * @param imagejRoot the ImageJ directory
+	 * @param appRoot the application base directory
 	 */
-	public FilesCollection(final LogService log, final File imagejRoot) {
+	public FilesCollection(final LogService log, final File appRoot) {
 		this.log = log == null ? new StderrLogService() : log;
-		this.imagejRoot = imagejRoot;
-		util = new UpdaterUtil(imagejRoot);
+		this.appRoot = appRoot;
+
+		platform = Platforms.current();
+		activePlatforms = Platforms.inferActive(appRoot);
+
 		updateSites = new LinkedHashMap<>();
 		final UpdateSite updateSite =
 			addUpdateSite(DEFAULT_UPDATE_SITE, UpdaterUtil.MAIN_URL, null, null,
@@ -150,7 +155,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	}
 
 	public File getAppRoot() {
-		return imagejRoot;
+		return appRoot;
 	}
 
 	public UpdateSite addUpdateSite(final String name, final String url,
@@ -325,7 +330,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 		for (final FileObject file : forUpdateSite(updateSite)) {
 			if ((file.isUpdateable(evenForcedUpdates) || file.getStatus()
 					.isValid(Action.INSTALL))
-					&& file.isUpdateablePlatform(this)) {
+					&& file.isActivePlatform(this)) {
 				file.setFirstValidAction(this, Action.UPDATE,
 					Action.UNINSTALL, Action.INSTALL);
 			}
@@ -483,7 +488,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	}
 
 	public FilesCollection clone(final Iterable<FileObject> iterable) {
-		final FilesCollection result = new FilesCollection(imagejRoot);
+		final FilesCollection result = new FilesCollection(appRoot);
 		for (final FileObject file : iterable)
 			result.add(file);
 		for (final String name : updateSites.keySet())
@@ -712,7 +717,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 
 			@Override
 			public boolean matches(final FileObject file) {
-				return file.isUpdateablePlatform(FilesCollection.this);
+				return file.isActivePlatform(FilesCollection.this);
 			}
 		};
 	}
@@ -872,8 +877,8 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	public Iterable<String> analyzeDependencies(final FileObject file) {
 		try {
 			if (dependencyAnalyzer == null) dependencyAnalyzer =
-				new DependencyAnalyzer(imagejRoot);
-			return dependencyAnalyzer.getDependencies(imagejRoot, file);
+				new DependencyAnalyzer(appRoot);
+			return dependencyAnalyzer.getDependencies(appRoot, file);
 		}
 		catch (final IOException e) {
 			log.error(e);
@@ -913,7 +918,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 
 			@Override
 			public boolean matches(final FileObject file) {
-				return file.isUpdateable(evenForcedOnes) && file.isUpdateablePlatform(FilesCollection.this);
+				return file.isUpdateable(evenForcedOnes) && file.isActivePlatform(FilesCollection.this);
 			}
 		});
 	}
@@ -959,7 +964,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 		for (final Dependency dependency : file.getDependencies()) {
 			final FileObject other = get(dependency.filename);
 			if (other == null || overriding != dependency.overrides ||
-				!other.isUpdateablePlatform(this)) continue;
+				!other.isActivePlatform(this)) continue;
 			if (other.isObsolete() && other.willNotBeInstalled()) {
 				log.debug("Ignoring obsolete dependency " + dependency.filename
 						+ " of " + file.filename);
@@ -1096,8 +1101,8 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 	public File prefix(final String path) {
 		final File file = new File(path);
 		if (file.isAbsolute()) return file;
-		assert (imagejRoot != null);
-		return new File(imagejRoot, path);
+		assert (appRoot != null);
+		return new File(appRoot, path);
 	}
 
 	public File prefixUpdate(final String path) {
@@ -1195,7 +1200,7 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 		// When upstream fixed dependencies, heed them
 		for (final FileObject file : upToDate()) {
 			for (final FileObject dependency : file.getFileDependencies(this, false)) {
-				if (dependency.getAction() == Action.NOT_INSTALLED && dependency.isUpdateablePlatform(this)) {
+				if (dependency.getAction() == Action.NOT_INSTALLED && dependency.isActivePlatform(this)) {
 					dependency.setAction(this, Action.INSTALL);
 				}
 			}
@@ -1284,10 +1289,32 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 		return protocols;
 	}
 
+	public String platform() {
+		return platform;
+	}
+
+	public boolean isActivePlatform(final String platform) {
+		return Platforms.matches(activePlatforms, platform);
+	}
+
+	public void setActivePlatforms(final String... platforms) {
+		activePlatforms.clear();
+		for (String platform : platforms) {
+			if (platform == null) continue;
+			platform = platform.trim();
+			if ("all".equals(platform)) {
+				activePlatforms.add(this.platform);
+				activePlatforms.addAll(Platforms.known());
+			} else {
+				activePlatforms.add(platform);
+			}
+		}
+	}
+
 	// -- Helper methods --
 
 	private long timestamp() {
-		if (imagejRoot == null) return 0;
+		if (appRoot == null) return 0;
 		return UpdaterUtil.getTimestamp(prefix(UpdaterUtil.XML_COMPRESSED));
 	}
 

@@ -58,6 +58,7 @@ import net.imagej.updater.Conflicts.Resolution;
 import net.imagej.updater.Conflicts.Conflict.Severity;
 import net.imagej.updater.FileObject.Status;
 import net.imagej.updater.util.AbstractProgressable;
+import net.imagej.updater.util.Platforms;
 import net.imagej.updater.util.Progress;
 import net.imagej.updater.util.UpdaterUtil;
 
@@ -86,7 +87,7 @@ public class Checksummer extends AbstractProgressable {
 		this.files = files;
 		if (progress != null) addProgress(progress);
 		setTitle("Checksummer");
-		isWindows = UpdaterUtil.isWindows();
+		isWindows = Platforms.isWindows(files.platform());
 	}
 
 	protected static class StringAndFile {
@@ -346,9 +347,9 @@ public class Checksummer extends AbstractProgressable {
 				object.localFilename = pair.path;
 				object.localChecksum = pair.checksum;
 				object.localTimestamp = pair.timestamp;
-				if ((!isWindows && UpdaterUtil.canExecute(pair.file)) || pair.path.endsWith(".exe")) object.executable =
-					true;
-				tryToGuessPlatform(object);
+				if ((!isWindows && UpdaterUtil.canExecute(pair.file)) || pair.path.endsWith(".exe"))
+					object.executable = true;
+				guessPlatform(object);
 				files.add(object);
 			}
 			else {
@@ -425,11 +426,11 @@ public class Checksummer extends AbstractProgressable {
 		handleQueue();
 	}
 
-	protected boolean tryToGuessPlatform(final FileObject file) {
+	protected boolean guessPlatform(final FileObject file) {
 		// Look for platform names as subdirectories of lib/ and mm/
 		String platform;
 		if (file.executable) {
-			platform = UpdaterUtil.platformForLauncher(file.filename);
+			platform = Platforms.platformForLauncher(file.filename);
 			if (platform == null) return false;
 		}
 		else {
@@ -451,7 +452,7 @@ public class Checksummer extends AbstractProgressable {
 
 		if (platform.equals("linux")) platform = "linux32";
 
-		for (final String valid : files.util.platforms)
+		for (final String valid : Platforms.known())
 			if (platform.equals(valid)) {
 				file.addPlatform(platform);
 				return true;
@@ -491,7 +492,7 @@ public class Checksummer extends AbstractProgressable {
 	public boolean isCandidate(String path) {
 		path = path.replace('\\', '/'); // Microsoft time toll
 		final int slash = path.indexOf('/');
-		if (slash < 0) return files.util.isLauncher(path);
+		if (slash < 0) return Platforms.isLauncher(path);
 		final Set<String> exts = extensions.get(path.substring(0, slash));
 		final int dot = path.lastIndexOf('.');
 		return exts != null && dot >= 0 && exts.contains(path.substring(dot));
@@ -505,7 +506,7 @@ public class Checksummer extends AbstractProgressable {
 		queueIfExists("fiji");
 		queueIfExists("fiji.bat");
 		queueIfExists("ImageJ.sh"); // deprecated
-		for (final String launcher : files.util.launchers)
+		for (final String launcher : Platforms.launchers())
 			queueIfExists(launcher);
 
 		// Queue any macOS .app folders.

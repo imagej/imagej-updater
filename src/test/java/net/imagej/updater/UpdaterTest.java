@@ -37,6 +37,7 @@ import net.imagej.updater.FileObject.Action;
 import net.imagej.updater.FileObject.Status;
 import net.imagej.updater.test.Dependencee;
 import net.imagej.updater.test.Dependency;
+import net.imagej.updater.util.Platforms;
 import net.imagej.updater.util.UpdaterUtil;
 import org.junit.After;
 import org.junit.Test;
@@ -93,9 +94,8 @@ public class UpdaterTest {
 		// Write some files
 
 		// bend over for Microsoft
-		final boolean isWindows = UpdaterUtil.isWindows();
 		final String launcherName =
-			isWindows ? "ImageJ-win32.exe" : "ImageJ-linux32";
+			Platforms.isWindows(Platforms.current()) ? "ImageJ-win32.exe" : "ImageJ-linux32";
 
 		final File ijLauncher = writeFile(files, launcherName, "false");
 		ijLauncher.setExecutable(true);

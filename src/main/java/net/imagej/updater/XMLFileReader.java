@@ -217,7 +217,7 @@ public class XMLFileReader extends DefaultHandler {
 				.setStatus(Status.OBSOLETE_UNINSTALLED);
 			else if (current.isNewerThan(newTimestamp)) {
 				current.setStatus(Status.NEW);
-				current.setAction(files, current.isUpdateablePlatform(files)
+				current.setAction(files, current.isActivePlatform(files)
 					? FileObject.Action.INSTALL : FileObject.Action.NEW);
 			}
 			FileObject file = files.get(current.filename);
