@@ -443,9 +443,7 @@ public class UpdaterUtil {
 
 	/**
 	 * Open a stream to a {@link URL}.
-	 * 
-	 * ... possibly mapping Dropbox URLs.
-	 * 
+	 *
 	 * @param url the URL to open
 	 */
 	public InputStream openStream(final URL url) throws IOException {
@@ -454,9 +452,7 @@ public class UpdaterUtil {
 
 	/**
 	 * Open a connection to a {@link URL}.
-	 * 
-	 * ... possibly mapping Dropbox URLs.
-	 * 
+	 *
 	 * @param url the URL to open
 	 */
 	public static URLConnection openConnection(final URL url) throws IOException {
