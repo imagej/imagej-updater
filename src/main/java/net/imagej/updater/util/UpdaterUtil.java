@@ -181,15 +181,49 @@ public class UpdaterUtil {
 		return getPlatform().startsWith("win");
 	}
 
+	/**
+	 * Gets the short platform name for the currently running platform,
+	 * including both operating system and CPU architecture.
+	 * <table>
+	 *   <tr><th>Platform name</th></th><th>Operating system</th><th>Architecture</th></tr>
+	 *   <tr><td>linux-arm64</td>       <td>Linux</td>           <td>arm64</td></tr>
+	 *   <tr><td>linux32</td>           <td>Linux</td>           <td>x86-32</td></tr>
+	 *   <tr><td>linux64</td>           <td>Linux</td>           <td>x86-64</td></tr>
+	 *   <tr><td>macos-arm64</td>       <td>macOS</td>           <td>arm64</td></tr>
+	 *   <tr><td>macos64</td>           <td>macOS</td>           <td>x86-64</td></tr>
+	 *   <tr><td>win-arm64</td>         <td>Windows</td>         <td>arm64</td></tr>
+	 *   <tr><td>win32</td>             <td>Windows</td>         <td>x86-32</td></tr>
+	 *   <tr><td>win64</td>             <td>Windows</td>         <td>x86-64</td></tr>
+	 * </table>
+	 */
 	public static String getPlatform() {
-		final String osArch = System.getProperty("os.arch", "");
-		final boolean is64bit = osArch.indexOf("64") >= 0;
-		final String osName = System.getProperty("os.name", "<unknown>");
-		if (osName.equals("Linux")) return "linux" + (is64bit ? "64" : "32");
-		if (osName.equals("Mac OS X")) return osArch.equals("aarch64") ? "macos-arm64" : "macosx";
-		if (osName.startsWith("Windows")) return "win" + (is64bit ? "64" : "32");
-		// System.err.println("Unknown platform: " + osName);
-		return osName.toLowerCase();
+		final String osName = System.getProperty("os.name")
+			.toLowerCase().replaceAll("[^a-z0-9_-]", "");
+		final String osArch = System.getProperty("os.arch");
+
+		final String os;
+		if (osName.startsWith("linux")) os = "linux";
+		else if (osName.startsWith("mac")) os = "macos";
+		else if (osName.startsWith("win")) os = "win";
+		else os = osName;
+
+		final HashMap<String, String> archMap = new HashMap<>();
+		archMap.put("aarch32", "-arm32");
+		archMap.put("aarch64", "-arm64");
+		archMap.put("i386", "32");
+		archMap.put("i486", "32");
+		archMap.put("i586", "32");
+		archMap.put("i686", "32");
+		archMap.put("x86", "32");
+		archMap.put("x86-32", "32");
+		archMap.put("x86_32", "32");
+		archMap.put("amd64", "64");
+		archMap.put("x64", "64");
+		archMap.put("x86-64"	, "64");
+		archMap.put("x86_64"	, "64");
+		final String arch = archMap.getOrDefault(osArch, "-" + osArch);
+
+		return os + arch;
 	}
 
 	// get digest of the file as according to fullPath
