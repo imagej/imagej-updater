@@ -443,10 +443,6 @@ public class UpdaterUtil {
 		}
 	}
 
-	public boolean isMacOSX() {
-		return platform.equals("macosx");
-	}
-
 	public static <T> String join(final String delimiter, final Iterable<T> list)
 	{
 		final StringBuilder builder = new StringBuilder();
