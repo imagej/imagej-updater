@@ -67,13 +67,13 @@ import org.scijava.log.LogService;
  */
 public class FilesUploader {
 
-	private FilesCollection files;
-	private Uploader uploader;
+	private final FilesCollection files;
+	private final Uploader uploader;
 
-	private String siteName;
-	private UpdateSite site;
+	private final String siteName;
+	private final UpdateSite site;
 	private List<Uploadable> uploadables;
-	private String compressed;
+	private final String compressed;
 	private boolean loggedIn;
 
 	private static UploaderService createUploaderService() {
@@ -84,10 +84,11 @@ public class FilesUploader {
 
 	/**
 	 * Sets the context class loader if necessary.
-	 *
+	 * <p>
 	 * If the current class cannot be found by the current Thread's context
 	 * class loader, we should tell the Thread about the class loader that
 	 * loaded this class.
+	 * </p>
 	 */
 	private static void setClassLoaderIfNecessary() {
 		ClassLoader thisLoader = FilesUploader.class.getClassLoader();
@@ -313,7 +314,7 @@ public class FilesUploader {
 
 		final XMLFileWriter writer =
 			new XMLFileWriter(files.clone(files.forUpdateSite(siteName, true)));
-		if (files.size() > 0) writer.validate(false);
+		if (!files.isEmpty()) writer.validate(false);
 		((DbXmlFile) uploadables.get(0)).bytes =
 			writer.toCompressedByteArray(false);
 
@@ -387,7 +388,7 @@ public class FilesUploader {
 		}
 		catch (final Exception e) {
 			UpdaterUserInterface.get().debug(e.getMessage());
-			if (files.size() == 0) return -1; // assume initial upload
+			if (files.isEmpty()) return -1; // assume initial upload
 			if (e instanceof FileNotFoundException) {
 				files.log.debug(e);
 			} else {
