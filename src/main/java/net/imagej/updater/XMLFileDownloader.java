@@ -50,8 +50,8 @@ import net.imagej.updater.util.UpdaterUtil;
  */
 public class XMLFileDownloader extends AbstractProgressable {
 
-	private FilesCollection files;
-	private Collection<String> updateSites;
+	private final FilesCollection files;
+	private final Collection<String> updateSites;
 	private StringBuilder warnings;
 
 	public XMLFileDownloader(final FilesCollection files) {
@@ -71,7 +71,7 @@ public class XMLFileDownloader extends AbstractProgressable {
 
 
 	public void start(boolean closeProgressAtEnd) {
-		if (updateSites == null || updateSites.size() == 0) return;
+		if (updateSites == null || updateSites.isEmpty()) return;
 		setTitle("Updating the index of available files");
 		final XMLFileReader reader = new XMLFileReader(files);
 		final int current = 0, total = updateSites.size();
@@ -80,7 +80,7 @@ public class XMLFileDownloader extends AbstractProgressable {
 		for (final String name : updateSites) {
 			final UpdateSite updateSite = files.getUpdateSite(name, true);
 			final String title =
-				"Updating from " + (name.equals("") ? "main" : name) + " site: " + updateSite.getURL();
+				"Updating from " + (name.isEmpty() ? "main" : name) + " site: " + updateSite.getURL();
 			addItem(title);
 			setCount(current, total);
 			try {
@@ -161,6 +161,6 @@ public class XMLFileDownloader extends AbstractProgressable {
 	private void appendWarning(final String s) {
 		if (s == null || s.isEmpty()) return;
 		warnings.append(s);
-		warnings.append(System.getProperty("line.separator"));
+		warnings.append(System.lineSeparator());
 	}
 }
