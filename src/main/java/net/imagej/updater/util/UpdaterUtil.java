@@ -414,7 +414,7 @@ public class UpdaterUtil {
 		System.setProperty("java.net.useSystemProxies", "true");
 	}
 
-	public long getLastModified(final URL url) {
+	public static long getLastModified(final URL url) {
 		try {
 			final URLConnection connection = openConnection(url);
 			if (connection instanceof HttpURLConnection) ((HttpURLConnection) connection)
