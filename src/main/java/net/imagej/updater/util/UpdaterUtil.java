@@ -177,8 +177,23 @@ public class UpdaterUtil {
 		return string.substring(prefix.length());
 	}
 
+	public static boolean isPlatform(String platform) {
+		return getPlatform().equals(platform) ||
+			("linuxx".equals(platform) && isLinux()) ||
+			("macosx".equals(platform) && isMac()) ||
+			("winx".equals(platform) && isWindows());
+	}
+
 	public static boolean isWindows() {
 		return getPlatform().startsWith("win");
+	}
+
+	public static boolean isMac() {
+		return getPlatform().startsWith("macos");
+	}
+
+	public static boolean isLinux() {
+		return getPlatform().startsWith("linux");
 	}
 
 	/**
