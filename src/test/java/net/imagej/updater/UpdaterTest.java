@@ -93,7 +93,7 @@ public class UpdaterTest {
 		// Write some files
 
 		// bend over for Microsoft
-		final boolean isWindows = UpdaterUtil.getPlatform().startsWith("win");
+		final boolean isWindows = UpdaterUtil.isWindows();
 		final String launcherName =
 			isWindows ? "ImageJ-win32.exe" : "ImageJ-linux32";
 

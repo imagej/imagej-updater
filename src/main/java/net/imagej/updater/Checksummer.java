@@ -85,7 +85,7 @@ public class Checksummer extends AbstractProgressable {
 		this.files = files;
 		if (progress != null) addProgress(progress);
 		setTitle("Checksummer");
-		isWindows = UpdaterUtil.getPlatform().startsWith("win");
+		isWindows = UpdaterUtil.isWindows();
 	}
 
 	protected static class StringAndFile {

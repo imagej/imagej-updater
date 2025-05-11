@@ -177,6 +177,10 @@ public class UpdaterUtil {
 		return string.substring(prefix.length());
 	}
 
+	public static boolean isWindows() {
+		return getPlatform().startsWith("win");
+	}
+
 	public static String getPlatform() {
 		final String osArch = System.getProperty("os.arch", "");
 		final boolean is64bit = osArch.indexOf("64") >= 0;
@@ -558,7 +562,7 @@ public class UpdaterUtil {
 	 * @return whether the directory is protected by the OS
 	 */
 	public static boolean isProtectedLocation(final File ijRoot) {
-		if (getPlatform().startsWith("win")) {
+		if (isWindows()) {
 			final String osVersion = System.getProperty("os.version");
 			if (osVersion == null) return false;
 			final Matcher matcher = majorVersionPattern.matcher(osVersion);
