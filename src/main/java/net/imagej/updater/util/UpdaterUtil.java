@@ -464,7 +464,7 @@ public class UpdaterUtil {
 	 *
 	 * @param url the URL to open
 	 */
-	public URLConnection openConnection(final URL url) throws IOException {
+	public static URLConnection openConnection(final URL url) throws IOException {
 		final URLConnection connection = url.openConnection();
 		if (connection instanceof HttpURLConnection) {
 			HttpURLConnection http = (HttpURLConnection)connection;
