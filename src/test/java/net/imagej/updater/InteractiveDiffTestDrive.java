@@ -54,6 +54,6 @@ public class InteractiveDiffTestDrive {
 				flush();
 			}
 		};
-		new Diff(out, null).showDiff(args[0], args[0].startsWith("http") ? new URL(args[0]) : new File(args[0]).toURI().toURL(), new File(args[1]).toURI().toURL(), Mode.JAVAP);
+		new Diff(out).showDiff(args[0], args[0].startsWith("http") ? new URL(args[0]) : new File(args[0]).toURI().toURL(), new File(args[1]).toURI().toURL(), Mode.JAVAP);
 	}
 }

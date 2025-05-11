@@ -151,9 +151,7 @@ public class CommandLine {
 
 		@Override
 		public boolean matches(final FileObject file) {
-			if (!file.isUpdateablePlatform(files)) {
-				return false;
-			}
+			if (!file.isActivePlatform(files)) return false;
 			if (fileNames != null
 					&& !fileNames.contains(file.getFilename(true))) {
 				return false;
@@ -164,7 +162,7 @@ public class CommandLine {
 
 	public void diff(final List<String> list) {
 		ensureChecksummed();
-		final Diff diff = new Diff(System.out, files.util);
+		final Diff diff = new Diff(System.out);
 
 		Mode mode = Mode.CLASS_FILE_DIFF;
 		while (list.size() > 0 && list.get(0).startsWith("--")) {
@@ -488,8 +486,8 @@ public class CommandLine {
 	public void download(final FileObject file) {
 		ensureChecksummed();
 		try {
-			new Downloader(progress, files.util).start(new OneFile(file));
-			if (file.executable && !files.util.platform.startsWith("win")) {
+			new Downloader(progress).start(new OneFile(file));
+			if (file.executable && !Platforms.isWindows(files.platform())) {
 				try {
 					Runtime.getRuntime().exec(
 							new String[] { "chmod", "0755",
@@ -942,7 +940,7 @@ public class CommandLine {
 				if (list.isEmpty()) {
 					throw die("Need a comma-separated list of platforms with --platform");
 				}
-				files.util.setUpdateablePlatforms(list.remove(0).split(","));
+				files.setActivePlatforms(list.remove(0).split(","));
 			} else {
 				throw die("Unknown option: " + option);
 			}
@@ -959,7 +957,7 @@ public class CommandLine {
 
 		int removeCount = 0, uploadCount = 0, warningCount = 0;
 		for (final FileObject file : files) {
-			if (!file.isUpdateablePlatform(files)) {
+			if (!file.isActivePlatform(files)) {
 				continue;
 			}
 			final String name = file.filename;
@@ -1013,7 +1011,7 @@ public class CommandLine {
 						&& file.getFilename(true).equals("jars/tools.jar")) {
 					break;
 				}
-				if (!file.isUpdateablePlatform(files)) break;
+				if (!file.isActivePlatform(files)) break;
 				file.setAction(files, Action.REMOVE);
 				if (simulate) {
 					log.info("Would mark " + file.filename + " obsolete");
@@ -1087,9 +1085,9 @@ public class CommandLine {
 
 	private void handleLauncherForUpload(final FileObject file) {
 		if (file.getStatus() == Status.LOCAL_ONLY
-				&& files.util.isLauncher(file.filename)) {
+				&& Platforms.isLauncher(file.filename)) {
 			file.executable = true;
-			file.addPlatform(UpdaterUtil.platformForLauncher(file.filename));
+			file.addPlatform(Platforms.platformForLauncher(file.filename));
 			for (final String fileName : new String[] { "jars/imagej-launcher.jar" }) {
 				final FileObject dependency = files.get(fileName);
 				if (dependency != null) {

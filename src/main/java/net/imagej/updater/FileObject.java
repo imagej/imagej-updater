@@ -44,6 +44,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
 
+import net.imagej.updater.util.Platforms;
 import net.imagej.updater.util.UpdaterUtil;
 
 import org.scijava.util.FileUtils;
@@ -414,7 +415,7 @@ public class FileObject {
 		}
 	}
 
-	public Iterable<String> getPlatforms() {
+	public Collection<String> getPlatforms() {
 		return platforms;
 	}
 
@@ -749,17 +750,13 @@ public class FileObject {
 	}
 
 	public boolean isForPlatform(final String platform) {
-		return platforms.contains(platform);
+		return Platforms.matches(platform, platforms);
 	}
 
-	public boolean isForThisPlatform(final FilesCollection files) {
-		return platforms.size() == 0 || isForPlatform(files.util.platform);
-	}
-
-	public boolean isUpdateablePlatform(final FilesCollection files) {
-		if (platforms.size() == 0) return true;
+	public boolean isActivePlatform(final FilesCollection files) {
+		if (platforms.isEmpty()) return true; // all platforms
 		for (final String platform : platforms)
-			if (files.util.isUpdateablePlatform(platform)) return true;
+			if (files.isActivePlatform(platform)) return true;
 		return false;
 	}
 

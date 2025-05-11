@@ -95,7 +95,6 @@ public class Diff {
 	}
 
 	private final PrintStream out;
-	private final UpdaterUtil util;
 
 	/**
 	 * Construct a Diff object.
@@ -104,18 +103,7 @@ public class Diff {
 	 */
 	@Deprecated
 	public Diff(final PrintStream out) {
-		this(out, null);
-	}
-
-	/**
-	 * Construct a Diff object.
-	 * 
-	 * @param out this is where the output goes
-	 * @param util an instance of {@link UpdaterUtil} to access URLs
-	 */
-	public Diff(final PrintStream out, final UpdaterUtil util) {
 		this.out = out;
-		this.util = util != null ? util : new UpdaterUtil(null);
 	}
 
 	/**
@@ -447,7 +435,7 @@ public class Diff {
 		if (extension.startsWith("jar-")) extension = "jar";
 		final File result = File.createTempFile("diff-", "".equals(extension) ? "" : "." + extension);
 		result.deleteOnExit();
-		copy(util.openStream(url), new FileOutputStream(result), true, true);
+		copy(UpdaterUtil.openStream(url), new FileOutputStream(result), true, true);
 		return result;
 	}
 
