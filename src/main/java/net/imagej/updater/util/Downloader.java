@@ -103,7 +103,7 @@ public class Downloader extends AbstractProgressable {
 	protected synchronized void download(final Downloadable current)
 		throws IOException
 	{
-		final URLConnection connection = util.openConnection(new URL(current.getURL()));
+		final URLConnection connection = UpdaterUtil.openConnection(new URL(current.getURL()));
 		connection.setUseCaches(false);
 		lastModified = connection.getLastModified();
 		int currentTotal = connection.getContentLength();
