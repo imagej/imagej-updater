@@ -31,11 +31,8 @@
 
 package net.imagej.updater.util;
 
-import net.imagej.updater.FileObject;
-
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -195,16 +192,35 @@ public final class Platforms {
 	}
 
 	public static Set<String> inferActive(final File appRoot) {
-		// Note: A platform is "active" if at least one
-		// launcher for that platform is currently installed.
+		// Note: A platform is considered "active" if:
+		// 1. It is the current platform; or
+		// 2. At least known launcher for that platform is present; or
+		// 3. At least one directory specific to that platform is present.
+
 		final Set<String> activePlatforms = new HashSet<>();
+
+		// Activate the currently running platform.
 		activePlatforms.add(current());
+
 		if (appRoot == null) return activePlatforms;
+
+		// For each existing launcher, add its platform.
 		for (Map.Entry<String, String> lap : LAUNCHERS.entrySet()) {
-			if (new File(appRoot, lap.getKey()).exists()) {
-				activePlatforms.add(lap.getValue());
+			final String launcher = lap.getKey();
+			final String platform = lap.getValue();
+			final File launcherFile = new File(appRoot, launcher);
+			if (launcherFile.exists()) activePlatforms.add(platform);
+		}
+
+		// For each existing special platform directory, add its platform.
+		final String[] specialDirs = {"jars", "lib"};
+		for (final String specialDir : specialDirs) {
+			for (final String platform : Platforms.known()) {
+				final File dir = appRoot.toPath().resolve(specialDir).resolve(platform).toFile();
+				if (dir.isDirectory()) activePlatforms.add(platform);
 			}
 		}
+
 		return activePlatforms;
 	}
 }
