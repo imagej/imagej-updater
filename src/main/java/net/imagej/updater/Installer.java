@@ -45,6 +45,7 @@ import net.imagej.updater.FileObject.Action;
 import net.imagej.updater.FileObject.Status;
 import net.imagej.updater.util.Downloadable;
 import net.imagej.updater.util.Downloader;
+import net.imagej.updater.util.Platforms;
 import net.imagej.updater.util.Progress;
 import net.imagej.updater.util.UpdaterUserInterface;
 import net.imagej.updater.util.UpdaterUtil;
@@ -78,7 +79,7 @@ public class Installer extends Downloader {
 	private FilesCollection files;
 
 	public Installer(final FilesCollection files, final Progress progress) {
-		super(progress, files.util);
+		super(progress);
 		this.files = files;
 		if (progress != null)
 			addProgress(progress);
@@ -181,6 +182,7 @@ public class Installer extends Downloader {
 				// if the name changed, remove the file with the old name
 				FileObject.touch(files.prefixUpdate(file.localFilename));
 			}
+			// CTR FIXME factor this out into a dedicated isCriticalFile method.
 			// Files necessary for launch are handled differently - we do not want to
 			// put them in the update subdir to migrate over as they must be in place
 			// for the launch itself. So we rename the old file to a backup (.old) and
@@ -199,7 +201,7 @@ public class Installer extends Downloader {
 				final File old = new File(oldName);
 				if (old.exists()) old.delete();
 				saveTo.renameTo(old);
-				if (name.equals(UpdaterUtil.macPrefix + "ImageJ-tiger")) try {
+				if (name.equals("Contents/MacOS/ImageJ-tiger")) try {
 					UpdaterUtil.patchInfoPList(files.prefix("Contents/Info.plist"), "ImageJ-tiger");
 				}
 				catch (final IOException e) {
@@ -382,7 +384,7 @@ public class Installer extends Downloader {
 		file.setLocalVersion(file.getFilename(), digest, file.getTimestamp());
 		file.setStatus(FileObject.Status.INSTALLED);
 
-		if (file.executable && !files.util.platform.startsWith("win")) try {
+		if (file.executable && !Platforms.isWindows(files.platform())) try {
 			Runtime.getRuntime()
 				.exec(
 					new String[] { "chmod", "0755",

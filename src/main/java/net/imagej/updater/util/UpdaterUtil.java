@@ -31,6 +31,9 @@
 
 package net.imagej.updater.util;
 
+import org.scijava.log.LogService;
+import org.scijava.log.StderrLogService;
+
 import java.awt.GraphicsEnvironment;
 import java.io.BufferedReader;
 import java.io.File;
@@ -42,7 +45,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.DigestInputStream;
@@ -50,25 +52,18 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import org.scijava.log.LogService;
-import org.scijava.log.StderrLogService;
 
 /**
  * Utility methods for use with the {@link net.imagej.updater} package and
@@ -80,12 +75,11 @@ import org.scijava.log.StderrLogService;
  * <li>Calculate the checksums of files</li>
  * <li>Get the absolute path (prefix()) of the ImageJ directory</li>
  * <li>Copy a file over to a particular location</li>
- * <li>Get details of the Operating System ImageJ application is on</li>
  * </ul>
  * 
  * @author Johannes Schindelin
  */
-public class UpdaterUtil {
+public final class UpdaterUtil {
 
 	public static String MAIN_URL = HTTPSUtil.getProtocol() + "update.imagej.net/";
 	public static String UPDATE_DIRECTORY = "/home/imagej/update-site";
@@ -96,78 +90,8 @@ public class UpdaterUtil {
 	// Prefix for the preference key names
 	public static final String PREFS_USER = "imagej.updater.login";
 
-	public final static String macPrefix = "Contents/MacOS/";
-
-	private static final Map<String, String> launcherToPlatform;
-
-	public final String platform;
-	public final String[] platforms, launchers;
-	protected final Set<String> updateablePlatforms;
-
-	static {
-		launcherToPlatform = new HashMap<>();
-		// Jaunch: https://github.com/apposed/jaunch
-		launcherToPlatform.put("Fiji.app/Contents/MacOS/fiji-macos", "macos-arm64,macosx");
-		launcherToPlatform.put("Fiji.app/Contents/MacOS/fiji-macos-arm64", "macos-arm64");
-		launcherToPlatform.put("Fiji.app/Contents/MacOS/fiji-macos-x64", "macosx");
-		launcherToPlatform.put("Fiji.app/Contents/MacOS/jaunch-macos", "macos-arm64,macosx");
-		launcherToPlatform.put("Fiji.app/Contents/MacOS/jaunch-macos-arm64", "macos-arm64");
-		launcherToPlatform.put("Fiji.app/Contents/MacOS/jaunch-macos-x64", "macosx");
-		launcherToPlatform.put("fiji-linux-arm64", "linux-arm64");
-		launcherToPlatform.put("fiji-linux-x64", "linux64");
-		launcherToPlatform.put("fiji-windows-arm64.exe", "win-arm64");
-		launcherToPlatform.put("fiji-windows-x64.exe", "win64");
-		launcherToPlatform.put("config/jaunch/jaunch-linux-arm64", "linux-arm64");
-		launcherToPlatform.put("config/jaunch/jaunch-linux-x64", "linux64");
-		launcherToPlatform.put("config/jaunch/jaunch-windows-arm64.exe", "win-arm64");
-		launcherToPlatform.put("config/jaunch/jaunch-windows-x64.exe", "win64");
-		// Jaunch but deprecated
-		launcherToPlatform.put("Contents/MacOS/fiji-macos", "macos-arm64,macosx");
-		launcherToPlatform.put("Contents/MacOS/fiji-macos-arm64", "macos-arm64");
-		launcherToPlatform.put("Contents/MacOS/fiji-macos-universal", "macos-arm64,macosx");
-		launcherToPlatform.put("Contents/MacOS/fiji-macos-x64", "macosx");
-		launcherToPlatform.put("Contents/MacOS/jaunch-macos", "macos-arm64");
-		launcherToPlatform.put("Contents/MacOS/jaunch-macos-arm64", "macos-arm64");
-		launcherToPlatform.put("Contents/MacOS/jaunch-macos-universal", "macos-arm64");
-		launcherToPlatform.put("Contents/MacOS/jaunch-macos-x64", "macosx");
-		launcherToPlatform.put("Fiji.app/Contents/MacOS/fiji-macos-universal", "macos-arm64,macosx");
-		launcherToPlatform.put("Fiji.app/Contents/MacOS/jaunch-macos-universal", "macos-arm64");
-		// ImageJ Launcher: https://github.com/imagej/imagej-launcher
-		launcherToPlatform.put("ImageJ-linux32", "linux32");
-		launcherToPlatform.put("ImageJ-linux64", "linux64");
-		launcherToPlatform.put("Contents/MacOS/ImageJ-macosx", "macosx");
-		launcherToPlatform.put("Contents/MacOS/ImageJ-tiger", "macosx");
-		launcherToPlatform.put("ImageJ-win32.exe", "win32");
-		launcherToPlatform.put("ImageJ-win64.exe", "win64");
-	}
-
-	protected final DropboxURLMapper dropboxURLMapper;
-
-	public UpdaterUtil(final File imagejRoot) {
-		platform = getPlatform();
-
-		// These platform names determine what can be supported in the updater
-		platforms = new HashSet<>(launcherToPlatform.values()).toArray(new String[0]);
-
-		launchers = launcherToPlatform.keySet().toArray(new String[0]);
-		Arrays.sort(launchers);
-
-		// Note: A platform is "updateable" if at least one
-		// launcher for that platform is currently installed.
-		updateablePlatforms = new HashSet<>();
-		updateablePlatforms.add(platform);
-		if (imagejRoot != null) {
-			for (Map.Entry<String, String> lap : launcherToPlatform.entrySet()) {
-				if (new File(imagejRoot, lap.getKey()).exists()) {
-					updateablePlatforms.add(lap.getValue());
-				}
-			}
-		}
-		dropboxURLMapper = new DropboxURLMapper(this);
-	}
-
-	public static String platformForLauncher(final String filename) {
-		return launcherToPlatform.get(filename);
+	private UpdaterUtil() {
+		// Prevent instantiation of utility class.
 	}
 
 	public static String stripSuffix(final String string, final String suffix) {
@@ -178,17 +102,6 @@ public class UpdaterUtil {
 	public static String stripPrefix(final String string, final String prefix) {
 		if (!string.startsWith(prefix)) return string;
 		return string.substring(prefix.length());
-	}
-
-	public static String getPlatform() {
-		final String osArch = System.getProperty("os.arch", "");
-		final boolean is64bit = osArch.indexOf("64") >= 0;
-		final String osName = System.getProperty("os.name", "<unknown>");
-		if (osName.equals("Linux")) return "linux" + (is64bit ? "64" : "32");
-		if (osName.equals("Mac OS X")) return osArch.equals("aarch64") ? "macos-arm64" : "macosx";
-		if (osName.startsWith("Windows")) return "win" + (is64bit ? "64" : "32");
-		// System.err.println("Unknown platform: " + osName);
-		return osName.toLowerCase();
 	}
 
 	// get digest of the file as according to fullPath
@@ -239,7 +152,7 @@ public class UpdaterUtil {
 		digestStream.close();
 	}
 
-	public final static char[] hex = { '0', '1', '2', '3', '4', '5', '6', '7',
+	public static final char[] hex = { '0', '1', '2', '3', '4', '5', '6', '7',
 		'8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
 	public static String toHex(final byte[] bytes) {
@@ -354,49 +267,6 @@ public class UpdaterUtil {
 			t.substring(8, 10) + ":" + t.substring(10, 12) + ":" + t.substring(12,14);
 	}
 
-	public boolean isLauncher(final String filename) {
-		int slash = filename.indexOf("/");
-		if (slash >= 0 && filename.substring(0, slash).endsWith(".app")) {
-			// This file appears to reside inside a macOS-style .app folder.
-			// In this case, instead of matching against the full file path relative
-			// to the application base directory, let's match against the file path
-			// relative to the app folder. For example, for the file path:
-			//
-			//   Fiji.app/Contents/MacOS/fiji-macos
-			//
-			// we'll instead try to match against:
-			//
-			//   Contents/MacOS/fiji-macos
-			//
-			// So that regardless of the app directory name, the
-			// Updater still recognizes the file as a launcher.
-			return isLauncher(filename.substring(slash + 1));
-		}
-		return Arrays.binarySearch(launchers, filename) >= 0;
-	}
-
-	public boolean isUpdateablePlatform(final String platform) {
-		return updateablePlatforms.contains(platform);
-	}
-
-	public void setUpdateablePlatforms(final String... platforms) {
-		updateablePlatforms.clear();
-		for (String platform : platforms) {
-			if (platform == null) continue;
-			platform = platform.trim();
-			if ("all".equals(platform)) {
-				updateablePlatforms.add(this.platform);
-				updateablePlatforms.addAll(Arrays.asList(this.platforms));
-			} else {
-				updateablePlatforms.add(platform);
-			}
-		}
-	}
-
-	public boolean isMacOSX() {
-		return platform.equals("macosx");
-	}
-
 	public static <T> String join(final String delimiter, final Iterable<T> list)
 	{
 		final StringBuilder builder = new StringBuilder();
@@ -417,16 +287,7 @@ public class UpdaterUtil {
 		System.setProperty("java.net.useSystemProxies", "true");
 	}
 
-	@Deprecated
-	public static long getLastModified(final String url) {
-		try {
-			return new UpdaterUtil(null).getLastModified(new URL(url));
-		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public long getLastModified(final URL url) {
+	public static long getLastModified(final URL url) {
 		try {
 			final URLConnection connection = openConnection(url);
 			if (connection instanceof HttpURLConnection) ((HttpURLConnection) connection)
@@ -455,24 +316,20 @@ public class UpdaterUtil {
 
 	/**
 	 * Open a stream to a {@link URL}.
-	 * 
-	 * ... possibly mapping Dropbox URLs.
-	 * 
+	 *
 	 * @param url the URL to open
 	 */
-	public InputStream openStream(final URL url) throws IOException {
+	public static InputStream openStream(final URL url) throws IOException {
 		return openConnection(url).getInputStream();
 	}
 
 	/**
 	 * Open a connection to a {@link URL}.
-	 * 
-	 * ... possibly mapping Dropbox URLs.
-	 * 
+	 *
 	 * @param url the URL to open
 	 */
-	public URLConnection openConnection(final URL url) throws IOException {
-		final URLConnection connection = dropboxURLMapper.get(url).openConnection();
+	public static URLConnection openConnection(final URL url) throws IOException {
+		final URLConnection connection = url.openConnection();
 		if (connection instanceof HttpURLConnection) {
 			HttpURLConnection http = (HttpURLConnection)connection;
 			http.setInstanceFollowRedirects(true); // Follow HTTP 3xx redirects.
@@ -574,7 +431,7 @@ public class UpdaterUtil {
 	 * @return whether the directory is protected by the OS
 	 */
 	public static boolean isProtectedLocation(final File ijRoot) {
-		if (getPlatform().startsWith("win")) {
+		if (Platforms.isWindows(Platforms.current())) {
 			final String osVersion = System.getProperty("os.version");
 			if (osVersion == null) return false;
 			final Matcher matcher = majorVersionPattern.matcher(osVersion);

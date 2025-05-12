@@ -44,7 +44,7 @@ import org.scijava.test.TestUtils;
 /**
  * A conditional JUnit test for uploading via file: protocol.
  * 
- * This verifies that the file: protocol (required for Dropbox, or for scripts running
+ * This verifies that the file: protocol (required for scripts running
  * on the same machine as the webserver) works alright.
  * 
  * @author Johannes Schindelin

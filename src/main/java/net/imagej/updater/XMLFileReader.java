@@ -96,7 +96,7 @@ public class XMLFileReader extends DefaultHandler {
 		final UpdateSite site = files.getUpdateSite(updateSite, false);
 		if (site == null) throw new IOException("Unknown update site: " + site);
 		final URL url = new URL(site.getURL() + UpdaterUtil.XML_COMPRESSED);
-		final URLConnection connection = files.util.openConnection(url);
+		final URLConnection connection = UpdaterUtil.openConnection(url);
 		final long lastModified = connection.getLastModified();
 		read(updateSite, new GZIPInputStream(connection.getInputStream()),
 			site.getTimestamp());
@@ -217,7 +217,7 @@ public class XMLFileReader extends DefaultHandler {
 				.setStatus(Status.OBSOLETE_UNINSTALLED);
 			else if (current.isNewerThan(newTimestamp)) {
 				current.setStatus(Status.NEW);
-				current.setAction(files, current.isUpdateablePlatform(files)
+				current.setAction(files, current.isActivePlatform(files)
 					? FileObject.Action.INSTALL : FileObject.Action.NEW);
 			}
 			FileObject file = files.get(current.filename);

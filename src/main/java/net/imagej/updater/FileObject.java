@@ -44,6 +44,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
 
+import net.imagej.updater.util.Platforms;
 import net.imagej.updater.util.UpdaterUtil;
 
 import org.scijava.util.FileUtils;
@@ -92,7 +93,7 @@ public class FileObject {
 
 		@Override
 		public boolean equals(final Object other) {
-			return other instanceof Version ? equals((Version) other) : false;
+			return other instanceof Version && equals((Version) other);
 		}
 
 		public boolean equals(final Version other) {
@@ -111,7 +112,7 @@ public class FileObject {
 		}
 	}
 
-	public static enum Action {
+	public enum Action {
 		// no changes
 		LOCAL_ONLY("Local-only"), NOT_INSTALLED("Not installed"), INSTALLED(
 				"Up-to-date"), UPDATEABLE("Update available"), MODIFIED(
@@ -123,7 +124,7 @@ public class FileObject {
 		// developer-only changes
 		UPLOAD("Upload it"), REMOVE("Remove it");
 
-		private String label;
+		private final String label;
 
 		Action(final String label) {
 			this.label = label;
@@ -135,7 +136,7 @@ public class FileObject {
 		}
 	}
 
-	public static enum Status {
+	public enum Status {
 		NOT_INSTALLED(Action.NOT_INSTALLED, Action.INSTALL, Action.REMOVE),
 		INSTALLED(Action.INSTALLED, Action.UNINSTALL),
 		UPDATEABLE(Action.UPDATEABLE, Action.UNINSTALL, Action.UPDATE, Action.UPLOAD),
@@ -242,11 +243,11 @@ public class FileObject {
 	 * @param other the metadata source
 	 */
 	public void completeMetadataFrom(final FileObject other) {
-		if (description == null || description.length() == 0) description = other.description;
-		if (links == null || links.size() == 0) links = other.links;
-		if (authors == null || authors.size() == 0) authors = other.authors;
-		if (platforms == null || platforms.size() == 0) platforms = other.platforms;
-		if (categories == null || categories.size() == 0) categories = other.categories;
+		if (description == null || description.isEmpty()) description = other.description;
+		if (links == null || links.isEmpty()) links = other.links;
+		if (authors == null || authors.isEmpty()) authors = other.authors;
+		if (platforms == null || platforms.isEmpty()) platforms = other.platforms;
+		if (categories == null || categories.isEmpty()) categories = other.categories;
 	}
 
 	public boolean hasPreviousVersion(final String checksum) {
@@ -405,12 +406,16 @@ public class FileObject {
 	}
 
 	public void addPlatform(String platform) {
-		if ("linux".equals(platform)) platforms.add("linux32");
-		else if (platform != null && !platform.trim().equals("")) platforms.add(platform
-			.trim());
+		if (platform == null) return;
+		// Note: It's OK if it's actually a comma-separated list of platform names.
+		for (String p : platform.split(",")) {
+			p = p.trim();
+			if ("linux".equals(p)) platforms.add("linux32");
+			else if (!p.isEmpty()) platforms.add(p);
+		}
 	}
 
-	public Iterable<String> getPlatforms() {
+	public Collection<String> getPlatforms() {
 		return platforms;
 	}
 
@@ -745,17 +750,13 @@ public class FileObject {
 	}
 
 	public boolean isForPlatform(final String platform) {
-		return platforms.contains(platform);
+		return Platforms.matches(platform, platforms);
 	}
 
-	public boolean isForThisPlatform(final FilesCollection files) {
-		return platforms.size() == 0 || isForPlatform(files.util.platform);
-	}
-
-	public boolean isUpdateablePlatform(final FilesCollection files) {
-		if (platforms.size() == 0) return true;
+	public boolean isActivePlatform(final FilesCollection files) {
+		if (platforms.isEmpty()) return true; // all platforms
 		for (final String platform : platforms)
-			if (files.util.isUpdateablePlatform(platform)) return true;
+			if (files.isActivePlatform(platform)) return true;
 		return false;
 	}
 
