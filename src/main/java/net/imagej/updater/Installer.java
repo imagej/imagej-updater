@@ -154,20 +154,24 @@ public class Installer extends Downloader {
 		}
 		// If there is a Mac app update, we need to flag ALL installed files in Fiji.app for update
 		if (updateMacApp) {
-			for (FileObject installed : files.installed()) {
-				if (installed.filename.contains("Fiji.app")) {
-					installed.stageForUpdate(files, true);
-				}
-			}
 			Path macBundlePath = files.prefix("Fiji.app").toPath();
 			File backupAppFile = files.prefix("Fiji.old.app");
 			Path backupAppPath = backupAppFile.toPath();
-			// Remove the existing Fiji.old.app if it exists
-			if (backupAppFile.exists()) {
-				deleteDirectory(backupAppPath);
+
+			// If there's no Fiji.app folder to back up we can just skip this step
+			if (Files.exists(macBundlePath)) {
+				for (FileObject installed : files.installed()) {
+					if (installed.filename.contains("Fiji.app")) {
+						installed.stageForUpdate(files, true);
+					}
+				}
+				// Remove the existing Fiji.old.app if it exists
+				if (backupAppFile.exists()) {
+					deleteDirectory(backupAppPath);
+				}
+				// Create a new Fiji.old.app backup
+				copyDirectory(macBundlePath, backupAppPath);
 			}
-			// Create a new Fiji.old.app backup
-			copyDirectory(macBundlePath, backupAppPath);
 		}
 
 		for (final FileObject file : files.toInstallOrUpdate()) {
