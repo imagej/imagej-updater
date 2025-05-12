@@ -502,7 +502,9 @@ public class Checksummer extends AbstractProgressable {
 
 		queueIfExists("README.md");
 		queueIfExists("WELCOME.md");
-		queueIfExists("ImageJ.sh");
+		queueIfExists("fiji");
+		queueIfExists("fiji.bat");
+		queueIfExists("ImageJ.sh"); // deprecated
 		for (final String launcher : files.util.launchers)
 			queueIfExists(launcher);
 
