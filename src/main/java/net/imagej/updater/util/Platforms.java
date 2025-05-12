@@ -139,15 +139,16 @@ public final class Platforms {
 	 * Gets the short platform name for the currently running platform,
 	 * including both operating system and CPU architecture.
 	 * <table>
-	 *   <tr><th>Platform name</th></th><th>Operating system</th><th>Architecture</th></tr>
-	 *   <tr><td>linux-arm64</td>       <td>Linux</td>           <td>arm64</td></tr>
-	 *   <tr><td>linux32</td>           <td>Linux</td>           <td>x86-32</td></tr>
-	 *   <tr><td>linux64</td>           <td>Linux</td>           <td>x86-64</td></tr>
-	 *   <tr><td>macos-arm64</td>       <td>macOS</td>           <td>arm64</td></tr>
-	 *   <tr><td>macos64</td>           <td>macOS</td>           <td>x86-64</td></tr>
-	 *   <tr><td>win-arm64</td>         <td>Windows</td>         <td>arm64</td></tr>
-	 *   <tr><td>win32</td>             <td>Windows</td>         <td>x86-32</td></tr>
-	 *   <tr><td>win64</td>             <td>Windows</td>         <td>x86-64</td></tr>
+	 *   <caption>Supported platforms</caption>
+	 *   <tr><th>Platform name</th><th>Operating system</th><th>Architecture</th></tr>
+	 *   <tr><td>linux-arm64</td>  <td>Linux</td>           <td>arm64</td></tr>
+	 *   <tr><td>linux32</td>      <td>Linux</td>           <td>x86-32</td></tr>
+	 *   <tr><td>linux64</td>      <td>Linux</td>           <td>x86-64</td></tr>
+	 *   <tr><td>macos-arm64</td>  <td>macOS</td>           <td>arm64</td></tr>
+	 *   <tr><td>macos64</td>      <td>macOS</td>           <td>x86-64</td></tr>
+	 *   <tr><td>win-arm64</td>    <td>Windows</td>         <td>arm64</td></tr>
+	 *   <tr><td>win32</td>        <td>Windows</td>         <td>x86-32</td></tr>
+	 *   <tr><td>win64</td>        <td>Windows</td>         <td>x86-64</td></tr>
 	 * </table>
 	 */
 	public static String current() {
