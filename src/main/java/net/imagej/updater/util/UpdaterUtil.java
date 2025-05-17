@@ -94,6 +94,12 @@ public final class UpdaterUtil {
 		// Prevent instantiation of utility class.
 	}
 
+	/** @deprecated Use {@link Platforms#current()} instead. */
+	@Deprecated
+	public static String getPlatform() {
+		return Platforms.current();
+	}
+
 	public static String stripSuffix(final String string, final String suffix) {
 		if (!string.endsWith(suffix)) return string;
 		return string.substring(0, string.length() - suffix.length());
