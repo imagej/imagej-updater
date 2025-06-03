@@ -907,12 +907,20 @@ public class FilesCollection extends LinkedHashMap<String, FileObject>
 		return has(oneOf(Action.UPLOAD, Action.REMOVE));
 	}
 
+	/**
+	 * @return True essentially if any files differ from the update site (locally modified or out of date).
+	 */
 	public boolean hasForcableUpdates() {
 		for (final FileObject file : updateable(true))
 			if (!file.isUpdateable(false)) return true;
 		return false;
 	}
 
+	/**
+	 * @param evenForcedOnes If false, only look at updateable items with a known checksum.
+	 *                       If true, this will also include things like locally modified files.
+	 * @return An iterable over any updateable items.
+	 */
 	public Iterable<FileObject> updateable(final boolean evenForcedOnes) {
 		return filter(new Filter() {
 
