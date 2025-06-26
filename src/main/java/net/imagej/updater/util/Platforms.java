@@ -56,7 +56,7 @@ public final class Platforms {
 		LAUNCHERS.put("config/jaunch/jaunch-linux-arm64", "linux-arm64");
 		LAUNCHERS.put("config/jaunch/jaunch-linux-x64", "linux64");
 		LAUNCHERS.put("config/jaunch/jaunch-windows-arm64.exe", "win-arm64");
-		LAUNCHERS.put("config/jaunch/jaunch-windows-x64.exe", "win64");
+		LAUNCHERS.put("config/jaunch/jaunch-windows-x64.exe", "winx");
 		// Deprecated ImageJ Launcher: https://github.com/imagej/imagej-launcher
 		LAUNCHERS.put("ImageJ-linux32", "linux32");
 		LAUNCHERS.put("ImageJ-linux64", "linux64");
