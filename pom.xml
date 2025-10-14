@@ -11,7 +11,7 @@
 
 	<groupId>net.imagej</groupId>
 	<artifactId>imagej-updater</artifactId>
-	<version>2.0.2-SNAPSHOT</version>
+	<version>2.0.2</version>
 
 	<name>ImageJ Updater</name>
 	<description>Keeps components of ImageJ up-to-date.</description>
@@ -92,7 +92,7 @@
 	<scm>
 		<connection>scm:git:https://github.com/imagej/imagej-updater</connection>
 		<developerConnection>scm:git:git@github.com:imagej/imagej-updater</developerConnection>
-		<tag>HEAD</tag>
+		<tag>imagej-updater-2.0.2</tag>
 		<url>https://github.com/imagej/imagej-updater</url>
 	</scm>
 	<issueManagement>
