@@ -32,6 +32,7 @@
 package net.imagej.updater.util;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -52,7 +53,12 @@ public final class Platforms {
 		LAUNCHERS.put("fiji-linux-arm64", "linux-arm64");
 		LAUNCHERS.put("fiji-linux-x64", "linux64");
 		LAUNCHERS.put("fiji-windows-arm64.exe", "win-arm64");
-		LAUNCHERS.put("fiji-windows-x64.exe", "win64");
+		LAUNCHERS.put("fiji-windows-x64.exe", "winx");
+		LAUNCHERS.put("config/jaunch-linux-arm64", "linux-arm64");
+		LAUNCHERS.put("config/jaunch-linux-x64", "linux64");
+		LAUNCHERS.put("config/jaunch-windows-arm64.exe", "win-arm64");
+		LAUNCHERS.put("config/jaunch-windows-x64.exe", "winx");
+		// Deprecated: previous nested Jaunch config directory.
 		LAUNCHERS.put("config/jaunch/jaunch-linux-arm64", "linux-arm64");
 		LAUNCHERS.put("config/jaunch/jaunch-linux-x64", "linux64");
 		LAUNCHERS.put("config/jaunch/jaunch-windows-arm64.exe", "win-arm64");
@@ -65,21 +71,46 @@ public final class Platforms {
 		LAUNCHERS.put("ImageJ-win32.exe", "win32");
 		LAUNCHERS.put("ImageJ-win64.exe", "win64");
 
-		// Note 1: The macosx platform is a platform group meaning macOS of
-		// any architecture. All macOS-specific launchers are assigned to the
-		// macosx platform group, so that they ship with all macOS installations.
-		// We do this: 1) so that .app launcher folders do not get split up even
-		// when containing binaries for different architectures; and 2) so that
-		// Apple Silicon Macs still have the Intel/x86-64 binaries available in
-		// case they want to launch in x86 emulation mode via Rosetta.
-
-		// Note 2: All files within toplevel .app folders also count as launchers,
+		// Note: All files within toplevel .app folders also count as launchers,
 		// so that e.g. Fiji.app stays together; see #platformForLauncher(String)
 		// and #isLauncher(String) methods below.
 
+		// Supported platforms:
+		// - linux64     = Linux x64
+		// - linux-arm64 = Linux arm64
+		// - linuxx      = Linux, all architectures
+		// - macos64     = macOS x64 (i.e. Intel)
+		// - macos-arm64 = macOS arm64 (i.e. Apple Silicon)
+		// - macosx      = macOS, all architectures
+		// - win64       = Windows x64
+		// - win-arm64   = Windows arm64 (e.g. some Surface Pros)
+		// - winx        = Windows, all architectures
+		//
+		// Platforms ending in "x" are platform groups, meaning files associated
+		// with them will match that operating system regardless of architecture:
+		//
+		// * All macOS-specific launchers are assigned to the macosx platform
+		//   group, so that they ship with all macOS installations. We do this so
+		//   that .app launcher folders do not get split up even when containing
+		//   binaries for different architectures, and so that Apple Silicon Macs
+		//   still have the Intel/x86-64 binaries available in case they want to
+		//   launch in x86 emulation mode via Rosetta.
+		//
+		// * The jaunch-windows-x64.exe configurator is marked winx because it is
+		//   also used for Windows arm64 launches: Kotlin Native does not yet
+		//   support Windows arm64 as a target, so the Jaunch launcher invokes the
+		//   x64 configurator instead, which works transparently via Windows ARM's
+		//   Prism emulation layer.
+		//
+		// * The fiji-windows-x64.exe launcher is marked winx so that Windows ARM
+		//   systems can easily launch in emulated x86 mode if desired.
+
 		final Set<String> platformSet = new HashSet<>(LAUNCHERS.values());
-		platformSet.add("macos64");
-		platformSet.add("macos-arm64");
+		for (String arch : Arrays.asList("64", "-arm64", "x")) {
+			for (String os : Arrays.asList("linux", "macos", "win")) {
+				platformSet.add(os + arch);
+			}
+		}
 		PLATFORMS = new ArrayList<>(platformSet);
 		Collections.sort(PLATFORMS);
 	}
