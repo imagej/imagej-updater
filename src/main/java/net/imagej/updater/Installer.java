@@ -385,10 +385,8 @@ public class Installer extends Downloader {
 		file.setStatus(FileObject.Status.INSTALLED);
 
 		if (file.executable && !Platforms.isWindows(files.platform())) try {
-			Runtime.getRuntime()
-				.exec(
-					new String[] { "chmod", "0755",
-						download.destination.getAbsolutePath() });
+			// Use Java's native file permissions API instead of spawning chmod process
+			download.destination.setExecutable(true, false);
 		}
 		catch (final Exception e) {
 			files.log.error(e);

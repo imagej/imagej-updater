@@ -489,9 +489,8 @@ public class CommandLine {
 			new Downloader(progress).start(new OneFile(file));
 			if (file.executable && !Platforms.isWindows(files.platform())) {
 				try {
-					Runtime.getRuntime().exec(
-							new String[] { "chmod", "0755",
-									files.prefix(file.filename).getPath() });
+					// Use Java's native file permissions API instead of spawning chmod process
+					files.prefix(file.filename).setExecutable(true, false);
 				} catch (final Exception e) {
 					e.printStackTrace();
 					throw die("Could not mark " + file.filename
