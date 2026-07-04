@@ -195,6 +195,7 @@ public final class MVSResolver {
 		boolean converged = false;
 		for (int i = 0; i < MAX_ITERATIONS; i++) {
 			contributions = new HashMap<>();
+			final Map<GA, Set<String>> fallback = new HashMap<>();
 			for (final Root root : roots) {
 				// An unpinned root's effective release follows the fixpoint:
 				// another site's selection may have raised it.
@@ -211,12 +212,33 @@ public final class MVSResolver {
 						versions = new HashSet<>();
 						contributions.put(ga, versions);
 					}
-					if (selection.containsKey(ga)) {
-						versions.add(selection.get(ga));
+					if (!selection.isEmpty()) {
+						// A selection-bearing root's authoritative statement
+						// is its selection; it never contributes edge versions.
+						if (selection.containsKey(ga)) {
+							versions.add(selection.get(ga));
+						}
 					}
 					else if (walk.edgeRequests.containsKey(ga)) {
 						versions.addAll(walk.edgeRequests.get(ga));
 					}
+					// Last-resort pool for components no contribution covers
+					// (e.g. subtrees of pins to non-offered versions).
+					if (walk.edgeRequests.containsKey(ga)) {
+						Set<String> pool = fallback.get(ga);
+						if (pool == null) {
+							pool = new HashSet<>();
+							fallback.put(ga, pool);
+						}
+						pool.addAll(walk.edgeRequests.get(ga));
+					}
+				}
+			}
+			for (final Map.Entry<GA, Set<String>> entry : contributions.entrySet()) {
+				if (entry.getValue().isEmpty() &&
+					fallback.containsKey(entry.getKey()))
+				{
+					entry.getValue().addAll(fallback.get(entry.getKey()));
 				}
 			}
 
@@ -341,10 +363,21 @@ public final class MVSResolver {
 				continue; // leaf: unknown or recognition-only entry
 			}
 
+			// A node traversed at its root-selection version only follows
+			// edges into the selection's domain: anything outside was
+			// pruned by the site's own resolution (root depMgmt
+			// exclusions, scope overrides, platform), which the facts
+			// edges cannot express.
+			final boolean onSelection = !selection.isEmpty() &&
+				version.equals(selection.get(frame.ga));
+
 			final Set<Exclusion> nodeExclusions = frame.exclusions;
 			for (final DependencyEdge edge : release.edges()) {
 				if (edge.optional()) {
 					continue; // optional deps of dependencies are not traversed
+				}
+				if (onSelection && !selection.containsKey(edge.ga())) {
+					continue; // pruned by this site's own resolution
 				}
 				if (excluded(edge.ga(), nodeExclusions)) {
 					continue; // pruned on this path

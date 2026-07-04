@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mediation-vector name="selection-prunes-overreach">
+  <description>
+    A selection is also a membership statement: core's facts edge
+    declares junk:1, but the site's resolution pruned it (e.g. via the
+    seed's depMgmt exclusions, scope overrides, or platform filtering),
+    so junk is absent from the selection. The on-selection walk must not
+    follow edges outside the selection domain -- junk stays out, exactly
+    as jgo resolved. Found on real data: the fiji index's identity
+    self-check over-reached into xalan/eventbus subgraphs jgo had pruned.
+  </description>
+  <catalog>
+    <component coordinate="app:fiji" offered="true" current="1">
+      <release version="1">
+        <selection>
+          <select coordinate="app:fiji:1"/>
+          <select coordinate="lib:core:1"/>
+        </selection>
+        <dependency coordinate="lib:core:1"/>
+      </release>
+    </component>
+    <component coordinate="lib:core">
+      <release version="1">
+        <dependency coordinate="old:junk:1"/>
+      </release>
+    </component>
+    <component coordinate="old:junk">
+      <release version="1"/>
+    </component>
+  </catalog>
+  <roots>
+    <root coordinate="app:fiji:1"/>
+  </roots>
+  <expected>
+    <select coordinate="app:fiji:1"/>
+    <select coordinate="lib:core:1"/>
+  </expected>
+</mediation-vector>

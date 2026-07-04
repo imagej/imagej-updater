@@ -173,8 +173,18 @@ roots' selections ship; the highest contribution wins. Consequences:
   walks the *winners'* edges, so a component listed in one site's
   selection is still pruned when composition raises its dependee past
   the version that needed it (bee/stinger).
-- Selection-less roots (legacy or hand-built indexes) fall back to
-  contributing their edge-declared versions.
+- **A selection is also a membership statement**: a node traversed at
+  its root-selection version only follows edges into the selection's
+  domain, because anything outside was pruned by the site's own
+  resolution (root depMgmt exclusions, scope overrides, platform) —
+  pruning the facts edges cannot express. Off-selection nodes
+  (winner-raised, or pinned to a non-offered version) traverse freely.
+  Empirically necessary: without this rule, single-site fiji mediation
+  over-reached into xalan/eventbus subgraphs jgo had pruned.
+- Selection-bearing roots contribute only selection versions;
+  selection-less roots (legacy or hand-built indexes) contribute their
+  edge-declared versions; reached components with no contribution fall
+  back to edge-declared versions as a last resort (pin subtrees).
 
 Note that in this composition MVS and Gradle-style highest-wins
 coincide: contributions are concrete versions (ranges are banned by the

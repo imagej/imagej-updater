@@ -15,3 +15,4 @@ selection-compose-raise.xml
 selection-prune.xml
 selection-pin.xml
 selection-mixed-fallback.xml
+selection-prunes-overreach.xml
