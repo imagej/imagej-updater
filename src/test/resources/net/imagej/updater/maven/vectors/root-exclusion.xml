@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mediation-vector name="root-exclusion">
+  <description>
+    A user-level root exclusion ("never install noise") applies globally,
+    pruning noise on every path.
+  </description>
+  <catalog>
+    <component coordinate="ex:alpha">
+      <release version="1">
+        <dependency coordinate="lib:core:1"/>
+      </release>
+    </component>
+    <component coordinate="lib:core">
+      <release version="1">
+        <dependency coordinate="noisy:noise:1"/>
+        <dependency coordinate="lib:quiet:1"/>
+      </release>
+    </component>
+    <component coordinate="noisy:noise">
+      <release version="1"/>
+    </component>
+    <component coordinate="lib:quiet">
+      <release version="1"/>
+    </component>
+  </catalog>
+  <roots>
+    <root coordinate="ex:alpha:1"/>
+    <exclude>noisy:noise</exclude>
+  </roots>
+  <expected>
+    <select coordinate="ex:alpha:1"/>
+    <select coordinate="lib:core:1"/>
+    <select coordinate="lib:quiet:1"/>
+  </expected>
+</mediation-vector>

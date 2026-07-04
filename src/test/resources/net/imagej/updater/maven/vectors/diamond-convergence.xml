@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mediation-vector name="diamond-convergence">
+  <description>
+    Classic diamond: one root reaches the same base library via two
+    intermediate libraries. Base appears once in the selection.
+  </description>
+  <catalog>
+    <component coordinate="ex:app">
+      <release version="1">
+        <dependency coordinate="lib:left:1"/>
+        <dependency coordinate="lib:right:1"/>
+      </release>
+    </component>
+    <component coordinate="lib:left">
+      <release version="1">
+        <dependency coordinate="lib:base:1"/>
+      </release>
+    </component>
+    <component coordinate="lib:right">
+      <release version="1">
+        <dependency coordinate="lib:base:1"/>
+      </release>
+    </component>
+    <component coordinate="lib:base">
+      <release version="1"/>
+    </component>
+  </catalog>
+  <roots>
+    <root coordinate="ex:app:1"/>
+  </roots>
+  <expected>
+    <select coordinate="ex:app:1"/>
+    <select coordinate="lib:left:1"/>
+    <select coordinate="lib:right:1"/>
+    <select coordinate="lib:base:1"/>
+  </expected>
+</mediation-vector>

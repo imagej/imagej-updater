@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mediation-vector name="exclusion-prunes-path">
+  <description>
+    Path-dependent exclusion: alpha's edge to core excludes noise, but
+    beta reaches core without the exclusion, so noise survives via beta's
+    path. The same node must be traversable under different exclusion
+    contexts.
+  </description>
+  <catalog>
+    <component coordinate="ex:alpha">
+      <release version="1">
+        <dependency coordinate="lib:core:1">
+          <exclude>noisy:noise</exclude>
+        </dependency>
+      </release>
+    </component>
+    <component coordinate="ex:beta">
+      <release version="1">
+        <dependency coordinate="lib:core:1"/>
+      </release>
+    </component>
+    <component coordinate="lib:core">
+      <release version="1">
+        <dependency coordinate="noisy:noise:1"/>
+      </release>
+    </component>
+    <component coordinate="noisy:noise">
+      <release version="1"/>
+    </component>
+  </catalog>
+  <roots>
+    <root coordinate="ex:alpha:1"/>
+    <root coordinate="ex:beta:1"/>
+  </roots>
+  <expected>
+    <select coordinate="ex:alpha:1"/>
+    <select coordinate="ex:beta:1"/>
+    <select coordinate="lib:core:1"/>
+    <select coordinate="noisy:noise:1"/>
+  </expected>
+</mediation-vector>

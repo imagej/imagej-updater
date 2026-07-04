@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mediation-vector name="exclusion-flips-winner">
+  <description>
+    Exclusion changes the mediation outcome: candy's edge to sugar:3 is
+    pruned by toast's exclusion, so sugar:3 is never requested and
+    cereal's sugar:2 wins. Without the exclusion, sugar:3 would win.
+  </description>
+  <catalog>
+    <component coordinate="brk:cereal">
+      <release version="1">
+        <dependency coordinate="sweet:sugar:2"/>
+      </release>
+    </component>
+    <component coordinate="brk:toast">
+      <release version="1">
+        <dependency coordinate="brk:candy:1">
+          <exclude>sweet:sugar</exclude>
+        </dependency>
+      </release>
+    </component>
+    <component coordinate="brk:candy">
+      <release version="1">
+        <dependency coordinate="sweet:sugar:3"/>
+      </release>
+    </component>
+    <component coordinate="sweet:sugar">
+      <release version="2"/>
+      <release version="3"/>
+    </component>
+  </catalog>
+  <roots>
+    <root coordinate="brk:cereal:1"/>
+    <root coordinate="brk:toast:1"/>
+  </roots>
+  <expected>
+    <select coordinate="brk:cereal:1"/>
+    <select coordinate="brk:toast:1"/>
+    <select coordinate="brk:candy:1"/>
+    <select coordinate="sweet:sugar:2"/>
+  </expected>
+</mediation-vector>

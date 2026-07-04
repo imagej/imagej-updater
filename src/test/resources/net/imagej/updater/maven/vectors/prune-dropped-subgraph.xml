@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mediation-vector name="prune-dropped-subgraph">
+  <description>
+    bee dropped its stinger dependency between v1 and v2. Composing cereal
+    (wants honey:1) with toast (wants honey:2) selects honey:2, and the
+    stinger:1 subgraph must be pruned because only honey:2's edges are
+    traversed. cereal's surviving request for honey:1 vs selected honey:2
+    is a major-version misalignment.
+  </description>
+  <catalog>
+    <component coordinate="brk:cereal">
+      <release version="1">
+        <dependency coordinate="brk:honey:1"/>
+      </release>
+    </component>
+    <component coordinate="brk:toast">
+      <release version="1">
+        <dependency coordinate="brk:honey:2"/>
+      </release>
+    </component>
+    <component coordinate="brk:honey">
+      <release version="1">
+        <dependency coordinate="brk:bee:1"/>
+        <dependency coordinate="brk:flower:1"/>
+        <dependency coordinate="brk:comb:1"/>
+      </release>
+      <release version="2">
+        <dependency coordinate="brk:bee:2"/>
+        <dependency coordinate="brk:flower:2"/>
+        <dependency coordinate="brk:comb:2"/>
+      </release>
+    </component>
+    <component coordinate="brk:bee">
+      <release version="1">
+        <dependency coordinate="brk:stinger:1"/>
+      </release>
+      <release version="2"/>
+    </component>
+    <component coordinate="brk:stinger">
+      <release version="1"/>
+    </component>
+    <component coordinate="brk:flower">
+      <release version="1"/>
+      <release version="2"/>
+    </component>
+    <component coordinate="brk:comb">
+      <release version="1"/>
+      <release version="2"/>
+    </component>
+  </catalog>
+  <roots>
+    <root coordinate="brk:cereal:1"/>
+    <root coordinate="brk:toast:1"/>
+  </roots>
+  <expected>
+    <select coordinate="brk:cereal:1"/>
+    <select coordinate="brk:toast:1"/>
+    <select coordinate="brk:honey:2"/>
+    <select coordinate="brk:bee:2"/>
+    <select coordinate="brk:flower:2"/>
+    <select coordinate="brk:comb:2"/>
+    <warning type="major-misalignment" coordinate="brk:honey"/>
+  </expected>
+</mediation-vector>

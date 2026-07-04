@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mediation-vector name="wildcard-exclusion-managed">
+  <description>
+    A wildcard exclusion (libs:*) prunes an entire group, including a
+    component the BOM manages. The BOM constrains versions but never adds
+    components, so the managed entry does not resurrect the excluded one,
+    and a managed component that is never requested is not selected.
+  </description>
+  <catalog>
+    <component coordinate="ex:app">
+      <release version="1">
+        <dependency coordinate="lib:core:1">
+          <exclude>libs:*</exclude>
+        </dependency>
+      </release>
+    </component>
+    <component coordinate="lib:core">
+      <release version="1">
+        <dependency coordinate="libs:util:1"/>
+        <dependency coordinate="libs:extra:1"/>
+      </release>
+    </component>
+    <component coordinate="libs:util">
+      <release version="1"/>
+      <release version="2"/>
+    </component>
+    <component coordinate="libs:extra">
+      <release version="1"/>
+    </component>
+    <managed bom="ex:bom:1">
+      <version coordinate="libs:util:2"/>
+    </managed>
+  </catalog>
+  <roots>
+    <root coordinate="ex:app:1"/>
+  </roots>
+  <expected>
+    <select coordinate="ex:app:1"/>
+    <select coordinate="lib:core:1"/>
+  </expected>
+</mediation-vector>

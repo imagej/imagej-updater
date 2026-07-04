@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mediation-vector name="simple-highest-wins">
+  <description>
+    Two extensions request different minor versions of the same library;
+    the highest requested version wins, with no warnings (same major).
+  </description>
+  <catalog>
+    <component coordinate="ex:alpha">
+      <release version="1">
+        <dependency coordinate="lib:util:1.1"/>
+      </release>
+    </component>
+    <component coordinate="ex:beta">
+      <release version="1">
+        <dependency coordinate="lib:util:1.2"/>
+      </release>
+    </component>
+    <component coordinate="lib:util">
+      <release version="1.1"/>
+      <release version="1.2"/>
+    </component>
+  </catalog>
+  <roots>
+    <root coordinate="ex:alpha:1"/>
+    <root coordinate="ex:beta:1"/>
+  </roots>
+  <expected>
+    <select coordinate="ex:alpha:1"/>
+    <select coordinate="ex:beta:1"/>
+    <select coordinate="lib:util:1.2"/>
+  </expected>
+</mediation-vector>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mediation-vector name="missing-release-leaf">
+  <description>
+    A requested component with no catalog entry (upstream closure
+    violation) is treated as a leaf: it is still selected (the constraint
+    is real) but a missing-release warning fires so the publisher can be
+    fixed.
+  </description>
+  <catalog>
+    <component coordinate="ex:app">
+      <release version="1">
+        <dependency coordinate="spooky:ghost:1"/>
+      </release>
+    </component>
+  </catalog>
+  <roots>
+    <root coordinate="ex:app:1"/>
+  </roots>
+  <expected>
+    <select coordinate="ex:app:1"/>
+    <select coordinate="spooky:ghost:1"/>
+    <warning type="missing-release" coordinate="spooky:ghost"/>
+  </expected>
+</mediation-vector>

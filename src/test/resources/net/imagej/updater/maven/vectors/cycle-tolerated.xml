@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mediation-vector name="cycle-tolerated">
+  <description>
+    Dependency cycles (rare but not impossible in published POMs) must
+    terminate cleanly: both components are selected, no infinite walk.
+  </description>
+  <catalog>
+    <component coordinate="cyc:a">
+      <release version="1">
+        <dependency coordinate="cyc:b:1"/>
+      </release>
+    </component>
+    <component coordinate="cyc:b">
+      <release version="1">
+        <dependency coordinate="cyc:a:1"/>
+      </release>
+    </component>
+  </catalog>
+  <roots>
+    <root coordinate="cyc:a:1"/>
+  </roots>
+  <expected>
+    <select coordinate="cyc:a:1"/>
+    <select coordinate="cyc:b:1"/>
+  </expected>
+</mediation-vector>

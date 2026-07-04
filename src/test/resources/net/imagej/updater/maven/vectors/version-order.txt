@@ -1,0 +1,29 @@
+# Maven version ordering corpus, ascending. A line beginning with '='
+# is equal to the previous line. Both the Python reference (via jgo's
+# compare_versions) and the Java client (net.imagej.updater.maven.
+# MavenVersion) must order these identically. Deliberately restricted to
+# the well-behaved subset where jgo's SemVer fast path and the Maven
+# version-order specification agree.
+0.9
+1.0-alpha
+1.0-alpha2
+1.0-beta
+1.0-milestone
+1.0-rc
+1.0-SNAPSHOT
+1.0
+=1.0.0
+=1.0-ga
+=1.0-final
+=1.0-release
+1.0-sp
+1.0.1
+1.1-SNAPSHOT
+1.1
+1.2
+1.10
+2.0
+2.0.1
+2.5.0
+2.6.4
+10.0

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mediation-vector name="unpinned-root-raised">
+  <description>
+    An unpinned root (site current version 7.11) participates in MVS like
+    any other request: helper's dependency on 7.12 raises the selection,
+    and the raised version's subtree (imglib:6) is used.
+  </description>
+  <catalog>
+    <component coordinate="sc:trackmate">
+      <release version="7.11">
+        <dependency coordinate="net:imglib:5"/>
+      </release>
+      <release version="7.12">
+        <dependency coordinate="net:imglib:6"/>
+      </release>
+    </component>
+    <component coordinate="ex:helper">
+      <release version="1">
+        <dependency coordinate="sc:trackmate:7.12"/>
+      </release>
+    </component>
+    <component coordinate="net:imglib">
+      <release version="5"/>
+      <release version="6"/>
+    </component>
+  </catalog>
+  <roots>
+    <root coordinate="sc:trackmate:7.11"/>
+    <root coordinate="ex:helper:1"/>
+  </roots>
+  <expected>
+    <select coordinate="sc:trackmate:7.12"/>
+    <select coordinate="ex:helper:1"/>
+    <select coordinate="net:imglib:6"/>
+  </expected>
+</mediation-vector>

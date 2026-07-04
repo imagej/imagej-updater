@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mediation-vector name="exclusion-all-paths">
+  <description>
+    Same graph as exclusion-prunes-path but without beta: every path to
+    noise carries the exclusion, so noise is absent from the selection.
+  </description>
+  <catalog>
+    <component coordinate="ex:alpha">
+      <release version="1">
+        <dependency coordinate="lib:core:1">
+          <exclude>noisy:noise</exclude>
+        </dependency>
+      </release>
+    </component>
+    <component coordinate="lib:core">
+      <release version="1">
+        <dependency coordinate="noisy:noise:1"/>
+      </release>
+    </component>
+    <component coordinate="noisy:noise">
+      <release version="1"/>
+    </component>
+  </catalog>
+  <roots>
+    <root coordinate="ex:alpha:1"/>
+  </roots>
+  <expected>
+    <select coordinate="ex:alpha:1"/>
+    <select coordinate="lib:core:1"/>
+  </expected>
+</mediation-vector>

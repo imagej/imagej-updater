@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mediation-vector name="bom-exclusion">
+  <description>
+    A BOM entry's exclusions apply to the managed component's outgoing
+    edges wherever it appears (Maven depMgmt-exclusion semantics): core is
+    managed with an exclusion of noise, so core's edge to noise is pruned
+    while its edge to quiet survives.
+  </description>
+  <catalog>
+    <component coordinate="ex:alpha">
+      <release version="1">
+        <dependency coordinate="lib:core:1"/>
+      </release>
+    </component>
+    <component coordinate="lib:core">
+      <release version="1">
+        <dependency coordinate="noisy:noise:1"/>
+        <dependency coordinate="lib:quiet:1"/>
+      </release>
+    </component>
+    <component coordinate="noisy:noise">
+      <release version="1"/>
+    </component>
+    <component coordinate="lib:quiet">
+      <release version="1"/>
+    </component>
+    <managed bom="ex:bom:1">
+      <version coordinate="lib:core:1">
+        <exclude>noisy:noise</exclude>
+      </version>
+    </managed>
+  </catalog>
+  <roots>
+    <root coordinate="ex:alpha:1"/>
+  </roots>
+  <expected>
+    <select coordinate="ex:alpha:1"/>
+    <select coordinate="lib:core:1"/>
+    <select coordinate="lib:quiet:1"/>
+  </expected>
+</mediation-vector>
