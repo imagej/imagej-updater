@@ -368,6 +368,14 @@ Still open:
    forecloses it.
 6. **SemVer warning heuristics**: exact trigger conditions (major-only?
    0.x handling?) and UI presentation — decide during Phase 2 UI work.
+   Empirical input from the Phase 0 spike: mediating the real
+   `sc.fiji:TrackMate:8.1.6` closure fires major-misalignment for 27 of
+   221 selected components, mostly annotation/logging libraries with
+   habitual major churn (jsr305, guava, slf4j, asm) alongside a few
+   meaningful ones (imglib2, imagej-common). The raw heuristic is too
+   noisy for a modal warning; the UI likely needs severity tiers (e.g.
+   warn prominently only for offered/rooted components or direct edges
+   of roots) or an ecosystem allowlist.
 
 ## 9. Work breakdown by repository
 
