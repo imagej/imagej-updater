@@ -10,3 +10,8 @@ unpinned-root-raised.xml
 root-exclusion.xml
 cycle-tolerated.xml
 missing-release-leaf.xml
+selection-identity.xml
+selection-compose-raise.xml
+selection-prune.xml
+selection-pin.xml
+selection-mixed-fallback.xml

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mediation-vector name="selection-prune">
+  <description>
+    Selections are contributions, not install lists: cereal's selection
+    ships stinger:1 (via honey:1/bee:1), but composing with toast raises
+    honey and bee to 2, and reachability pruning drops stinger even
+    though a selection lists it -- no surviving path reaches it.
+  </description>
+  <catalog>
+    <component coordinate="brk:cereal" offered="true" current="1">
+      <release version="1">
+        <selection>
+          <select coordinate="brk:cereal:1"/>
+          <select coordinate="brk:honey:1"/>
+          <select coordinate="brk:bee:1"/>
+          <select coordinate="brk:stinger:1"/>
+        </selection>
+        <dependency coordinate="brk:honey:1"/>
+      </release>
+    </component>
+    <component coordinate="brk:toast" offered="true" current="1">
+      <release version="1">
+        <selection>
+          <select coordinate="brk:toast:1"/>
+          <select coordinate="brk:honey:2"/>
+          <select coordinate="brk:bee:2"/>
+        </selection>
+        <dependency coordinate="brk:honey:2"/>
+      </release>
+    </component>
+    <component coordinate="brk:honey">
+      <release version="1">
+        <dependency coordinate="brk:bee:1"/>
+      </release>
+      <release version="2">
+        <dependency coordinate="brk:bee:2"/>
+      </release>
+    </component>
+    <component coordinate="brk:bee">
+      <release version="1">
+        <dependency coordinate="brk:stinger:1"/>
+      </release>
+      <release version="2"/>
+    </component>
+    <component coordinate="brk:stinger">
+      <release version="1"/>
+    </component>
+  </catalog>
+  <roots>
+    <root coordinate="brk:cereal:1"/>
+    <root coordinate="brk:toast:1"/>
+  </roots>
+  <expected>
+    <select coordinate="brk:cereal:1"/>
+    <select coordinate="brk:toast:1"/>
+    <select coordinate="brk:honey:2"/>
+    <select coordinate="brk:bee:2"/>
+    <warning type="major-misalignment" coordinate="brk:honey"/>
+    <warning type="major-misalignment" coordinate="brk:bee"/>
+  </expected>
+</mediation-vector>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mediation-vector name="selection-mixed-fallback">
+  <description>
+    Mixed regime: one site publishes a selection, another (legacy or
+    hand-built) does not. The selection-less root contributes its
+    edge-declared versions as fallback; MVS composes both contributions.
+  </description>
+  <catalog>
+    <component coordinate="app:fiji" offered="true" current="1">
+      <release version="1">
+        <selection>
+          <select coordinate="app:fiji:1"/>
+          <select coordinate="lib:log:1"/>
+        </selection>
+        <dependency coordinate="lib:log:1"/>
+      </release>
+    </component>
+    <component coordinate="app:legacy" offered="true" current="1">
+      <release version="1">
+        <dependency coordinate="lib:log:2"/>
+      </release>
+    </component>
+    <component coordinate="lib:log">
+      <release version="1"/>
+      <release version="2"/>
+    </component>
+  </catalog>
+  <roots>
+    <root coordinate="app:fiji:1"/>
+    <root coordinate="app:legacy:1"/>
+  </roots>
+  <expected>
+    <select coordinate="app:fiji:1"/>
+    <select coordinate="app:legacy:1"/>
+    <select coordinate="lib:log:2"/>
+    <warning type="major-misalignment" coordinate="lib:log"/>
+  </expected>
+</mediation-vector>

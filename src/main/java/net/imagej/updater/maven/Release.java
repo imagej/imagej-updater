@@ -32,7 +32,9 @@
 package net.imagej.updater.maven;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * One version of a component, with its direct dependency edges.
@@ -40,11 +42,18 @@ import java.util.List;
  * Slim entries carry identity+sha1 for local-file recognition only; they
  * have no (reliable) edges and are not installable.
  * </p>
+ * <p>
+ * Offered releases additionally carry a <em>selection</em>: the resolved
+ * constellation this release ships (what {@code jgo g:a:v} resolves in
+ * managed mode). Selections drive version choice during mediation; edges
+ * provide only reachability/pruning structure.
+ * </p>
  */
 public final class Release {
 
 	private final String version;
 	private final List<DependencyEdge> edges = new ArrayList<>();
+	private final Map<GA, String> selection = new LinkedHashMap<>();
 	private String sha1;
 	private String timestamp;
 	private long filesize = -1;
@@ -58,6 +67,7 @@ public final class Release {
 
 	public String version() { return version; }
 	public List<DependencyEdge> edges() { return edges; }
+	public Map<GA, String> selection() { return selection; }
 
 	public String sha1() { return sha1; }
 	public void setSha1(final String sha1) { this.sha1 = sha1; }

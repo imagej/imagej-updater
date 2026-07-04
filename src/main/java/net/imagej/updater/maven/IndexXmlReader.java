@@ -109,6 +109,13 @@ public final class IndexXmlReader {
 			for (final Element descEl : children(relEl, "description")) {
 				release.setDescription(descEl.getTextContent());
 			}
+			for (final Element selEl : children(relEl, "selection")) {
+				for (final Element sEl : children(selEl, "select")) {
+					final Coordinate coordinate =
+						Coordinate.parse(sEl.getAttribute("coordinate"));
+					release.selection().put(coordinate.ga(), coordinate.version());
+				}
+			}
 			for (final Element depEl : children(relEl, "dependency")) {
 				release.edges().add(parseDependency(depEl));
 			}

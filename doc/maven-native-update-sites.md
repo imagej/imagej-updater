@@ -73,6 +73,15 @@ to `FileObject.addDependency`).
 <component coordinate="sc.fiji:TrackMate" offered="true" current="7.12.0">
   <release version="7.12.0" sha1="..." filesize="..." timestamp="..." min-java="8">
     <description>...</description>
+    <selection>
+      <!-- The resolved constellation this release ships: exactly what
+           `jgo sc.fiji:TrackMate:7.12.0` (managed mode) resolves.
+           Selections drive version choice; edges drive reachability. -->
+      <select coordinate="sc.fiji:TrackMate:7.12.0"/>
+      <select coordinate="net.imglib2:imglib2:6.2.0"/>
+      <select coordinate="org.slf4j:slf4j-api:1.7.36"/>
+      ...
+    </selection>
     <dependency coordinate="net.imglib2:imglib2:6.2.0"/>
     <dependency coordinate="org.jogamp.gluegen:gluegen-rt:2.4.0"
                 classifier="natives-linux-amd64" platform="linux64"/>
@@ -87,14 +96,25 @@ to `FileObject.addDependency`).
 
 ```
 
+**Selections vs. edges.** Every offered release carries a
+`<selection>`: its resolved constellation, computed at publish time by
+running jgo's actual resolver (managed mode) on the release coordinate —
+so a site serving Fiji 2.18.0 ships exactly what `jgo sc.fiji:fiji:2.18.0`
+resolves, by construction. During mediation, versions come from the
+selections of the roots that reach a component; `<dependency>` edges
+provide only the reachability/pruning structure (their declared versions
+serve as fallback contributions for selection-less legacy indexes, and
+as diagnostics). With a single site enabled, mediation is therefore the
+identity on the release constellation.
+
 There is intentionally **no `<managed>` (BOM) element**. An earlier
 draft carried each site's effective dependencyManagement as a
 compose-time override; it was removed (decision log §8) because
 per-site BOMs have no order-independent reconciliation across sites,
 and curation-by-hold-down conflicts with the MVS philosophy (a
 component that requests a newer library needs that library; upgrades
-break less than holds). The legitimate residue of depMgmt is already
-in the facts: a component's own managed versions and exclusions are
+break less than holds). A site's own curation is fully expressed by its
+`<selection>`; a component's own managed versions and exclusions are
 baked into its published edges during model building.
 
 Rules and semantics:
@@ -139,16 +159,29 @@ Rules and semantics:
 
 ### 4.1 Mediation algorithm
 
-**DECIDED (2026-07-03): Minimum Version Selection (MVS).** Per-component
-facts match Maven's behavior exactly (jgo at publish time); cross-site
-composition uses MVS.
+**DECIDED (2026-07-03, refined 2026-07-04): selection-based Minimum
+Version Selection (MVS).** Versions come from the `<selection>` of each
+root's release (jgo-resolved constellations, §3); edges provide only
+reachability. Contributions per component = the versions the reaching
+roots' selections ship; the highest contribution wins. Consequences:
 
-Note that in this format MVS and Gradle-style highest-wins coincide:
-published edges carry only concrete versions (ranges are banned by the
-closure rules, §3), each treated as a minimum requirement, so
-"maximum of the minima" and "highest requested" compute the same
-fixpoint. The distinction would matter only if ranges or upper bounds
-were ever admitted — one more reason they stay banned.
+- **One site enabled ⇒ identity**: the client materializes exactly the
+  release constellation that `jgo g:a:v` resolves — what users expect
+  from a site purporting to serve that release. MVS does real work only
+  when composing multiple sites (or honoring pins).
+- **Selections are contributions, not install lists**: reachability
+  walks the *winners'* edges, so a component listed in one site's
+  selection is still pruned when composition raises its dependee past
+  the version that needed it (bee/stinger).
+- Selection-less roots (legacy or hand-built indexes) fall back to
+  contributing their edge-declared versions.
+
+Note that in this composition MVS and Gradle-style highest-wins
+coincide: contributions are concrete versions (ranges are banned by the
+closure rules, §3), each treated as a minimum requirement, so "maximum
+of the minima" and "highest contributed" compute the same fixpoint. The
+distinction would matter only if ranges or upper bounds were ever
+admitted — one more reason they stay banned.
 
 Rationale for MVS over Maven's nearest-wins:
 
@@ -166,7 +199,7 @@ Rationale for MVS over Maven's nearest-wins:
 
 **Exclusion interplay** (ours to define, since Go's MVS has no such
 concept): the fixpoint walk accumulates per-path exclusion sets exactly
-as in §4.2; a version is a candidate only if requested via a surviving
+as in §4.2; a component contributes only if reached via a surviving
 (non-excluded) path. Exclusion filtering interleaves with selection in
 each fixpoint iteration.
 
@@ -196,11 +229,16 @@ is informational and never blocks.
 1. Fetch enabled sites' indexes (one HTTP request per site, as today).
 2. Roots = user-selected offered components (with any pins) + root
    exclusions (user "never install X" preferences).
-3. Walk the union graph from the roots. Each path accumulates the union
-   of exclusion sets along its edges; matching nodes are pruned on that
-   path. Exclusion filtering interleaves with mediation (an excluded node
-   is not a version candidate via that path).
-4. Mediate versions per G:A:C:P; traverse only the winner's edge list.
+3. Fixpoint: walk each root's graph, traversing every component at its
+   current *winning* version (falling back to the root's selection, then
+   the edge-declared version). Each path accumulates the union of
+   exclusion sets along its edges; matching nodes are pruned on that
+   path.
+4. Contributions per reached G:A:C:P = the reaching roots' selection
+   versions (edge-declared versions for selection-less roots). Winner =
+   pin, else highest contribution. Repeat from 3 until stable. An
+   unpinned root itself participates: another site's selection may raise
+   it, and its own contribution then follows the raised release.
 5. Filter release candidates by `min-java` against the running JVM.
 6. Diff the mediated selection against local state (filename+SHA1
    recognition; slim entries let ancient installs be identified rather
@@ -389,6 +427,17 @@ Settled 2026-07-04:
    jgo's `MavenVersion` (spec path) in Python and the equivalent
    algorithm in Java. Fast-path divergence to be reported upstream to
    jgo.
+9. **Selections drive versions; edges drive reachability** (§3, §4.1).
+   Offered releases publish their jgo-resolved constellation as a
+   `<selection>`; a single enabled site materializes exactly that
+   constellation (identity), and MVS composes selections across sites.
+   This supersedes the "site-alone fidelity gap accepted" clause of
+   decision 7 — the gap is closed: raw edge-driven MVS remains only as
+   the fallback for selection-less legacy indexes. The flattener runs a
+   publish-time self-check that single-root mediation reproduces each
+   selection exactly. A per-platform selection variant (native
+   classifiers differ per OS/arch) is deferred with the general client
+   platform-filtering work.
 
 Still open:
 

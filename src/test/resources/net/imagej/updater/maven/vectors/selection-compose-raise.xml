@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mediation-vector name="selection-compose-raise">
+  <description>
+    Two sites' selections disagree on a shared library: Fiji ships log:1,
+    Sparkles ships log:2. Composition raises to log:2 (MVS, no
+    hold-down), with a major-misalignment warning attributing the
+    disagreement.
+  </description>
+  <catalog>
+    <component coordinate="app:fiji" offered="true" current="1">
+      <release version="1">
+        <selection>
+          <select coordinate="app:fiji:1"/>
+          <select coordinate="lib:log:1"/>
+        </selection>
+        <dependency coordinate="lib:log:1"/>
+      </release>
+    </component>
+    <component coordinate="app:sparkles" offered="true" current="1">
+      <release version="1">
+        <selection>
+          <select coordinate="app:sparkles:1"/>
+          <select coordinate="lib:log:2"/>
+        </selection>
+        <dependency coordinate="lib:log:2"/>
+      </release>
+    </component>
+    <component coordinate="lib:log">
+      <release version="1"/>
+      <release version="2"/>
+    </component>
+  </catalog>
+  <roots>
+    <root coordinate="app:fiji:1"/>
+    <root coordinate="app:sparkles:1"/>
+  </roots>
+  <expected>
+    <select coordinate="app:fiji:1"/>
+    <select coordinate="app:sparkles:1"/>
+    <select coordinate="lib:log:2"/>
+    <warning type="major-misalignment" coordinate="lib:log"/>
+  </expected>
+</mediation-vector>

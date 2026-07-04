@@ -59,18 +59,20 @@ import java.util.regex.Pattern;
  * <ul>
  * <li>The installation is a synthetic root; user-selected components are
  * its direct dependencies ("roots").</li>
- * <li>Selection per {@link GA} is the highest version requested via any
- * surviving (non-excluded) path; because published edges carry concrete
- * versions only, MVS and highest-wins coincide.</li>
- * <li>Precedence: user pin &gt; MVS. There is deliberately no site-level
- * BOM override: cross-site curation-by-hold-down does not compose (whose
- * BOM wins?) and violates order independence; curation lives at build
- * time (pom-scijava/pombast) and in each component's own published
- * facts.</li>
+ * <li><b>Versions come from selections; edges provide reachability.</b>
+ * Each offered release publishes its resolved constellation (what
+ * {@code jgo g:a:v} resolves); a root contributes, for every component
+ * its surviving paths reach, the version its selection ships. With one
+ * site enabled, mediation is the identity on the release constellation.
+ * Roots without selection coverage (legacy indexes) contribute their
+ * edge-declared versions as fallback.</li>
+ * <li>Cross-site composition selects the highest contribution per
+ * {@link GA} (MVS). Precedence: user pin &gt; MVS; no site-level BOM
+ * override.</li>
  * <li>Exclusions are per-path; root exclusions are global. Exclusions
  * never remove an explicitly selected root.</li>
- * <li>The walk traverses each component at its <em>selected</em> version,
- * so losing subtrees are pruned.</li>
+ * <li>Reachability walks each component at its <em>winning</em> version,
+ * so losing subtrees are pruned even when a selection lists them.</li>
  * </ul>
  */
 public final class MVSResolver {
@@ -159,15 +161,15 @@ public final class MVSResolver {
 
 		private final Map<GA, String> selected;
 		private final List<MediationWarning> warnings;
-		private final Map<GA, Set<String>> requests;
+		private final Map<GA, Set<String>> contributions;
 
 		Resolution(final Map<GA, String> selected,
 			final List<MediationWarning> warnings,
-			final Map<GA, Set<String>> requests)
+			final Map<GA, Set<String>> contributions)
 		{
 			this.selected = Collections.unmodifiableMap(selected);
 			this.warnings = Collections.unmodifiableList(warnings);
-			this.requests = Collections.unmodifiableMap(requests);
+			this.contributions = Collections.unmodifiableMap(contributions);
 		}
 
 		/** Final selection: one version per reachable {@link GA}. */
@@ -176,8 +178,8 @@ public final class MVSResolver {
 		/** Deduplicated, deterministically ordered warnings. */
 		public List<MediationWarning> warnings() { return warnings; }
 
-		/** Surviving requests from the stable walk, for diagnostics. */
-		public Map<GA, Set<String>> requests() { return requests; }
+		/** Surviving contributions from the stable walk, for diagnostics. */
+		public Map<GA, Set<String>> contributions() { return contributions; }
 	}
 
 	public Resolution resolve(final ComponentCatalog catalog,
@@ -189,13 +191,39 @@ public final class MVSResolver {
 		}
 
 		Map<GA, String> selected = new HashMap<>();
-		Map<GA, Set<String>> requests = null;
+		Map<GA, Set<String>> contributions = null;
 		boolean converged = false;
 		for (int i = 0; i < MAX_ITERATIONS; i++) {
-			requests = walk(catalog, roots, rootExclusions, selected);
+			contributions = new HashMap<>();
+			for (final Root root : roots) {
+				// An unpinned root's effective release follows the fixpoint:
+				// another site's selection may have raised it.
+				final String rootVersion = selected.containsKey(root.ga()) ? //
+					selected.get(root.ga()) : root.version();
+				final Release rootRelease = catalog.release(root.ga(), rootVersion);
+				final Map<GA, String> selection = rootRelease == null ? //
+					Collections.<GA, String> emptyMap() : rootRelease.selection();
+				final RootWalk walk = walkRoot(catalog, root.ga(), rootVersion,
+					selection, rootExclusions, selected);
+				for (final GA ga : walk.reached) {
+					Set<String> versions = contributions.get(ga);
+					if (versions == null) {
+						versions = new HashSet<>();
+						contributions.put(ga, versions);
+					}
+					if (selection.containsKey(ga)) {
+						versions.add(selection.get(ga));
+					}
+					else if (walk.edgeRequests.containsKey(ga)) {
+						versions.addAll(walk.edgeRequests.get(ga));
+					}
+				}
+			}
+
 			final Map<GA, String> newSelected = new HashMap<>();
-			for (final Map.Entry<GA, Set<String>> entry : requests.entrySet()) {
+			for (final Map.Entry<GA, Set<String>> entry : contributions.entrySet()) {
 				final GA ga = entry.getKey();
+				if (entry.getValue().isEmpty()) continue;
 				String version = highest(entry.getValue());
 				if (pins.containsKey(ga)) version = pins.get(ga);
 				newSelected.put(ga, version);
@@ -211,8 +239,8 @@ public final class MVSResolver {
 				"MVS did not converge within " + MAX_ITERATIONS + " iterations");
 		}
 
-		return new Resolution(selected, warnings(catalog, selected, requests),
-			requests);
+		return new Resolution(selected,
+			warnings(catalog, selected, contributions), contributions);
 	}
 
 	// -- Walk --
@@ -261,16 +289,28 @@ public final class MVSResolver {
 		}
 	}
 
+	private static final class RootWalk {
+
+		final Set<GA> reached = new HashSet<>();
+		final Map<GA, Set<String>> edgeRequests = new HashMap<>();
+	}
+
 	/**
-	 * One traversal from the synthetic root, honoring the current
-	 * selection. Returns the requested versions per {@link GA} discovered
-	 * via surviving paths.
+	 * One root's traversal, honoring the current global selection.
+	 * <p>
+	 * Node versions resolve as: global winner, else this root's
+	 * selection, else the edge-declared version. Returns the components
+	 * reached via surviving paths plus the edge-declared versions per
+	 * component (the fallback contributions for selection-less roots).
+	 * </p>
 	 */
-	private Map<GA, Set<String>> walk(final ComponentCatalog catalog,
-		final List<Root> roots, final Collection<Exclusion> rootExclusions,
+	private RootWalk walkRoot(final ComponentCatalog catalog,
+		final GA rootGA, final String rootVersion,
+		final Map<GA, String> selection,
+		final Collection<Exclusion> rootExclusions,
 		final Map<GA, String> selected)
 	{
-		final Map<GA, Set<String>> requests = new HashMap<>();
+		final RootWalk walk = new RootWalk();
 		final Deque<Frame> stack = new ArrayDeque<>();
 		final Set<Exclusion> globalExclusions = rootExclusions == null ? //
 			Collections.<Exclusion> emptySet() : //
@@ -278,21 +318,21 @@ public final class MVSResolver {
 
 		// Roots are seeded unconditionally: exclusions never remove an
 		// explicitly selected root.
-		for (final Root root : roots) {
-			request(requests, root.ga(), root.version());
-			stack.push(new Frame(root.ga(), root.version(), globalExclusions));
-		}
+		request(walk.edgeRequests, rootGA, rootVersion);
+		stack.push(new Frame(rootGA, rootVersion, globalExclusions));
 
 		// Visited keys include the exclusion set: the same node may be
 		// pruned differently on different paths, and only surviving paths
-		// request.
+		// contribute.
 		final Set<State> visited = new HashSet<>();
 
 		while (!stack.isEmpty()) {
 			final Frame frame = stack.pop();
-			// Traverse at the *selected* version (prunes losing subtrees).
-			final String version = selected.containsKey(frame.ga) ? //
-				selected.get(frame.ga) : frame.requested;
+			walk.reached.add(frame.ga);
+			// Traverse at the winning version (prunes losing subtrees).
+			String version = selected.get(frame.ga);
+			if (version == null) version = selection.get(frame.ga);
+			if (version == null) version = frame.requested;
 			final State state = new State(frame.ga, version, frame.exclusions);
 			if (!visited.add(state)) continue;
 
@@ -309,7 +349,7 @@ public final class MVSResolver {
 				if (excluded(edge.ga(), nodeExclusions)) {
 					continue; // pruned on this path
 				}
-				request(requests, edge.ga(), edge.version());
+				request(walk.edgeRequests, edge.ga(), edge.version());
 				Set<Exclusion> childExclusions = nodeExclusions;
 				if (!edge.exclusions().isEmpty()) {
 					final Set<Exclusion> augmented = new HashSet<>(nodeExclusions);
@@ -319,7 +359,7 @@ public final class MVSResolver {
 				stack.push(new Frame(edge.ga(), edge.version(), childExclusions));
 			}
 		}
-		return requests;
+		return walk;
 	}
 
 	private static void request(final Map<GA, Set<String>> requests,

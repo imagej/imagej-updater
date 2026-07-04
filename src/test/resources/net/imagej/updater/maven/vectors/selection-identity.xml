@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mediation-vector name="selection-identity">
+  <description>
+    The bio-formats/slf4j scenario: bio declares log:2 in its own POM
+    (edge fact), but the site's resolved selection ships log:1 (the
+    seed's constellation, as jgo managed mode resolves it). With a single
+    site enabled, mediation is the identity on the selection -- the user
+    gets exactly the release constellation, no warnings. Under
+    edge-driven MVS, log:2 would have won.
+  </description>
+  <catalog>
+    <component coordinate="app:fiji" offered="true" current="1">
+      <release version="1">
+        <selection>
+          <select coordinate="app:fiji:1"/>
+          <select coordinate="lib:bio:1"/>
+          <select coordinate="lib:log:1"/>
+        </selection>
+        <dependency coordinate="lib:bio:1"/>
+      </release>
+    </component>
+    <component coordinate="lib:bio">
+      <release version="1">
+        <dependency coordinate="lib:log:2"/>
+      </release>
+    </component>
+    <component coordinate="lib:log">
+      <release version="1"/>
+      <release version="2"/>
+    </component>
+  </catalog>
+  <roots>
+    <root coordinate="app:fiji:1"/>
+  </roots>
+  <expected>
+    <select coordinate="app:fiji:1"/>
+    <select coordinate="lib:bio:1"/>
+    <select coordinate="lib:log:1"/>
+  </expected>
+</mediation-vector>
