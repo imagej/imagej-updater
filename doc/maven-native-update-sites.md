@@ -113,9 +113,12 @@ Rules and semantics:
 - **Exclusions** are per-edge facts (post-interpolation), G:A only,
   wildcards allowed (`g:*`, `*:*`). They cannot be resolved away at
   publish time because their effect is path-dependent and depends on
-  compose-time mediation. Root-level (`<managed>`) exclusions apply
-  globally, matching Maven 3 root-depMgmt semantics. Intermediate nodes'
-  depMgmt is already baked into their own published edges.
+  compose-time mediation. A `<managed>` entry's exclusions apply to the
+  managed component's *outgoing edges wherever it appears* (Maven
+  depMgmt-exclusion semantics — see the `bom-exclusion` golden vector);
+  only user-level root exclusions ("never install X") are global.
+  Intermediate nodes' depMgmt is already baked into their own published
+  edges.
 - **Platform-specific dependencies** are pre-expanded at publish time by
   resolving under each supported platform's `ProfileConstraints` and
   diffing, emitted with `platform` attributes using the Updater's short
