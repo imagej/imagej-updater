@@ -62,9 +62,12 @@ import java.util.regex.Pattern;
  * <li>Selection per {@link GA} is the highest version requested via any
  * surviving (non-excluded) path; because published edges carry concrete
  * versions only, MVS and highest-wins coincide.</li>
- * <li>Precedence: user pin &gt; BOM ({@code <managed>}) &gt; MVS.</li>
- * <li>Exclusions are per-path; root exclusions are global; BOM-entry
- * exclusions apply to the managed component's outgoing edges. Exclusions
+ * <li>Precedence: user pin &gt; MVS. There is deliberately no site-level
+ * BOM override: cross-site curation-by-hold-down does not compose (whose
+ * BOM wins?) and violates order independence; curation lives at build
+ * time (pom-scijava/pombast) and in each component's own published
+ * facts.</li>
+ * <li>Exclusions are per-path; root exclusions are global. Exclusions
  * never remove an explicitly selected root.</li>
  * <li>The walk traverses each component at its <em>selected</em> version,
  * so losing subtrees are pruned.</li>
@@ -195,10 +198,6 @@ public final class MVSResolver {
 				final GA ga = entry.getKey();
 				String version = highest(entry.getValue());
 				if (pins.containsKey(ga)) version = pins.get(ga);
-				else {
-					final ManagedEntry managed = catalog.managed().get(ga);
-					if (managed != null) version = managed.version();
-				}
 				newSelected.put(ga, version);
 			}
 			if (newSelected.equals(selected)) {
@@ -302,16 +301,7 @@ public final class MVSResolver {
 				continue; // leaf: unknown or recognition-only entry
 			}
 
-			// BOM-managed exclusions apply to this component's outgoing
-			// edges wherever it appears (Maven depMgmt-exclusion semantics).
-			Set<Exclusion> nodeExclusions = frame.exclusions;
-			final ManagedEntry managed = catalog.managed().get(frame.ga);
-			if (managed != null && !managed.exclusions().isEmpty()) {
-				final Set<Exclusion> augmented = new HashSet<>(nodeExclusions);
-				augmented.addAll(managed.exclusions());
-				nodeExclusions = augmented;
-			}
-
+			final Set<Exclusion> nodeExclusions = frame.exclusions;
 			for (final DependencyEdge edge : release.edges()) {
 				if (edge.optional()) {
 					continue; // optional deps of dependencies are not traversed

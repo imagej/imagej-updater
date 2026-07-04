@@ -74,18 +74,12 @@ public final class IndexXmlReader {
 		}
 	}
 
-	/**
-	 * Parses {@code <component>} and {@code <managed>} children of the
-	 * given element into a catalog.
-	 */
+	/** Parses {@code <component>} children of the given element. */
 	public static ComponentCatalog parseCatalog(final Element parent) {
 		final ComponentCatalog catalog = new ComponentCatalog();
 		for (final Element el : children(parent, "component")) {
 			final MavenComponent component = parseComponent(el);
 			catalog.components().put(component.ga(), component);
-		}
-		for (final Element el : children(parent, "managed")) {
-			parseManaged(el, catalog);
 		}
 		return catalog;
 	}
@@ -140,24 +134,6 @@ public final class IndexXmlReader {
 		return new DependencyEdge(ga, coordinate.version(), exclusions,
 			platform.isEmpty() ? null : platform,
 			"true".equals(depEl.getAttribute("optional")));
-	}
-
-	private static void parseManaged(final Element el,
-		final ComponentCatalog catalog)
-	{
-		if (!el.getAttribute("bom").isEmpty()) {
-			catalog.setBom(el.getAttribute("bom"));
-		}
-		for (final Element vEl : children(el, "version")) {
-			final Coordinate coordinate =
-				Coordinate.parse(vEl.getAttribute("coordinate"));
-			final List<Exclusion> exclusions = new ArrayList<>();
-			for (final Element exclEl : children(vEl, "exclude")) {
-				exclusions.add(Exclusion.parse(exclEl.getTextContent().trim()));
-			}
-			catalog.managed().put(coordinate.ga(),
-				new ManagedEntry(coordinate.ga(), coordinate.version(), exclusions));
-		}
 	}
 
 	/** Direct child elements with the given tag name (non-recursive). */

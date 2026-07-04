@@ -36,10 +36,11 @@ lists.
 
 1. **The installation is a synthetic root project.** Every component the
    user has selected, across all enabled sites, is a direct (depth-1)
-   dependency of that root. The core site's BOM plays the role of the
-   root's `<dependencyManagement>`. This is the same operation jgo's
-   `PythonResolver.resolve(list)` performs and the same composition
-   `pombast melt` validates.
+   dependency of that root. This is the same composition jgo's
+   `PythonResolver.resolve(list)` performs. Deliberately, the root has
+   no `<dependencyManagement>` of its own: curation lives at build time
+   (pom-scijava/pombast) and in each component's published facts, not as
+   a compose-time override (see §4.1).
 2. **Publish edges, not closures.** Each published `<release>` lists only
    that component's direct dependencies (post model-building). The client
    reconstructs the composed graph by walking edges, so mediation prunes
@@ -84,13 +85,17 @@ to `FileObject.addDependency`).
   <release version="2.1.0" sha1="..." slim="true"/>
 </component>
 
-<managed bom="org.scijava:pom-scijava:45.0.0">
-  <version coordinate="net.imglib2:imglib2:6.2.0"/>
-  <version coordinate="com.google.guava:guava:32.1.2-jre">
-    <exclude>com.google.code.findbugs:jsr305</exclude>
-  </version>
-</managed>
 ```
+
+There is intentionally **no `<managed>` (BOM) element**. An earlier
+draft carried each site's effective dependencyManagement as a
+compose-time override; it was removed (decision log §8) because
+per-site BOMs have no order-independent reconciliation across sites,
+and curation-by-hold-down conflicts with the MVS philosophy (a
+component that requests a newer library needs that library; upgrades
+break less than holds). The legitimate residue of depMgmt is already
+in the facts: a component's own managed versions and exclusions are
+baked into its published edges during model building.
 
 Rules and semantics:
 
@@ -113,12 +118,9 @@ Rules and semantics:
 - **Exclusions** are per-edge facts (post-interpolation), G:A only,
   wildcards allowed (`g:*`, `*:*`). They cannot be resolved away at
   publish time because their effect is path-dependent and depends on
-  compose-time mediation. A `<managed>` entry's exclusions apply to the
-  managed component's *outgoing edges wherever it appears* (Maven
-  depMgmt-exclusion semantics — see the `bom-exclusion` golden vector);
-  only user-level root exclusions ("never install X") are global.
-  Intermediate nodes' depMgmt is already baked into their own published
-  edges.
+  compose-time mediation. Only user-level root exclusions ("never
+  install X") are global. Every node's own depMgmt (versions and
+  exclusions alike) is already baked into its published edges.
 - **Platform-specific dependencies** are pre-expanded at publish time by
   resolving under each supported platform's `ProfileConstraints` and
   diffing, emitted with `platform` attributes using the Updater's short
@@ -168,19 +170,26 @@ as in §4.2; a version is a candidate only if requested via a surviving
 (non-excluded) path. Exclusion filtering interleaves with selection in
 each fixpoint iteration.
 
-**Precedence: user pin > core BOM (`<managed>`) > MVS.** An exclusion
-prunes transitive reachability but never removes an explicitly selected
-root. Whenever a pin or BOM entry holds a library *below* a version some
-surviving edge requests, the client shows a visible warning, not silent
-success.
+**Precedence: user pin > MVS.** There is no site-level BOM override
+(decision log §8): per-site BOMs cannot be reconciled order-independently
+across sites, and holding a library below what some component requests
+breaks that component — upgrades break less than holds (Go's MVS bet).
+An exclusion prunes transitive reachability but never removes an
+explicitly selected root. Whenever a *pin* holds a library below a
+version some surviving edge requests, the client shows a visible
+warning, not silent success. For the genuinely-broken-version emergency,
+the future mechanism is a Go-`retract`-style marker published by the
+*component's own publisher*, not central hold-down.
 
 **SemVer misalignment warning**: when the selected version of a G:A has a
 different major version than some surviving edge's requested version
 (e.g. an extension requires `imglib2:5.x` but `6.2.0` is selected), the
 client surfaces a compatibility warning naming the requesting
-extension(s) and the versions involved. This is a heuristic (not every
-project follows SemVer) but the pom-scijava ecosystem largely does; the
-warning is informational and never blocks.
+extension(s) and the versions involved — attribution is per enabled
+site: "guava: 33.4.8 for Fiji vs 34.0 for Sparkles", derivable from the
+walk without any BOM metadata. This is a heuristic (not every project
+follows SemVer) but the pom-scijava ecosystem largely does; the warning
+is informational and never blocks.
 
 ### 4.2 Algorithm sketch
 
@@ -241,7 +250,7 @@ shipped as a fast-follow after core install/update/compose is stable.
 
 A jgo-based **flattener** (the surviving kernel of db-xml-maven,
 heavily recast): given a seed G:A (or G:A:V), resolve the closure per
-platform, emit `<component>`/`<managed>` blocks, and **merge** them into
+platform, emit `<component>` blocks, and **merge** them into
 the site index — generator owns coordinate blocks; GUI-uploaded
 filename entries are round-tripped untouched (the core Fiji site will
 always have both).
@@ -303,7 +312,7 @@ The GUI upload flow remains for non-Maven files.
   parallel *test site* at its own URL, validated end-to-end without
   touching production, then swapped in once it slots in seamlessly.
   Its index carries three layers of content:
-  1. `<component>`/`<managed>` blocks driven by `sc.fiji:fiji` — what new
+  1. `<component>` blocks driven by `sc.fiji:fiji` — what new
      clients consume (transitional-to-permanent);
   2. legacy `<plugin>` blocks for the *current* Maven-born JARs — so
      pre-new-updater clients keep working; retired only once such
@@ -330,12 +339,12 @@ The GUI upload flow remains for non-Maven files.
   Python, living in the generator repo) plus hand-constructed cases. MVS's
   simplicity is what makes an independent reference tractable. Must cover
   the nasty interleavings: exclusion flips the selection winner; node
-  excluded on one path, reachable via another; wildcard exclusion of a
-  BOM-managed component; pin or BOM entry below other extensions' needs
-  (warning fires); SemVer-major misalignment (warning fires); pruned-
-  subgraph case (the bee/stinger example: a dependency dropped between
-  versions must not survive selection of the newer version); site
-  enable-order permutations (results must be identical).
+  excluded on one path, reachable via another; wildcard exclusions;
+  pin below other extensions' needs (warning fires); SemVer-major
+  misalignment (warning fires); pruned-subgraph case (the bee/stinger
+  example: a dependency dropped between versions must not survive
+  selection of the newer version); site enable-order permutations
+  (results must be identical).
 - **Flattener validation**: per-component direct deps diffed against
   `mvn dependency:list` across a corpus including pathological POMs
   (interpolated G/A fields, platform profiles, BOM imports).
@@ -361,6 +370,26 @@ Settled 2026-07-03:
    not ready to bundle Python; embedded jgo may be revisited later but
    does not block.
 
+Settled 2026-07-04:
+
+7. **No `<managed>` (BOM) element; precedence is pin > MVS.** Per-site
+   BOMs have no order-independent cross-site reconciliation ("whose BOM
+   wins?"), hold-down breaks the components that requested newer
+   versions, and third-party maintainers must be able to ship newer
+   libraries than the core curates. Site-alone fidelity cost accepted:
+   pure MVS may select above the pom-scijava pin where components in the
+   closure request newer (5 real cases in the fiji 2.17.0 index: slf4j
+   2.0.9, logback 1.3.15, gson 2.11.0, jna 5.15.0, kotlin-stdlib 1.9.25
+   — surfaced version pressure, to be fixed forward, not hidden).
+   Version-mismatch warnings attribute per site from the walk itself.
+8. **Version ordering follows Maven's version-order spec exclusively.**
+   jgo's `compare_versions()` SemVer fast path diverges from the spec on
+   prerelease identifiers with embedded numbers (real case:
+   imglib2-cache `1.0.0-beta-9` vs `1.0.0-beta-19`); mediation uses
+   jgo's `MavenVersion` (spec path) in Python and the equivalent
+   algorithm in Java. Fast-path divergence to be reported upstream to
+   jgo.
+
 Still open:
 
 4. **Transport split**: single `db.xml.gz` vs lean `db.xml.gz` + companion
@@ -369,16 +398,20 @@ Still open:
 5. **Multiple registries** (apt-source/tap/channel analogy for
    list-of-update-sites): explicitly out of scope; nothing here
    forecloses it.
-6. **SemVer warning heuristics**: exact trigger conditions (major-only?
-   0.x handling?) and UI presentation — decide during Phase 2 UI work.
-   Empirical input from the Phase 0 spike: mediating the real
-   `sc.fiji:TrackMate:8.1.6` closure fires major-misalignment for 27 of
-   221 selected components, mostly annotation/logging libraries with
-   habitual major churn (jsr305, guava, slf4j, asm) alongside a few
-   meaningful ones (imglib2, imagej-common). The raw heuristic is too
-   noisy for a modal warning; the UI likely needs severity tiers (e.g.
-   warn prominently only for offered/rooted components or direct edges
-   of roots) or an ecosystem allowlist.
+6. **Breaking-change warning heuristics**: exact trigger conditions and
+   UI presentation — decide during Phase 2 UI work. Empirical input from
+   the Phase 0 spike: mediating the real `sc.fiji:TrackMate:8.1.6`
+   closure fires major-misalignment for 27 of 221 selected components
+   (70 for full Fiji), mostly annotation/logging libraries with habitual
+   major churn (jsr305, guava, slf4j, asm) alongside a few meaningful
+   ones (imglib2, imagej-common). The raw heuristic is too noisy for a
+   modal warning; the UI likely needs severity tiers (e.g. warn
+   prominently only for offered/rooted components or direct edges of
+   roots) plus a pluggable strategy: conceptually
+   `boolean isBreaking(g, a, v1, v2)`, defaulting to SemVer-major,
+   overridable per project (some projects break between "minor" digits,
+   e.g. 5.5.x → 5.6.x). Where such declarations live (index metadata?
+   central registry?) is undecided.
 
 ## 9. Work breakdown by repository
 
@@ -387,7 +420,7 @@ Still open:
 | **imagej-updater** | Schema reader/writer for new elements; mediation engine + `ComparableVersion`; manifest/lockfile; SHA1 local-state recognition; Maven-repo downloader; mixed-regime collision handling; UI (overridden state, version dropdown, warnings); golden-vector test harness. |
 | **new: updater-site-generator** (name TBD) | jgo-based flattener: closure walk, per-platform expansion, slim-entry fallback, merge-not-overwrite emission, provenance stamps, validation gate; CLI + reusable GitHub Action. |
 | **list-of-update-sites** | `source:`/`catalog-since:` schema; regeneration workflow (push, schedule, dispatch); hosted-site publishing. |
-| **fiji/fiji** | Core site BOM publication (from the POM, pombast-adjacent); release CI dispatch hook; retire `populate-app.sh` + manual upload. |
+| **fiji/fiji** | Release CI dispatch hook for site regeneration; retire `populate-app.sh` + manual upload. |
 | **jgo** | Oracle for flattener validation (model-building facts); no mediation role. |
 | **new: MVS reference impl** | ~100-line Python MVS + exclusions reference emitting golden mediation vectors; lives in the generator repo. |
 | **ctrueden/db-xml-maven** | Retire; point README here. |

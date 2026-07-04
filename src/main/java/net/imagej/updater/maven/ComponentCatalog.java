@@ -36,20 +36,13 @@ import java.util.Map;
 
 /**
  * The union of component facts visible to mediation: all
- * {@code <component>} blocks (across all enabled sites) plus the
- * {@code <managed>} BOM entries.
+ * {@code <component>} blocks across all enabled sites.
  */
 public final class ComponentCatalog {
 
 	private final Map<GA, MavenComponent> components = new LinkedHashMap<>();
-	private final Map<GA, ManagedEntry> managed = new LinkedHashMap<>();
-	private String bom;
 
 	public Map<GA, MavenComponent> components() { return components; }
-	public Map<GA, ManagedEntry> managed() { return managed; }
-
-	public String bom() { return bom; }
-	public void setBom(final String bom) { this.bom = bom; }
 
 	public MavenComponent component(final GA ga) {
 		MavenComponent c = components.get(ga);
@@ -80,9 +73,5 @@ public final class ComponentCatalog {
 			if (theirs.offered()) mine.setOffered(true);
 			if (theirs.current() != null) mine.setCurrent(theirs.current());
 		}
-		for (final ManagedEntry entry : other.managed.values()) {
-			if (!managed.containsKey(entry.ga())) managed.put(entry.ga(), entry);
-		}
-		if (bom == null) bom = other.bom;
 	}
 }

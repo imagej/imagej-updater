@@ -70,7 +70,7 @@ public class MVSResolverTest {
 	@Test
 	public void testAllVectors() throws Exception {
 		final List<String> names = vectorNames();
-		assertTrue("no vectors found", names.size() >= 14);
+		assertTrue("no vectors found", names.size() >= 12);
 		for (final String name : names) {
 			runVector(name, false);
 			runVector(name, true);
