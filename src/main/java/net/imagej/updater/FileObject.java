@@ -824,6 +824,10 @@ public class FileObject {
 			return false;
 		for (final FileObject file : getFileDependencies(files, true)) {
 			if (!evenForcedOnes && (file.status == Status.MODIFIED || file.status == Status.OBSOLETE_MODIFIED)) continue;
+			// Note: Dependencies for inactive platforms (e.g. natives of other
+			// operating systems) must be skipped; once installed, their
+			// platform-specific folders would make those platforms active.
+			if (file != this && !file.isActivePlatform(files)) continue;
 			file.setFirstValidAction(files, Action.UPDATE, Action.INSTALL);
 		}
 		return true;
