@@ -176,10 +176,31 @@ public final class AvailableSites {
 		try {
 			return getAvailableSites(log).values();
 		} catch (Exception e) {
-			if (log != null) log.error("Error processing available update sites from ImageJ wiki", e);
+			if (isTooManyRequests(e)) {
+				final String message = "The ImageJ wiki is rate-limiting requests " +
+					"(HTTP 429), so the list of available update sites was not " +
+					"refreshed this time. Please try again in a few minutes.";
+				if (log != null) {
+					log.warn(message);
+					log.debug(e);
+				}
+				else System.err.println("[WARNING] " + message);
+			}
+			else if (log != null) log.error("Error processing available update sites from ImageJ wiki", e);
 			else e.printStackTrace();
 			return Collections.emptyList();
 		}
+	}
+
+	/** Whether the given exception, or any of its causes, reports HTTP 429. */
+	static boolean isTooManyRequests(Throwable t) {
+		// Note: HttpURLConnection reports HTTP errors only as an IOException
+		// whose message reads "Server returned HTTP response code: 429 ...".
+		for (; t != null; t = t.getCause()) {
+			final String message = t.getMessage();
+			if (message != null && message.contains("HTTP response code: 429")) return true;
+		}
+		return false;
 	}
 
 	private static UpdateSite initializeMainUpdateSite() {

@@ -411,4 +411,16 @@ public class AvailableSitesTest {
 		site.setHost("file:localhost");
 		return site;
 	}
+
+	@Test
+	public void testIsTooManyRequests() {
+		final String url = "https://imagej.net/api.php?action=query";
+		final IOException tooMany = new IOException(
+			"Server returned HTTP response code: 429 for URL: " + url);
+		assertTrue(AvailableSites.isTooManyRequests(tooMany));
+		assertTrue(AvailableSites.isTooManyRequests(new RuntimeException(tooMany)));
+		assertFalse(AvailableSites.isTooManyRequests(new IOException(
+			"Server returned HTTP response code: 500 for URL: " + url)));
+		assertFalse(AvailableSites.isTooManyRequests(new IOException()));
+	}
 }
