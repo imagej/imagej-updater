@@ -54,6 +54,9 @@ public class UpdateSite implements Cloneable, Comparable<UpdateSite> {
 	private boolean keepURLModification;
 
 	private String host;
+	private String upload_protocol;
+	private String upload_username;
+	private String upload_host;
 	private String uploadDirectory;
 	private String description;
 	private String maintainer;
@@ -121,6 +124,25 @@ public class UpdateSite implements Cloneable, Comparable<UpdateSite> {
 
 	public void setHost(final String host) {
 		this.host = host;
+		if (host == null) {
+			this.upload_protocol = null;
+			this.upload_username = null;
+			this.upload_host = null;
+		} else {
+			final int colon = host.indexOf(':');
+			if (colon < 0)
+				this.upload_protocol = null;
+			else
+				this.upload_protocol = host.substring(0, colon);
+
+			final int at = host.indexOf('@');
+			if (at < 0)
+				this.upload_username = null;
+			else
+				this.upload_username = host.substring(colon+1, at);
+
+			this.upload_host = host.substring(at+1);
+		}
 	}
 
 	public String getUploadDirectory() {
@@ -207,10 +229,17 @@ public class UpdateSite implements Cloneable, Comparable<UpdateSite> {
 	public String getUploadProtocol() {
 		if (host == null)
 			throw new RuntimeException("Missing upload information for site " + url);
-		final int at = host.indexOf('@');
-		final int colon = host.indexOf(':');
-		if (colon > 0 && (at < 0 || colon < at)) return host.substring(0, colon);
-		return "ssh";
+		return this.upload_protocol;
+	}
+	public String getUploadUsername() {
+		if (host == null)
+			throw new RuntimeException("Missing upload information for site " + url);
+		return this.upload_username;
+	}
+	public String getUploadHost() {
+		if (host == null)
+			throw new RuntimeException("Missing upload information for site " + url);
+		return this.upload_host;
 	}
 
 	public boolean shouldKeepURL() {
